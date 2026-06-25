@@ -1,0 +1,5 @@
+# Lattice installed framework cache (in target projects)
+.lattice/
+
+.DS_Store
+lattice/specs/.locks/
