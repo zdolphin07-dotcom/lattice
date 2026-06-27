@@ -1,6 +1,6 @@
 Run Lattice Implementation according to the spec execution policy.
 
-Execute `lattice/skills/implement.md`.
+Execute `prismspec/skills/implement.md` when present; otherwise execute `lattice/skills/implement.md`.
 
 ## Core behavior
 

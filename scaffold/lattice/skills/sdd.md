@@ -1,16 +1,18 @@
-# Skill: sdd — Guided SDD Workflow
+# Skill: sdd — PrismSpec Guided Workflow (Lattice-hosted)
 
 **Triggers**: `/sdd`, guided sdd, spec workflow, run lattice workflow
 
 ## Capability
 
-Guide and resume the complete Lattice SDD workflow by orchestrating the existing stage skills:
+Guide and resume the complete PrismSpec workflow inside a Lattice project by orchestrating the existing stage skills:
 
 ```text
 Brainstorming -> Planning -> Implementation(plan|tdd) -> Verification -> Finishing
 ```
 
 This is a controller skill, not a new phase. Keep stage logic in the stage skills and delegate by reading the referenced skill file before executing that stage.
+
+PrismSpec is standalone. In Lattice-hosted mode, it uses `lattice/manifest.yaml`, `lattice/specs/`, `.lattice/sdd/`, knowledge loading, and the Lattice delivery pipeline.
 
 ## Inputs
 

@@ -52,19 +52,23 @@ Lattice is intentionally modular. Each component can be used on its own, while t
 
 | Component | Role | Current form |
 |-----------|------|--------------|
+| **PrismSpec** | Standalone progressive spec-coding skills: brainstorm, plan, implement, verify, finish. | `prismspec/skills/`, `prismspec/templates/` |
 | **Context** | Load project knowledge, naming rules, domain constraints, and historical decisions. | `lattice/knowledge/`, `loader.sh`, `sync.sh` |
 | **Spec** | Standardize requirements into executable contracts with ACs, design decisions, risks, and test strategy. | `spec-template.md`, `spec-lint.sh`, `lattice/specs/` |
 | **Harness** | Run agent-independent verification gates before delivery claims. | `pipeline.sh`, build/lint/test, AC coverage, drift check |
 | **Eval** | Produce repeatable quality evidence from acceptance coverage and drift checks. | Evidence-oriented gate output; extensible through `drift.plugins[]` |
 
+PrismSpec can be used alone by users who only want the AI coding workflow. Lattice hosts PrismSpec and adds manifest routing, knowledge retrieval, gates, eval, and delivery loops.
+
 ### Spec Template Policy
 
-The default spec template is intentionally compact and inspired by Superpowers-style workflow discipline plus Lattice's Spec Coding model: lock intent, scope, acceptance criteria, one-way decisions, risks, and verification; leave regenerable implementation detail to the model.
+The default spec template is intentionally compact and used by PrismSpec: lock intent, scope, acceptance criteria, one-way decisions, risks, and verification; leave regenerable implementation detail to the model.
 
 Teams can override the template per project in `lattice/manifest.yaml`:
 
 ```yaml
 specs:
+  active: ""                         # optional: spec id or path
   template: "lattice/kernel/orchestrator/templates/spec-template.md"
   default_execution_mode: "auto"   # auto | plan | tdd
   allow_execution_mode_override: true
@@ -493,12 +497,12 @@ bash lattice/kernel/knowledge/sync.sh status   # View sync status
 
 ## Agent Skills
 
-Lattice exposes a small AI Coding skill chain (slash commands in Claude Code; natural language in other agents):
+Lattice exposes PrismSpec as a small AI Coding skill chain (slash commands in Claude Code; natural language in other agents):
 
 | Skill | Trigger | What It Does |
 |-------|---------|-------------|
 | **init** | `/init` | Interactive project setup: detect language → generate manifest → copy scaffold → inject rules |
-| **sdd** | `/sdd "requirement"` | Guide or resume the full SDD workflow from existing artifacts |
+| **sdd** | `/sdd "requirement"` | Guide or resume the full PrismSpec workflow from existing artifacts |
 | **brainstorm** | `/brainstorm` | Clarify intent, load knowledge, and write persistent `spec.md` |
 | **plan** | `/plan` | Decompose `spec.md` into AC-traced `plan.md` |
 | **implement** | `/implement` | Execute `plan` or `tdd` policy from the spec |
@@ -506,7 +510,7 @@ Lattice exposes a small AI Coding skill chain (slash commands in Claude Code; na
 | **finish** | `/finish` | Close delivery, link evidence, and extract durable knowledge |
 | **learn** | `/learn "lesson"` | Write a knowledge entry to `knowledge/`, update index |
 
-The core chain is `Brainstorming -> Planning -> Implementation(plan|tdd) -> Verification -> Finishing`. `/sdd` is the guided entry point for that chain: it resolves the spec, mode, and next stage, then delegates to the stage skills. Knowledge loading, spec templates, AC naming, drift detection, and delivery gates are activated via `rules.md` and the skill files.
+The core chain is `Brainstorming -> Planning -> Implementation(plan|tdd) -> Verification -> Finishing`. `/sdd` is the guided entry point for that chain: it resolves the spec, mode, and next stage, then delegates to the stage skills. In standalone PrismSpec, artifacts live under `prismspec/specs/`; in Lattice-hosted mode, knowledge loading, spec templates, AC naming, drift detection, and delivery gates are activated via `rules.md` and the skill files.
 
 Implementation can also generate file-backed evidence under `.lattice/sdd/` with `task-brief.sh` and `review-package.sh`, so agents/reviewers read compact files instead of pasted briefs or diffs.
 
@@ -665,6 +669,7 @@ commands:
 # ── Spec configuration ──
 specs:
   dir: "lattice/specs"
+  active: ""                            # optional: spec id under specs.dir or a direct path
   template: "lattice/kernel/orchestrator/templates/spec-template.md"
   default_execution_mode: "auto"        # auto | plan | tdd
   allow_execution_mode_override: true

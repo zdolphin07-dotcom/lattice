@@ -1,6 +1,6 @@
 Capture a knowledge entry to `lattice/knowledge/`.
 
-Execute `lattice/skills/learn.md` knowledge capture flow.
+Execute `prismspec/skills/learn.md` when present; otherwise execute `lattice/skills/learn.md` knowledge capture flow.
 
 ## Core behavior
 

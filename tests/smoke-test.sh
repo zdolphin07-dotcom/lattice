@@ -116,6 +116,12 @@ if bash "$SANDBOX/.lattice/framework/init.sh" --non-interactive --lang=go --name
     fi
   done
 
+  if [[ -f "$SANDBOX/prismspec/skills/sdd.md" ]] && [[ -f "$SANDBOX/prismspec/templates/spec-template.md" ]]; then
+    pass "PrismSpec standalone module installed"
+  else
+    fail "PrismSpec standalone module missing"
+  fi
+
   if [[ -x "$SANDBOX/lattice/kernel/orchestrator/sdd/task-brief.sh" ]] && [[ -x "$SANDBOX/lattice/kernel/orchestrator/sdd/review-package.sh" ]]; then
     pass "SDD helper scripts installed"
   else
@@ -126,6 +132,12 @@ if bash "$SANDBOX/.lattice/framework/init.sh" --non-interactive --lang=go --name
     pass ".lattice/sdd ignored"
   else
     fail ".lattice/sdd not ignored"
+  fi
+
+  if grep -qxF ".prismspec/runs/" "$SANDBOX/.gitignore"; then
+    pass ".prismspec/runs ignored"
+  else
+    fail ".prismspec/runs not ignored"
   fi
 else
   fail "init.sh exited non-zero"

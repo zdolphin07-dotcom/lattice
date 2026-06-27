@@ -3,7 +3,8 @@
 
 controller:
   command: "/sdd"
-  skill: "lattice/skills/sdd.md"
+  skill: "prismspec/skills/sdd.md"
+  fallback_skill: "lattice/skills/sdd.md"
   description: "Resolve spec, mode, and next stage; delegate to stage skills"
 
 stages:
@@ -55,6 +56,7 @@ transitions:
   finishing -> deploy: "deploy config exists and deployment requested"
 
 behavioral_rules:
+  workflow: "PrismSpec"
   hard_gate: brainstorming
   retry_budget: 3
   default_execution_mode: "manifest:specs.default_execution_mode"

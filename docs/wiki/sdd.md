@@ -1,10 +1,12 @@
-# SDD 设计
+# PrismSpec / SDD 设计
 
 ## 设计结论
 
-Lattice 的 SDD（Spec-Driven Development）不是一套重型审批流程，也不是单纯的 `spec.md` 模板。它的专业边界是：
+PrismSpec 是从 Lattice 中独立出来的渐进式 SDD（Spec-Driven Development）skills 模块。它不是一套重型审批流程，也不是单纯的 `spec.md` 模板。它的专业边界是：
 
 > 用最小必要上下文，把需求转成可执行契约；用计划约束执行路径；用测试、review package 和 delivery gates 证明结果；只把可复用知识沉淀到 knowledge。
+
+Lattice 是 PrismSpec 的增强宿主：如果项目安装了 Lattice，PrismSpec 会使用 `lattice/manifest.yaml`、`lattice/specs/`、knowledge loader、delivery pipeline 和 eval gates；如果没有 Lattice，PrismSpec 仍可独立使用 `prismspec/specs/` 和本地 build/lint/test 命令完成主流程。
 
 核心链路保持克制：
 
@@ -17,7 +19,7 @@ Intent
   -> Finishing
 ```
 
-用户入口可以是阶段命令，也可以是 `/sdd`。`/sdd` 不是第六个阶段，而是一个引导 controller：读取 `manifest.yaml`、定位 spec、判断当前产物状态，然后委托给对应阶段 skill。
+用户入口可以是阶段命令，也可以是 `/sdd`。`/sdd` 不是第六个阶段，而是一个引导 controller：定位 spec、判断当前产物状态，然后委托给对应阶段 skill。在 Lattice-hosted 模式下，它额外读取 `manifest.yaml` 获取路径、mode、knowledge 和 verification 配置。
 
 这五步不是五层审批，而是五个控制点：
 
@@ -26,17 +28,18 @@ Intent
 | Brainstorming | 要解决什么，什么算做对？ | `spec.md` |
 | Planning | 怎么拆成可执行、可审查的任务？ | `plan.md` |
 | Implementation | 按 plan 低摩擦执行，还是用 TDD 钉住行为？ | code / tests / task evidence |
-| Verification | 结果是否被独立证据证明？ | pipeline output，后续可结构化为 `verify.md` / eval JSON |
+| Verification | 结果是否被独立证据证明？ | `verify.md` / pipeline output，后续可结构化为 eval JSON |
 | Finishing | 哪些证据和知识需要留下？ | `summary.md` / knowledge draft |
 
 多一个阶段就多一次人工损耗。因此 Lattice 不单独设置 `/spec-review`、`/spec-freeze`、`/spec-trace`。这些能力分别收敛到 Brainstorming 出口标准、front matter 状态、Verification gate 和 Finishing evidence 中。
 
 ## 重要设计：Spec 模板可覆盖
 
-Spec 模板不是写死在 Lattice 里的。项目可以通过 `lattice/manifest.yaml` 覆盖：
+Spec 模板不是写死在 PrismSpec 里的。独立使用时默认读取 `prismspec/templates/spec-template.md`；Lattice-hosted 时，项目可以通过 `lattice/manifest.yaml` 覆盖：
 
 ```yaml
 specs:
+  active: ""  # optional: spec id or path
   template: "lattice/kernel/orchestrator/templates/spec-template.md"
   default_execution_mode: "auto"   # auto | plan | tdd
   allow_execution_mode_override: true
@@ -634,15 +637,15 @@ completed | partial | reverted | escalated
 
 ## Skills 设计
 
-Lattice 的 SDD skills 保持小集合：一个引导入口，加五个阶段 skill。`/sdd` 只负责编排和恢复，不复制阶段逻辑。
+PrismSpec skills 保持小集合：一个引导入口，加五个阶段 skill。`/sdd` 只负责编排和恢复，不复制阶段逻辑。Lattice 安装时会把 PrismSpec 复制到 `prismspec/skills/`，并保留 `lattice/skills/` 作为 Lattice-hosted 兼容入口。
 
 | Skill | 阶段 | 产物 |
 |-------|------|------|
 | `/sdd` | Controller | 解析 spec / mode / next stage，委托阶段 skill |
 | `/brainstorm` | Brainstorming | `spec.md` |
 | `/plan` | Planning | `plan.md` |
-| `/implement` | Implementation | code / tests / `.lattice/sdd/...` |
-| `/verify` | Verification | pipeline output，后续 `verify.md` / eval JSON |
+| `/implement` | Implementation | code / tests / `.prismspec/runs/...` 或 `.lattice/sdd/...` |
+| `/verify` | Verification | `verify.md` / pipeline output / eval JSON |
 | `/finish` | Finishing | `summary.md` / knowledge draft |
 
 不建议增加独立 `/spec-review`、`/spec-freeze`、`/spec-trace`：
@@ -682,14 +685,14 @@ drafted -> planned -> implemented -> verified -> finished
 
 ## 当前实现边界
 
-当前 Lattice SDD 已经具备“可执行契约”的核心路径：模板可覆盖、mode 可配置、Plan/TDD 可切换、task brief / review package 可生成、delivery pipeline 可验证。剩下的问题不是流程缺失，而是 enforcement 还不够机器化。
+当前 PrismSpec 已经具备“可执行契约”的核心路径：模板可覆盖、mode 可配置、Plan/TDD 可切换、task brief / review package 可生成；Lattice-hosted 模式进一步提供 delivery pipeline、knowledge、AC coverage 和 drift gates。剩下的问题不是流程缺失，而是 enforcement 还不够机器化。
 
 | 能力 | 当前状态 | 下一步 |
 |------|----------|--------|
 | Spec template | `specs.template` 已支持项目覆盖 | init 时校验模板存在；`spec-lint` 校验模板必需语义 |
 | Execution mode | 支持 `auto | plan | tdd`、项目默认、用户单次覆盖 | `spec-lint` 校验 mode、mode source、plan->tdd 升级记录 |
 | Plan contract | `plan.md` 已要求 `Global Constraints`、task `Interfaces`、AC/Scope 引用 | 增加 `plan-lint.sh`，把格式和追踪关系变成 gate |
-| Task evidence | 已生成 `.lattice/sdd/.../brief.md` 与 `review-package.md` | 增加结构化 `review.json` / `evidence.json` |
+| Task evidence | 独立模式使用 `.prismspec/runs/...`，Lattice-hosted 使用 `.lattice/sdd/...` | 增加结构化 `review.json` / `evidence.json` |
 | Verification | 已有 pipeline、spec-lint、AC coverage、drift check | 增加 `verify.md` writer 和 eval JSON，支持趋势与回放 |
 | TDD enforcement | skill 已规定 red-first，AC coverage 可验证测试命名 | 记录 red/green 命令和结果，形成可检查 evidence |
 
@@ -702,4 +705,4 @@ drafted -> planned -> implemented -> verified -> finished
 
 ## 总结
 
-Lattice SDD 的专业定位是“可执行契约链路”，不是流程平台。它参考 Superpowers 的阶段语义和 6.0 的证据化改进，但保留自己的项目资产、命名规范和 gate。Brainstorming 做最小上下文发现，Planning 生成可审查执行契约，Implementation 生成任务证据，Verification 用外部 gate 证明结果，Finishing 只保留证据和长期知识。
+PrismSpec 的专业定位是“可执行契约链路”，不是流程平台。它参考 Superpowers 的阶段语义和 6.0 的证据化改进，但保持独立、轻量、可渐进采用。Lattice 则负责项目资产、知识库、命名规范和 gate。Brainstorming 做最小上下文发现，Planning 生成可审查执行契约，Implementation 生成任务证据，Verification 用外部证据证明结果，Finishing 只保留证据和长期知识。

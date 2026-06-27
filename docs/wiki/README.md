@@ -4,7 +4,7 @@
 
 ## 一句话结论
 
-Lattice 的技术路线是可行的：它不试图重写 AI coding agent，而是在项目仓库内增加一层可版本化的工程 harness，把需求规约、项目知识、验证卡口和失败反馈变成团队可复用资产。
+Lattice 的技术路线是可行的：它不试图重写 AI coding agent，而是在项目仓库内增加一层可版本化的工程 harness，把需求规约、项目知识、验证卡口和失败反馈变成团队可复用资产。渐进式 SDD workflow 已抽象为独立模块 **PrismSpec**，Lattice 是 PrismSpec 的增强宿主。
 
 当前实现已经具备最小闭环；目标流程会收敛为一条克制的 AI Coding 契约链路：
 
@@ -32,7 +32,7 @@ flowchart LR
 | 文档 | 说明 |
 |------|------|
 | [整体设计](overall-design.md) | 系统分层、核心数据流、可插拔边界和安装形态 |
-| [SDD 设计](sdd.md) | 精简 Superpowers 后的 AI Coding 链路、Plan/TDD execution policy 与产物设计 |
+| [SDD 设计](sdd.md) | PrismSpec 的 AI Coding 链路、Plan/TDD execution policy 与 Lattice-hosted 增强 |
 | [知识库设计](knowledge-base.md) | Knowledge layer 的定位、索引、同步、防腐和 gap |
 | [Eval 设计](eval.md) | 当前验证证据如何演进为可度量评估体系 |
 | [Loop 设计](loop.md) | verify-fix-retry-learn 的闭环机制 |
@@ -43,6 +43,7 @@ flowchart LR
 | 原则 | 含义 |
 |------|------|
 | Code remains truth | 代码、测试、schema 和运行输出仍是真相源；知识库只是检索和治理层。 |
+| PrismSpec as workflow | 渐进式 SDD skills 独立成 PrismSpec；Lattice 只在项目中增强它。 |
 | Spec as contract | Spec 不是说明文档，而是人审、Agent 执行和 gate 验证之间的契约。 |
 | External verification | 交付结论必须由 agent 外部的命令输出支撑。 |
 | Query-first context | 知识库按需求检索注入，不作为长 prompt 前缀常驻。 |
@@ -54,7 +55,8 @@ flowchart LR
 已实现：
 
 - `manifest.yaml` 作为项目级声明入口
-- `rules.md` / `flow.yaml` / `spec-template.md` 组成 orchestrator layer
+- `prismspec/skills` 提供可独立使用的渐进式 SDD workflow
+- `rules.md` / `flow.yaml` / `spec-template.md` 组成 Lattice-hosted orchestrator layer
 - `loader.sh` / `sync.sh` / `knowledge/index.md` 组成 knowledge layer
 - `pipeline.sh` 和多个 gate 组成 delivery layer
 - AC 到测试函数的追踪检查

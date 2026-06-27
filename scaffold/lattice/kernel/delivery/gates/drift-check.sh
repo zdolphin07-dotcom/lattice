@@ -31,7 +31,7 @@ echo ""
 # ══════════════════════════════════════════════════════
 echo "── DDL drift detection ──"
 
-SPEC_TABLES=$(grep -i 'CREATE TABLE' "$SPEC" | sed 's/.*`\([^`]*\)`.*/\1/' | sort)
+SPEC_TABLES=$({ grep -i 'CREATE TABLE' "$SPEC" || true; } | sed 's/.*`\([^`]*\)`.*/\1/' | sort)
 SPEC_TABLE_COUNT=$(echo "$SPEC_TABLES" | grep -c . || true)
 
 if [[ "$SPEC_TABLE_COUNT" -eq 0 ]]; then
@@ -95,7 +95,7 @@ echo ""
 # ══════════════════════════════════════════════════════
 echo "── Route drift detection ──"
 
-SPEC_ROUTES=$(grep -E '^\|.*\| *(GET|POST|PUT|DELETE|PATCH) *\|' "$SPEC" | \
+SPEC_ROUTES=$({ grep -E '^\|.*\| *(GET|POST|PUT|DELETE|PATCH) *\|' "$SPEC" || true; } | \
   awk -F'|' '{
     method=$3; path=$4;
     gsub(/^[ \t]+|[ \t]+$/, "", method);
@@ -145,9 +145,9 @@ echo ""
 # ══════════════════════════════════════════════════════
 echo "── Error code drift detection ──"
 
-SPEC_CODES=$(grep -E '^\| *[0-9]+ *\|' "$SPEC" | \
+SPEC_CODES=$({ grep -E '^\| *[0-9]+ *\|' "$SPEC" || true; } | \
   awk -F'|' '{gsub(/^[ \t]+|[ \t]+$/, "", $2); if ($2 ~ /^[0-9]+$/) print $2}' | \
-  grep -v '^0$' | sort -n | uniq)
+  { grep -v '^0$' || true; } | sort -n | uniq)
 SPEC_CODE_COUNT=$(echo "$SPEC_CODES" | grep -c . || true)
 
 if [[ "$SPEC_CODE_COUNT" -eq 0 ]]; then

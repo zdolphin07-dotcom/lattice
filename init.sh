@@ -28,6 +28,9 @@ if [[ -z "$SCAFFOLD_DIR" ]]; then
   exit 1
 fi
 
+FRAMEWORK_ROOT="$(cd "$SCAFFOLD_DIR/.." && pwd)"
+PRISMSPEC_SOURCE="$FRAMEWORK_ROOT/prismspec"
+
 PROJECT_ROOT="$(pwd)"
 
 for tool in yq git; do
@@ -219,6 +222,20 @@ for dir in requirements specs plans state skills; do
   [[ -f "lattice/$dir/.gitkeep" ]] || touch "lattice/$dir/.gitkeep"
 done
 
+if [[ -d "$PRISMSPEC_SOURCE" ]]; then
+  mkdir -p prismspec
+  for dir in skills templates; do
+    if [[ -d "$PRISMSPEC_SOURCE/$dir" ]]; then
+      mkdir -p "prismspec/$dir"
+      for src in "$PRISMSPEC_SOURCE/$dir"/*; do
+        [[ -f "$src" ]] || continue
+        copy_if_not_exists "$src" "prismspec/$dir/$(basename "$src")"
+      done
+    fi
+  done
+  copy_if_not_exists "$PRISMSPEC_SOURCE/README.md" "prismspec/README.md"
+fi
+
 chmod +x lattice/kernel/_lib.sh lattice/kernel/knowledge/*.sh lattice/kernel/delivery/*.sh lattice/kernel/delivery/gates/*.sh lattice/kernel/orchestrator/sdd/*.sh 2>/dev/null || true
 
 if [[ -d ".git" ]]; then
@@ -230,6 +247,14 @@ if [[ -d ".git" ]]; then
       echo ".lattice/sdd/"
     } >> .gitignore
     echo "  ✅ .gitignore: .lattice/sdd/"
+  fi
+  if ! grep -qxF ".prismspec/runs/" .gitignore; then
+    {
+      echo ""
+      echo "# PrismSpec transient execution evidence"
+      echo ".prismspec/runs/"
+    } >> .gitignore
+    echo "  ✅ .gitignore: .prismspec/runs/"
   fi
 fi
 
@@ -362,9 +387,10 @@ commands:
 
 specs:
   dir: "lattice/specs"
+  # Optional active spec selector. Accepts either a spec id under specs.dir or a path.
+  active: ""
   # Override this path to use a project/team-specific spec template.
-  # The default template is a compact contract inspired by Superpowers-style
-  # discipline and Lattice's "lock only what matters" Spec Coding model.
+  # The default template is a compact contract used by PrismSpec.
   template: "lattice/kernel/orchestrator/templates/spec-template.md"
   # auto = model selects plan or tdd by risk; plan/tdd force a project default.
   # A user may still override the mode for a single spec in /sdd or /brainstorm.
@@ -468,6 +494,7 @@ echo "  lattice/kernel/              — Harness kernel (3 layers)"
 echo "  lattice/requirements/        — Requirements input"
 echo "  lattice/specs/  plans/       — Design / plan"
 echo "  lattice/knowledge/           — Knowledge base"
+echo "  prismspec/                   — Standalone PrismSpec skills module"
 echo "  .claude/commands/                — Slash commands"
 echo ""
 echo "Usage:"

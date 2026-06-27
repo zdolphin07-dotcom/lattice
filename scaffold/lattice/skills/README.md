@@ -1,13 +1,17 @@
-# Lattice Skills — Agent Capability Interface
+# Lattice Skills — PrismSpec Host Interface
 
-Skills are discoverable, invokable capability declarations for the AI agent. Lattice keeps the AI Coding workflow intentionally small: a guided SDD controller over Brainstorming, Planning, Implementation, Verification, Finishing, plus init and learn.
+Skills are discoverable, invokable capability declarations for the AI agent.
+
+Lattice embeds **PrismSpec** as its default progressive spec-coding workflow, then adds project manifest, knowledge loading, delivery gates, AC coverage, drift checks, and compliance audit.
+
+PrismSpec can be used standalone from `prismspec/skills/`. The files in `lattice/skills/` remain as Lattice-hosted compatibility skills.
 
 ## Built-in Skills
 
 | Skill | File | Trigger | Dependency Layer |
 |-------|------|---------|-----------------|
 | init | `init.md` | `/init`, initialize Lattice | Orchestrator + Delivery |
-| sdd | `sdd.md` | `/sdd`, guided SDD workflow | Orchestrator |
+| sdd | `sdd.md` | `/sdd`, PrismSpec guided workflow | Orchestrator |
 | brainstorm | `brainstorm.md` | `/brainstorm`, clarify, draft spec | Orchestrator + Knowledge |
 | plan | `plan.md` | `/plan`, write plan | Orchestrator |
 | implement | `implement.md` | `/implement`, execute plan, tdd | Orchestrator + Delivery |
@@ -16,6 +20,14 @@ Skills are discoverable, invokable capability declarations for the AI agent. Lat
 | learn | `learn.md` | `/learn`, capture, remember | Knowledge |
 
 Other capabilities (knowledge loading, spec templates, AC tracing, drift detection) are injected via `lattice/kernel/orchestrator/rules.md` and enforced by delivery gates.
+
+## PrismSpec Relationship
+
+| Layer | Responsibility |
+|-------|----------------|
+| `prismspec/skills/` | Standalone AI coding workflow: brainstorm, plan, implement, verify, finish |
+| `lattice/skills/` | Lattice-hosted compatibility entry points |
+| `lattice/kernel/` | Enhanced runtime: manifest, knowledge, gates, evidence helpers |
 
 ## Evidence Helpers
 

@@ -74,6 +74,34 @@ upgrade_project_kernel() {
   echo "✅ Kernel upgraded"
 }
 
+upgrade_project_prismspec() {
+  local src_module="$DEST/prismspec"
+  local target_module="$TARGET/prismspec"
+
+  if [ ! -d "$src_module" ]; then
+    echo "ℹ️  PrismSpec source not found; skipping PrismSpec upgrade"
+    return
+  fi
+
+  echo ""
+  echo "🔄 Upgrading PrismSpec module → $target_module"
+
+  if [ -d "$target_module/skills" ] || [ -d "$target_module/templates" ]; then
+    local backup_dir
+    backup_dir="$TARGET/lattice/state/prismspec-backups/$(date +%Y%m%d%H%M%S)"
+    mkdir -p "$backup_dir"
+    [ -d "$target_module/skills" ] && mv "$target_module/skills" "$backup_dir/skills"
+    [ -d "$target_module/templates" ] && mv "$target_module/templates" "$backup_dir/templates"
+    echo "  Backup: $backup_dir"
+  fi
+
+  mkdir -p "$target_module"
+  cp -R "$src_module/skills" "$target_module/skills"
+  cp -R "$src_module/templates" "$target_module/templates"
+  cp "$src_module/README.md" "$target_module/README.md"
+  echo "✅ PrismSpec upgraded"
+}
+
 if [ -d "$DEST" ]; then
   if [ "$FORCE_UPGRADE" = true ]; then
     echo "🔄 Upgrade mode: removing old version at $DEST"
@@ -114,9 +142,11 @@ if [ "$AUTO_INIT" = true ]; then
   (cd "$TARGET" && bash "$DEST/init.sh")
   if [ "$FORCE_UPGRADE" = true ] && [ "$PROJECT_ALREADY_INITIALIZED" = true ]; then
     upgrade_project_kernel
+    upgrade_project_prismspec
   fi
 elif [ "$FORCE_UPGRADE" = true ]; then
   upgrade_project_kernel
+  upgrade_project_prismspec
 else
   echo ""
   echo "Next steps:"

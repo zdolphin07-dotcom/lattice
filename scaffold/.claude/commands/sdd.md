@@ -1,10 +1,10 @@
 Run the guided Lattice SDD workflow.
 
-Execute `lattice/skills/sdd.md`.
+Execute `prismspec/skills/sdd.md` when present; otherwise execute `lattice/skills/sdd.md`.
 
 ## Core behavior
 
-1. Read `lattice/manifest.yaml`.
+1. Detect PrismSpec host mode: Lattice-hosted if `lattice/manifest.yaml` exists, standalone otherwise.
 2. Resolve the spec id, execution mode, and next stage.
 3. Resume from existing artifacts when possible.
 4. Delegate to the stage skills in order:

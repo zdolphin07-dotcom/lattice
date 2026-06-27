@@ -132,15 +132,34 @@ find_spec() {
   spec_dir=$(manifest_get ".specs.dir")
   spec_dir="${spec_dir:-lattice/specs}"
   local spec_file="${SPEC_FILE:-}"
+  local active_spec
+  active_spec=$(manifest_get ".specs.active")
 
   if [[ -n "$spec_file" ]] && [[ -f "$spec_file" ]]; then
     echo "$spec_file"
     return 0
   fi
 
+  if [[ -n "$active_spec" ]]; then
+    if [[ -f "$PROJECT_ROOT/$active_spec" ]]; then
+      echo "$PROJECT_ROOT/$active_spec"
+      return 0
+    fi
+    if [[ -f "$PROJECT_ROOT/$spec_dir/$active_spec/spec.md" ]]; then
+      echo "$PROJECT_ROOT/$spec_dir/$active_spec/spec.md"
+      return 0
+    fi
+  fi
+
   if [[ -d "$PROJECT_ROOT/$spec_dir" ]]; then
     local latest
-    latest=$(find "$PROJECT_ROOT/$spec_dir" -name '*.md' -type f -not -path '*/.locks/*' -print0 2>/dev/null | xargs -0 ls -t 2>/dev/null | head -1)
+    latest=$(find "$PROJECT_ROOT/$spec_dir" -name 'spec.md' -type f -not -path '*/.locks/*' -print0 2>/dev/null | xargs -0 ls -t 2>/dev/null | head -1)
+    if [[ -n "$latest" ]]; then
+      echo "$latest"
+      return 0
+    fi
+
+    latest=$(find "$PROJECT_ROOT/$spec_dir" -name '*.md' -type f -not -path '*/.locks/*' -not -name 'plan.md' -not -name 'summary.md' -print0 2>/dev/null | xargs -0 ls -t 2>/dev/null | head -1)
     if [[ -n "$latest" ]]; then
       echo "$latest"
       return 0

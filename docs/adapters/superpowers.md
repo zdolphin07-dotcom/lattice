@@ -1,11 +1,11 @@
-# Superpowers Adapter — Lattice Integration Guide
+# Superpowers Adapter — PrismSpec / Lattice Integration Guide
 
-> This document describes how Lattice maps its AI Coding workflow to the [Superpowers](https://github.com/obra/superpowers) workflow engine.
-> Lattice does not depend on Superpowers. Superpowers is an optional execution adapter.
+> This document describes how PrismSpec and Lattice map their AI Coding workflow to the [Superpowers](https://github.com/obra/superpowers) workflow engine.
+> PrismSpec and Lattice do not depend on Superpowers. Superpowers is an optional execution adapter.
 
 ## Phase Mapping
 
-Lattice keeps its own durable artifacts (`spec.md`, `plan.md`, verification evidence, summary) and maps its stages to Superpowers skills when Superpowers is present:
+PrismSpec keeps its own durable artifacts (`spec.md`, `plan.md`, verification evidence, summary) and maps its stages to Superpowers skills when Superpowers is present. Lattice-hosted mode stores these artifacts under `lattice/specs/` and adds gates:
 
 | Lattice Stage | Superpowers Skill | Lattice Artifact / Constraint |
 |---------------|-------------------|-------------------------------|

@@ -1,7 +1,7 @@
 ## Lattice — Agent Behavior Rules
 
 > Lattice injects project-level constraints into your AI coding agent via `CLAUDE.md` `@import`.
-> These rules enhance the agent's default workflow with knowledge injection and delivery verification.
+> Lattice hosts PrismSpec as its default spec-coding workflow and enhances it with knowledge injection and delivery verification.
 
 ---
 
@@ -11,7 +11,7 @@
 |---------|------|-------------|
 | Describe a requirement (default) | **Brainstorming** | Clarify intent, load knowledge, write persistent spec |
 | `/init` | **Init Skill** | Set up harness, generate `lattice/manifest.yaml`, inject `CLAUDE.md` |
-| `/sdd` | **Guided SDD Skill** | Route or resume the full SDD workflow from artifacts |
+| `/sdd` | **PrismSpec Guided Skill** | Route or resume the full spec-coding workflow from artifacts |
 | `/brainstorm` | **Brainstorm Skill** | Produce `lattice/specs/<id>/spec.md` |
 | `/plan` | **Plan Skill** | Produce `lattice/specs/<id>/plan.md` |
 | `/implement` | **Implement Skill** | Execute plan or tdd policy from the spec |
@@ -33,6 +33,7 @@
 - **Dual-audience principle**: diagrams for humans, DDL/AC/API examples for AI execution
 - **AC numbering**: globally unique `AC-{nn}`, traced through spec -> test -> coverage
 - **Execution policy**: read `specs.default_execution_mode`; `auto` means choose `plan` or `tdd` by risk
+- **Active spec**: prefer `specs.active` when configured; do not infer from recently modified `plan.md` or `summary.md`
 
 Before drafting the spec:
 1. Read `lattice/manifest.yaml`
@@ -99,7 +100,7 @@ Before merge/PR, confirm:
 | Skill | Trigger | Capability |
 |-------|---------|------------|
 | `init` | `/init`, initialize Lattice | Generate manifest, copy scaffold, inject CLAUDE.md |
-| `sdd` | `/sdd`, guided workflow | Route/resume Brainstorming -> Planning -> Implementation -> Verification -> Finishing |
+| `sdd` | `/sdd`, PrismSpec guided workflow | Route/resume Brainstorming -> Planning -> Implementation -> Verification -> Finishing |
 | `brainstorm` | `/brainstorm`, draft spec | Clarify intent, load knowledge, write persistent spec |
 | `plan` | `/plan`, write plan | Decompose spec into AC-traced tasks |
 | `implement` | `/implement`, tdd | Execute plan or tdd policy |
@@ -126,6 +127,10 @@ lattice/
 ├── plans/
 ├── state/
 └── skills/
+
+prismspec/
+├── skills/
+└── templates/
 
 .lattice/
 └── sdd/

@@ -33,6 +33,7 @@ commands:
 
 specs:
   dir: "lattice/specs"
+  active: ""
   template: "lattice/kernel/orchestrator/templates/spec-template.md"
 
 testing:
