@@ -62,6 +62,16 @@ specs:
 
 团队可以替换模板，但不建议删除这八类语义。前端、配置、活动模板、后端核心链路可以用不同模板；共同要求是：能让人 review，能让 Agent 执行，能让 gate 验证。
 
+PrismSpec 默认提供五种模板：
+
+| 模板 | 适用场景 | 重心 |
+|------|----------|------|
+| `spec-template.md` | 默认通用模板 | Intent、Scope、AC、关键契约、风险、验证 |
+| `spec-template-lite.md` | 中轻需求、Plan Mode、文档/配置/低风险改动 | AC-first，少写设计 |
+| `spec-template-service.md` | 后端服务、API、数据模型、状态流转 | API、DDL、错误码、幂等、补偿 |
+| `spec-template-frontend.md` | 前端体验、产品主链路、交互改造 | 用户路径、状态、可访问性、视觉/交互验收 |
+| `spec-template-tdd.md` | bug fix、核心链路、高风险改动 | 回归场景、红灯测试、不可破坏不变量 |
+
 ## 设计原则
 
 ### 1. 最小上下文发现，不做全量上下文加载

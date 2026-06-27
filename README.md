@@ -62,7 +62,15 @@ PrismSpec can be used alone by users who only want the AI coding workflow. Latti
 
 ### Spec Template Policy
 
-The default spec template is intentionally compact and used by PrismSpec: lock intent, scope, acceptance criteria, one-way decisions, risks, and verification; leave regenerable implementation detail to the model.
+PrismSpec templates are intentionally scenario-specific. The default template is compact: lock intent, scope, acceptance criteria, one-way decisions, risks, and verification; leave regenerable implementation detail to the model.
+
+| Template | Use When |
+|----------|----------|
+| `prismspec/templates/spec-template.md` | Default professional contract |
+| `prismspec/templates/spec-template-lite.md` | Lightweight Plan Mode, docs, config, low-risk changes |
+| `prismspec/templates/spec-template-service.md` | Backend APIs, data, state, idempotency, compensation |
+| `prismspec/templates/spec-template-frontend.md` | Frontend UX, component behavior, visual/interaction states |
+| `prismspec/templates/spec-template-tdd.md` | Bug fixes, regressions, high-risk TDD work |
 
 Teams can override the template per project in `lattice/manifest.yaml`:
 
@@ -70,6 +78,7 @@ Teams can override the template per project in `lattice/manifest.yaml`:
 specs:
   active: ""                         # optional: spec id or path
   template: "lattice/kernel/orchestrator/templates/spec-template.md"
+  # or: "prismspec/templates/spec-template-service.md"
   default_execution_mode: "auto"   # auto | plan | tdd
   allow_execution_mode_override: true
 ```

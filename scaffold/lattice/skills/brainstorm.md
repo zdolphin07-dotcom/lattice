@@ -26,6 +26,7 @@ Before writing `spec.md`:
 1. Read `lattice/manifest.yaml`.
    - Use `specs.template` as the template path; projects may override it.
    - Use `specs.default_execution_mode` as the mode policy: `auto`, `plan`, or `tdd`.
+   - If `prismspec/templates/` exists, choose the smallest fitting PrismSpec template before falling back to `specs.template`.
 2. Inspect the relevant code/tests/schema/API contracts.
 3. Run targeted knowledge retrieval:
 
@@ -49,6 +50,14 @@ bash lattice/kernel/knowledge/loader.sh <requirement keywords>
    - `plan`: normal implementation after plan review.
    - `tdd`: red-test-first implementation for bug fixes, core flows, money/security/permission/state-machine logic, concurrency, idempotency, or regression-prone behavior.
 7. Write `lattice/specs/<spec-id>/spec.md`.
+
+Template selection:
+
+- `spec-template-lite.md`: low-risk Plan Mode work, docs, config, simple refactors.
+- `spec-template-service.md`: backend API, data model, state transition, permission, idempotency, compensation.
+- `spec-template-frontend.md`: UI flow, component behavior, user-facing interaction, accessibility, visual states.
+- `spec-template-tdd.md`: bug fix, regression, core flow, security, permission, money, concurrency, idempotency.
+- `spec-template.md`: default when no specialized template clearly fits.
 
 If `plan` is selected and later planning/implementation discovers blocking risk, upgrade the spec to `tdd` before continuing. Do not silently downgrade `tdd` to `plan`; ask or record a user override.
 

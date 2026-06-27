@@ -116,7 +116,12 @@ if bash "$SANDBOX/.lattice/framework/init.sh" --non-interactive --lang=go --name
     fi
   done
 
-  if [[ -f "$SANDBOX/prismspec/skills/sdd.md" ]] && [[ -f "$SANDBOX/prismspec/templates/spec-template.md" ]]; then
+  if [[ -f "$SANDBOX/prismspec/skills/sdd.md" ]] \
+    && [[ -f "$SANDBOX/prismspec/templates/spec-template.md" ]] \
+    && [[ -f "$SANDBOX/prismspec/templates/spec-template-lite.md" ]] \
+    && [[ -f "$SANDBOX/prismspec/templates/spec-template-service.md" ]] \
+    && [[ -f "$SANDBOX/prismspec/templates/spec-template-frontend.md" ]] \
+    && [[ -f "$SANDBOX/prismspec/templates/spec-template-tdd.md" ]]; then
     pass "PrismSpec standalone module installed"
   else
     fail "PrismSpec standalone module missing"

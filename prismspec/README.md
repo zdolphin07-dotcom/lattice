@@ -1,5 +1,7 @@
 # PrismSpec
 
+> English version: [README.en.md](README.en.md)
+
 PrismSpec 是一套可独立使用的渐进式 Spec-Driven Development skills，用于 AI Coding。
 
 它只保留一条克制的主流程：
@@ -18,6 +20,16 @@ PrismSpec 可以独立使用，也可以被 Lattice 增强。
 | Lattice-hosted | PrismSpec + manifest、知识库、交付 gate、AC coverage、drift check、compliance audit | 是 |
 
 PrismSpec 不依赖 Lattice。Lattice 内置 PrismSpec，并把它作为默认的 spec-coding workflow。
+
+## 核心观点
+
+PrismSpec 对 spec 的理解来自三个判断：
+
+1. Spec 不是厚文档，而是对可接受实现空间的最小、可验证编码。
+2. Spec 不只有 Requirement，Intent → Code 中间所有显式约束都可以是 Spec，包括 Design 和 Plan。
+3. 不存在一套模板适合所有需求。支付、后台 CRUD、前端体验、算法策略、基础设施的 spec 重心应该不同。
+
+因此，PrismSpec 提供多种模板，而不是强制所有需求填同一张表。
 
 ## 产物结构
 
@@ -49,6 +61,23 @@ lattice/specs/{spec-id}/{spec.md,plan.md,summary.md}
 .lattice/sdd/{spec-id}/{task-id}/
 ```
 
+## 模板
+
+| 模板 | 适用场景 | 重心 |
+|------|----------|------|
+| `spec-template.md` | 默认通用模板 | Intent、Scope、AC、关键契约、风险、验证 |
+| `spec-template-lite.md` | 中轻需求、Plan Mode、文档/配置/低风险改动 | AC-first，尽量少写设计 |
+| `spec-template-service.md` | 后端服务、API、数据模型、状态流转 | API、DDL、错误码、幂等、补偿 |
+| `spec-template-frontend.md` | 前端体验、产品主链路、交互改造 | 用户路径、状态、可访问性、视觉/交互验收 |
+| `spec-template-tdd.md` | bug fix、核心链路、高风险改动 | 回归场景、红灯测试、不可破坏不变量 |
+
+模板选择原则：
+
+- 轻需求优先用 `lite`，不要为简单改动制造文档成本。
+- 涉及 API、数据、状态、幂等、权限、资金、安全时用 `service` 或 `tdd`。
+- 涉及用户体验、前端状态、组件和可访问性时用 `frontend`。
+- 不确定时用默认模板，保持 AC 和风险清楚即可。
+
 ## 执行模式
 
 PrismSpec 只支持两种实现策略：
@@ -77,28 +106,3 @@ PrismSpec 只支持两种实现策略：
 PrismSpec 只有在一个流程节点能产生持久产物，或能避免真实工程风险时，才引入这个节点。
 
 多一个流程，就多一层人工损耗。因此默认 workflow 保持克制：不是把 AI Coding 变成审批流，而是让需求、计划、实现和验证之间有可追踪的证据链。
-
----
-
-## English Summary
-
-PrismSpec is a standalone, progressive Spec-Driven Development skill module for AI coding.
-
-It keeps the workflow intentionally small:
-
-```text
-brainstorm -> plan -> implement(plan|tdd) -> verify -> finish
-```
-
-PrismSpec can run standalone, or in Lattice-hosted mode. Standalone mode provides persistent specs, plans, verification notes, summaries, and plan/tdd execution discipline. Lattice-hosted mode adds manifest routing, knowledge loading, delivery gates, AC coverage, drift checks, and compliance audit.
-
-PrismSpec does not depend on Lattice. Lattice embeds PrismSpec as its default spec-coding workflow.
-
-Modes:
-
-| Mode | Use When | Rule |
-|------|----------|------|
-| `plan` | Low-risk features, docs, scaffolding, straightforward refactors | Implement from a reviewed plan and add tests when behavior changes |
-| `tdd` | Bug fixes, core flows, security/permission/money logic, state machines, migrations, concurrency, idempotency, regressions | Write red tests first, make them green, then refactor |
-
-`auto` means the model chooses `plan` or `tdd` based on risk. `plan -> tdd` escalation is allowed when risk is discovered. `tdd -> plan` downgrade requires an explicit user override.
