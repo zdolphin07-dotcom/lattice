@@ -42,9 +42,13 @@ RUN_STARTED_SEC="$(date +%s)"
 RUN_ID="${RUN_STARTED_AT//:/}"
 RUN_ID="${RUN_ID//-/}"
 GATE_JSON_DIR="$PROJECT_ROOT/lattice/state/eval-runs/${RUN_ID}.gates"
+LOOP_JSON_FILE=""
 gate_json_files=()
 process_review_files=()
 process_tdd_files=()
+FAILED_STEP=""
+FAILED_EXIT_CODE=0
+FAILED_SUMMARY=""
 METRIC_AC_TOTAL=0
 METRIC_AC_COVERED=0
 METRIC_AC_UNCOVERED=0
@@ -271,6 +275,9 @@ for i in $(seq 0 $((STEP_COUNT - 1))); do
     printf "❌ [%d] %-20s FAIL\n\n" "$STEP_NUM" "$name"
     ((STEP_FAIL++)) || true
     record_step "$name" "fail" "$run" "$step_exit" "$step_duration_ms" "$(printf '%s\n' "$output" | tail -40)"
+    FAILED_STEP="$name"
+    FAILED_EXIT_CODE="$step_exit"
+    FAILED_SUMMARY="$(printf '%s\n' "$output" | tail -40)"
     [[ -n "$gate_json_file" ]] && collect_gate_json "$name" "$gate_json_file"
     echo "⛔ Pipeline stopped at step $STEP_NUM: $name"
     break
@@ -293,6 +300,49 @@ if [[ $STEP_FAIL -gt 0 ]]; then
     EXIT_CODE=2
   fi
 fi
+
+loop_next_action() {
+  if [[ "$PIPELINE_STATUS" == "pass" ]]; then
+    echo "done"
+  elif [[ "$PIPELINE_STATUS" == "escalation" ]]; then
+    echo "escalate"
+  else
+    echo "retry"
+  fi
+}
+
+write_loop_json() {
+  [[ "$WRITE_JSON" == "true" ]] || return 0
+  local out retry_remaining loop_status next_action spec_rel
+  out="$PROJECT_ROOT/lattice/state/loops/${RUN_ID}.json"
+  mkdir -p "$(dirname "$out")"
+  retry_remaining=$((SH_RETRY_MAX - SH_RETRY_COUNT))
+  [[ "$retry_remaining" -lt 0 ]] && retry_remaining=0
+  loop_status="$PIPELINE_STATUS"
+  next_action="$(loop_next_action)"
+  spec_rel="${SPEC_FILE#$PROJECT_ROOT/}"
+
+  {
+    printf '{\n'
+    printf '  "schema_version": "lattice.loop-state.v1",\n'
+    printf '  "kind": "loop-state",\n'
+    printf '  "run_id": "%s",\n' "$(json_escape "$RUN_ID")"
+    printf '  "created_at": "%s",\n' "$(json_escape "$RUN_ENDED_AT")"
+    printf '  "status": "%s",\n' "$(json_escape "$loop_status")"
+    printf '  "next_action": "%s",\n' "$(json_escape "$next_action")"
+    printf '  "retry_count": %s,\n' "$SH_RETRY_COUNT"
+    printf '  "retry_max": %s,\n' "$SH_RETRY_MAX"
+    printf '  "retry_remaining": %s,\n' "$retry_remaining"
+    printf '  "failed_step": "%s",\n' "$(json_escape "$FAILED_STEP")"
+    printf '  "failed_exit_code": %s,\n' "$FAILED_EXIT_CODE"
+    printf '  "failure_summary": "%s",\n' "$(json_escape "$FAILED_SUMMARY")"
+    printf '  "spec_file": "%s"\n' "$(json_escape "$spec_rel")"
+    printf '}\n'
+  } > "$out"
+
+  LOOP_JSON_FILE="$out"
+  echo "🔁 Loop state: ${out#$PROJECT_ROOT/}"
+}
 
 write_eval_json() {
   [[ "$WRITE_JSON" == "true" ]] || return 0
@@ -348,7 +398,10 @@ write_eval_json() {
     printf '    "review_cannot_verify": %s,\n' "$METRIC_REVIEW_CANNOT_VERIFY"
     printf '    "tdd_total": %s,\n' "$METRIC_TDD_TOTAL"
     printf '    "tdd_complete": %s,\n' "$METRIC_TDD_COMPLETE"
-    printf '    "tdd_invalid": %s\n' "$METRIC_TDD_INVALID"
+    printf '    "tdd_invalid": %s,\n' "$METRIC_TDD_INVALID"
+    printf '    "loop_retry_count": %s,\n' "$SH_RETRY_COUNT"
+    printf '    "loop_retry_max": %s,\n' "$SH_RETRY_MAX"
+    printf '    "loop_escalated": %s\n' "$([[ "$PIPELINE_STATUS" == "escalation" ]] && echo "true" || echo "false")"
     printf '  },\n'
     printf '  "steps": [\n'
     local idx
@@ -383,7 +436,14 @@ write_eval_json() {
       printf '\n'
     done
     printf '    ]\n'
-    printf '  }\n'
+    printf '  },\n'
+    printf '  "loop_state": '
+    if [[ -n "$LOOP_JSON_FILE" && -f "$LOOP_JSON_FILE" ]]; then
+      tr -d '\n' < "$LOOP_JSON_FILE"
+      printf '\n'
+    else
+      printf '{}\n'
+    fi
     printf '}\n'
   } > "$out"
 
@@ -391,6 +451,7 @@ write_eval_json() {
 }
 
 collect_process_evidence
+write_loop_json
 write_eval_json
 
 if [[ $STEP_FAIL -gt 0 ]]; then

@@ -74,6 +74,8 @@ check_executable "lattice/kernel/delivery/gates/drift-check.sh" "drift check gat
 check_dir "lattice/state" "state root"
 mkdir -p "$PROJECT_ROOT/lattice/state/eval-runs"
 check_dir "lattice/state/eval-runs" "eval run output root"
+mkdir -p "$PROJECT_ROOT/lattice/state/loops"
+check_dir "lattice/state/loops" "loop state output root"
 echo ""
 
 echo "── Agent commands ──"

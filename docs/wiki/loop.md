@@ -30,14 +30,14 @@ Loop 的目标不是让 Agent 无限自修复，而是让失败可控：
 - 读取 retry count / retry max；
 - 某一步失败后停止；
 - 重试耗尽后 exit `2`；
-- 输出 escalation 诊断。
+- 输出 escalation 诊断；
+- 在 `lattice/state/loops/<run-id>.json` 记录 loop state；
+- 在 eval run 中嵌入 `loop_state`，并把 retry/escalation 指标汇总到 summary 和 history。
 
 当前缺失：
 
-- retry 状态没有独立落盘；
 - 失败分类不结构化；
-- escalation 不会自动生成 learn draft；
-- loop 与 eval run 尚未打通。
+- escalation 不会自动生成 learn draft。
 
 ## 状态模型
 
@@ -57,7 +57,7 @@ stateDiagram-v2
     Finished --> [*]
 ```
 
-目标状态文件：
+状态文件：
 
 ```text
 lattice/state/loops/<run-id>.json
@@ -70,13 +70,14 @@ lattice/state/loops/<run-id>.json
   "run_id": "2026-06-28T12-00-00Z",
   "spec_file": "lattice/specs/coupon-redemption/spec.md",
   "git_sha": "abc1234",
-  "status": "failed",
+  "status": "fail",
   "retry_count": 2,
   "retry_max": 3,
-  "last_failed_step": "drift-check",
-  "failure_category": "route_drift",
+  "retry_remaining": 1,
+  "failed_step": "drift-check",
+  "failed_exit_code": 1,
   "failure_summary": "POST /coupons/redeem exists in spec but not in router",
-  "next_action": "fix_code"
+  "next_action": "retry"
 }
 ```
 
@@ -129,15 +130,12 @@ Loop 不新增 SDD 阶段，它嵌入 Verification：
 
 | Gap | 影响 | 下一步 |
 |-----|------|--------|
-| retry 状态不落盘 | 难复盘 | `lattice/state/loops/*.json` |
 | 失败无分类 | 难自动处理 | failure category schema |
 | learn draft 未自动生成 | 经验沉淀不稳定 | escalation hook |
-| 与 eval 未打通 | 指标不完整 | loop state 写入 eval run |
 
 ## 演进顺序
 
-1. 在 pipeline 中记录 loop state JSON。
-2. 基于 gate name + regex 做失败分类。
-3. retry exhausted 时生成 learn draft。
-4. Finishing 引用 loop state 和 learn draft。
-5. 将 loop metrics 汇总到 eval run。
+1. 基于 gate name + regex 做失败分类。
+2. retry exhausted 时生成 learn draft。
+3. Finishing 引用 loop state 和 learn draft。
+4. 将 loop history 接入 central eval sink 或 dashboard。

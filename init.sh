@@ -227,7 +227,7 @@ done
 
 copy_if_not_exists "$HARNESS_TEMPLATE_DIR/lattice/kernel/VERSION" "lattice/kernel/VERSION"
 
-for dir in specs state state/eval-runs skills context context/knowledge context/knowledge/decisions context/drafts state/context-runs; do
+for dir in specs state state/eval-runs state/loops skills context context/knowledge context/knowledge/decisions context/drafts state/context-runs; do
   mkdir -p "lattice/$dir"
   [[ -f "lattice/$dir/.gitkeep" ]] || touch "lattice/$dir/.gitkeep"
 done

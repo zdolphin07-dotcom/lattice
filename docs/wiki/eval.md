@@ -8,7 +8,7 @@ Eval 在 Lattice 中不是“多跑几个测试”，而是回答三个问题：
 2. Agent 的工作过程是否可靠？
 3. 团队的 AI Coding 质量是否在变好？
 
-当前实现已经有 eval 原材料：spec-lint、AC coverage、drift check、compliance、build/lint/test output、review summary、TDD red/green evidence 和 smoke test。`pipeline.sh --json-out` 会把一次运行写成结构化 eval run，并嵌入 AC coverage、drift check、compliance 的 gate JSON 以及当前 spec 对应的 process evidence；`eval-summary.sh` 会把 eval JSON 渲染成 Markdown summary，供本地阅读和 CI Step Summary 使用；`eval-history.sh` 会把多次 eval run 聚合为趋势报告。
+当前实现已经有 eval 原材料：spec-lint、AC coverage、drift check、compliance、build/lint/test output、review summary、TDD red/green evidence、loop state 和 smoke test。`pipeline.sh --json-out` 会把一次运行写成结构化 eval run，并嵌入 AC coverage、drift check、compliance 的 gate JSON、当前 spec 对应的 process evidence 以及 loop state；`eval-summary.sh` 会把 eval JSON 渲染成 Markdown summary，供本地阅读和 CI Step Summary 使用；`eval-history.sh` 会把多次 eval run 聚合为趋势报告。
 
 ## 当前形态
 
@@ -20,6 +20,7 @@ Eval 在 Lattice 中不是“多跑几个测试”，而是回答三个问题：
 | `compliance.sh` | warnings | 是否引用知识、是否有澄清痕迹 |
 | `review-summary.sh` | review verdict JSON | spec compliance、code quality、test coverage、risk 是否被审查 |
 | `tdd-evidence.sh` | TDD red/green JSON | TDD task 是否有红灯、绿灯和 AC trace |
+| `lattice/state/loops/*.json` | loop state JSON | retry 次数、失败步骤、下一步动作和 escalation 状态 |
 | `eval-history.sh` | history Markdown | 多次运行的 pass rate、AC coverage、review/TDD 趋势 |
 | build/lint/test | terminal output | 工程基础质量 |
 | smoke test | pass/fail summary | 框架自身是否可运行 |
@@ -77,7 +78,18 @@ lattice/state/eval-runs/
     "review_failed": 0,
     "review_cannot_verify": 0,
     "tdd_total": 1,
-    "tdd_complete": 1
+    "tdd_complete": 1,
+    "loop_retry_count": 1,
+    "loop_retry_max": 3,
+    "loop_escalated": false
+  },
+  "loop_state": {
+    "kind": "loop-state",
+    "status": "pass",
+    "next_action": "done",
+    "retry_count": 1,
+    "retry_max": 3,
+    "failed_step": ""
   },
   "steps": [
     {
@@ -172,11 +184,11 @@ Lattice 在 `harness-template/.github/workflows/lattice-eval.yml` 提供 GitHub 
 
 | Gap | 影响 | 下一步 |
 |-----|------|--------|
-| loop retry state 未进入 eval run | 修复轮次仍难以审计 | loop state JSON |
+| escalation learn draft 未自动生成 | 重复失败经验仍依赖人工沉淀 | escalation hook |
 | dashboard 未实现 | history report 仍是 repo-local 文件，不能跨项目横向比较 | dashboard / central eval sink |
 
 ## 演进顺序
 
-1. 将 loop retry state 写入 eval run。
+1. retry exhausted 时自动生成 learn draft。
 2. 增加 dashboard 或 central eval sink。
 3. 扩展更多语言的 drift parser。

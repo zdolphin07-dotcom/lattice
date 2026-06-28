@@ -63,7 +63,7 @@ echo ""
 
 echo "── 7. Pipeline Eval JSON ──"
 bash lattice/kernel/delivery/pipeline.sh --only=ac-coverage --spec="$SPEC" --json-out=lattice/state/eval-runs/example.json
-yq '.metrics, .gates[0].metrics, .process_evidence.review_summaries[0].verdict' lattice/state/eval-runs/example.json
+yq '.metrics, .gates[0].metrics, .process_evidence.review_summaries[0].verdict, .loop_state' lattice/state/eval-runs/example.json
 echo ""
 
 echo "── 8. Eval Markdown Summary ──"

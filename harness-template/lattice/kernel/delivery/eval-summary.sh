@@ -98,6 +98,7 @@ render_summary() {
   local ac_total ac_covered ac_uncovered drift_count compliance_warnings
   local review_total review_passed review_failed review_cannot_verify
   local tdd_total tdd_complete tdd_invalid
+  local loop_retry_count loop_retry_max loop_next_action loop_failed_step
 
   status="$(json_get ".pipeline.status")"
   project="$(json_get ".project")"
@@ -122,6 +123,10 @@ render_summary() {
   tdd_total="$(metric_value "tdd_total")"
   tdd_complete="$(metric_value "tdd_complete")"
   tdd_invalid="$(metric_value "tdd_invalid")"
+  loop_retry_count="$(json_get ".loop_state.retry_count")"
+  loop_retry_max="$(json_get ".loop_state.retry_max")"
+  loop_next_action="$(json_get ".loop_state.next_action")"
+  loop_failed_step="$(json_get ".loop_state.failed_step")"
 
   echo "# Lattice Eval Summary"
   echo ""
@@ -145,6 +150,7 @@ render_summary() {
   echo "| Compliance Warnings | $(md_escape "${compliance_warnings:-0}") |"
   echo "| Review Verdicts | $(md_escape "${review_passed:-0}") pass / $(md_escape "${review_failed:-0}") fail / $(md_escape "${review_cannot_verify:-0}") cannot_verify / $(md_escape "${review_total:-0}") total |"
   echo "| TDD Evidence | $(md_escape "${tdd_complete:-0}") complete / $(md_escape "${tdd_invalid:-0}") invalid / $(md_escape "${tdd_total:-0}") total |"
+  echo "| Loop | retry $(md_escape "${loop_retry_count:-0}") / $(md_escape "${loop_retry_max:-0}"), next=$(md_escape "${loop_next_action:-unknown}"), failed_step=$(md_escape "${loop_failed_step:-none}") |"
   echo ""
   echo "## Gates"
   echo ""
