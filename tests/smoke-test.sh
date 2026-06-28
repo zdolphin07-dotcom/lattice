@@ -249,11 +249,20 @@ if bash "$SANDBOX/.lattice/framework/init.sh" --non-interactive --lang=go --name
     && [[ -f "$SANDBOX/lattice/specs/smoke-new-spec/context.md" ]] \
     && [[ -f "$SANDBOX/lattice/specs/smoke-new-spec/spec.md" ]] \
     && grep -q "id: smoke-new-spec" "$SANDBOX/lattice/specs/smoke-new-spec/spec.md" \
-    && grep -q "execution_mode: plan" "$SANDBOX/lattice/specs/smoke-new-spec/spec.md"; then
+    && grep -q "execution_mode: plan" "$SANDBOX/lattice/specs/smoke-new-spec/spec.md" \
+    && grep -q "scaffolded: true" "$SANDBOX/lattice/specs/smoke-new-spec/spec.md"; then
     pass "PrismSpec new creates routed spec artifacts"
   else
     fail "PrismSpec new did not create routed spec artifacts"
     echo "$PRISMSPEC_NEW_JSON"
+  fi
+
+  PRISMSPEC_NEW_GUIDE_JSON=$(bash "$SANDBOX/prismspec/bin/guide.sh" --spec=smoke-new-spec --json)
+  if echo "$PRISMSPEC_NEW_GUIDE_JSON" | yq -e '.stage == "brainstorm" and .scaffolded == true' >/dev/null 2>&1; then
+    pass "PrismSpec guide keeps scaffolded specs in brainstorm"
+  else
+    fail "PrismSpec guide advanced a scaffolded spec"
+    echo "$PRISMSPEC_NEW_GUIDE_JSON"
   fi
   rm -rf "$SANDBOX/lattice/specs/smoke-new-spec"
 

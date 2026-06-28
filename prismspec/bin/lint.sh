@@ -189,6 +189,8 @@ check_spec() {
   [[ -f "$CONTEXT_FILE" ]] || bad "context.md missing: $CONTEXT_FILE"
   [[ -f "$SPEC_FILE" ]] || { bad "spec.md missing: $SPEC_FILE"; return; }
 
+  grep -qiE '^scaffolded:[[:space:]]*true[[:space:]]*$' "$SPEC_FILE" \
+    && bad "spec.md is still scaffolded; fill it and set scaffolded: false"
   grep -qE 'AC-[0-9]+' "$SPEC_FILE" || bad "spec.md has no AC-{n} acceptance criteria"
   grep -qiE 'execution[_ -]?mode|Mode:[[:space:]]*`?(plan|tdd)|mode:[[:space:]]*`?(plan|tdd)' "$SPEC_FILE" || bad "spec.md has no execution mode"
   grep -qiE '\b(plan|tdd)\b' "$SPEC_FILE" || bad "spec.md execution mode must be plan or tdd"

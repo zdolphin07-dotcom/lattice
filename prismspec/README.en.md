@@ -105,6 +105,7 @@ bash prismspec/bin/guide.sh --spec=checkout-flow --from=verify --json
 |-------|---------|
 | `host` | `standalone` or `lattice` |
 | `spec_id` | Current spec id |
+| `scaffolded` | Whether the spec is still an unfilled `new.sh` scaffold |
 | `stage` | Next stage: `brainstorm`, `plan`, `implement`, `verify`, `finish`, or `done` |
 | `mode` | `auto`, `plan`, or `tdd` |
 | `skill` | `SKILL.md` file to read and execute |
@@ -114,7 +115,7 @@ bash prismspec/bin/guide.sh --spec=checkout-flow --from=verify --json
 
 ## Workflow
 
-`new.sh` is an initialization helper, not a workflow stage. It only creates `context.md` and `spec.md`; `guide.sh` still routes from artifact state.
+`new.sh` is an initialization helper, not a workflow stage. It creates `spec.md` with `scaffolded: true`. After Brainstorming fills real context, scope, ACs, risk, and mode, set it to `scaffolded: false`; until then `guide.sh` keeps routing to Brainstorming.
 
 | Stage | Goal | Artifacts | Stop When |
 |-------|------|-----------|-----------|

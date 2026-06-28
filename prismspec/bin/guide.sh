@@ -137,6 +137,20 @@ extract_status() {
   ' "$file"
 }
 
+extract_scaffolded() {
+  local file="$1"
+  [[ -f "$file" ]] || { echo "false"; return 0; }
+  awk '
+    /^scaffolded:/ {
+      value = substr($0, index($0, ":") + 1);
+      gsub(/^[ \t]+|[ \t]+$/, "", value);
+      gsub(/["'\''`]/, "", value);
+      print tolower(value);
+      exit;
+    }
+  ' "$file"
+}
+
 has_incomplete_tasks() {
   local file="$1"
   [[ -f "$file" ]] || return 1
@@ -153,6 +167,8 @@ stage_from_artifacts() {
   if [[ -n "$FROM_STAGE" ]]; then
     echo "$FROM_STAGE"
   elif [[ -z "$SPEC_ID" || ! -f "$SPEC_FILE" || ! -f "$CONTEXT_FILE" ]]; then
+    echo "brainstorm"
+  elif [[ "$SCAFFOLDED" == "true" ]]; then
     echo "brainstorm"
   elif [[ ! -f "$PLAN_FILE" ]]; then
     echo "plan"
@@ -172,6 +188,9 @@ MODE="${MODE_OVERRIDE:-}"
 [[ -n "$MODE" ]] || MODE="auto"
 STATUS="$(extract_status "${SPEC_FILE:-}")"
 [[ -n "$STATUS" ]] || STATUS="none"
+SCAFFOLDED="$(extract_scaffolded "${SPEC_FILE:-}")"
+[[ -n "$SCAFFOLDED" ]] || SCAFFOLDED="false"
+[[ "$SCAFFOLDED" == "true" ]] || SCAFFOLDED="false"
 STAGE="$(stage_from_artifacts)"
 
 template_hint() {
@@ -198,7 +217,13 @@ skill_for_stage() {
 
 next_action() {
   case "$STAGE" in
-    brainstorm) echo "Run brainstorming and write context.md + spec.md" ;;
+    brainstorm)
+      if [[ "$SCAFFOLDED" == "true" ]]; then
+        echo "Fill scaffolded context.md/spec.md, then set scaffolded: false"
+      else
+        echo "Run brainstorming and write context.md + spec.md"
+      fi
+      ;;
     plan) echo "Read spec.md and write AC-traced plan.md" ;;
     implement) echo "Execute plan.md using $MODE mode" ;;
     verify) echo "Run verification: $VERIFY_CMD" ;;
@@ -212,6 +237,7 @@ if [[ "$JSON" == "true" ]]; then
   printf '  "host": "%s",\n' "$HOST"
   printf '  "spec_id": "%s",\n' "$SPEC_ID"
   printf '  "status": "%s",\n' "$STATUS"
+  printf '  "scaffolded": %s,\n' "$SCAFFOLDED"
   printf '  "stage": "%s",\n' "$STAGE"
   printf '  "mode": "%s",\n' "$MODE"
   printf '  "skill": "%s",\n' "$(skill_for_stage "$STAGE")"
@@ -230,6 +256,7 @@ echo ""
 echo "Host:        $HOST"
 echo "Spec id:     ${SPEC_ID:-<new>}"
 echo "Status:      $STATUS"
+echo "Scaffolded:  $SCAFFOLDED"
 echo "Stage:       $STAGE"
 echo "Mode:        $MODE"
 echo "Skill:       $(skill_for_stage "$STAGE")"

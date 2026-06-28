@@ -138,9 +138,43 @@ render_template() {
     "$source" > "$target"
 }
 
+mark_scaffolded() {
+  local target="$1"
+  local tmp="${target}.tmp"
+
+  awk '
+    NR == 1 && $0 == "---" {
+      in_frontmatter = 1
+      print
+      next
+    }
+    in_frontmatter && $0 ~ /^scaffolded:/ {
+      next
+    }
+    in_frontmatter && $0 ~ /^status:/ && !added {
+      print
+      print "scaffolded: true"
+      added = 1
+      next
+    }
+    in_frontmatter && $0 == "---" {
+      if (!added) {
+        print "scaffolded: true"
+        added = 1
+      }
+      print
+      in_frontmatter = 0
+      next
+    }
+    { print }
+  ' "$target" > "$tmp"
+  mv "$tmp" "$target"
+}
+
 mkdir -p "$SPEC_DIR"
 render_template "$CONTEXT_TEMPLATE" "$CONTEXT_FILE"
 render_template "$SPEC_TEMPLATE" "$SPEC_FILE"
+mark_scaffolded "$SPEC_FILE"
 
 if [[ "$JSON" == "true" ]]; then
   printf '{\n'

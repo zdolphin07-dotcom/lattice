@@ -105,6 +105,7 @@ bash prismspec/bin/guide.sh --spec=checkout-flow --from=verify --json
 |------|------|
 | `host` | `standalone` 或 `lattice` |
 | `spec_id` | 当前 spec id |
+| `scaffolded` | 是否仍是 `new.sh` 生成的待填写骨架 |
 | `stage` | 下一阶段：`brainstorm`、`plan`、`implement`、`verify`、`finish`、`done` |
 | `mode` | `auto`、`plan` 或 `tdd` |
 | `skill` | 应读取并执行的 `SKILL.md` |
@@ -114,7 +115,7 @@ bash prismspec/bin/guide.sh --spec=checkout-flow --from=verify --json
 
 ## Workflow
 
-`new.sh` 只是初始化 helper，不是 workflow 阶段。它只创建 `context.md` 和 `spec.md`，后续仍由 `guide.sh` 根据文件状态路由。
+`new.sh` 只是初始化 helper，不是 workflow 阶段。它创建的 `spec.md` 会带有 `scaffolded: true`。在 Brainstorming 阶段填完真实 context、scope、AC、risk 和 mode 后，才将其改为 `scaffolded: false`；在此之前 `guide.sh` 会继续路由到 Brainstorming。
 
 | Stage | 目标 | 产物 | 何时停止 |
 |-------|------|------|----------|

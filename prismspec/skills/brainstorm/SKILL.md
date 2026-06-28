@@ -29,18 +29,19 @@ Read `prismspec/references/spec-quality-checklist.md` when drafting a full spec.
    - `spec-template-tdd.md` for bugs, regressions, and high-risk behavior.
    - `spec-template.md` when no specialized template clearly fits.
 3. When `context.md` or `spec.md` does not exist yet, use `prismspec/bin/new.sh <spec-id> --template=<kind> --mode=<mode>` to create the initial directory and files, then fill them with real content.
-4. Perform Context Discovery with `prismspec/templates/context-template.md`. Load only context that changes scope, AC, risk, interface, compatibility, or verification.
+4. If `spec.md` contains `scaffolded: true`, treat it as an unfinished template. Replace placeholders, fill `context.md`, and set `scaffolded: false` only after scope, ACs, risk, and mode are concrete enough for planning.
+5. Perform Context Discovery with `prismspec/templates/context-template.md`. Load only context that changes scope, AC, risk, interface, compatibility, or verification.
    - In Lattice-hosted mode, read `lattice/context/README.md` when present.
    - Follow the context map to relevant project knowledge, external references, historical specs, code, tests, schemas, and contracts.
    - Use `lattice/kernel/context/backends/knowledge.sh <keywords>` only as an optional curated-knowledge backend.
    - Write selected facts, constraints, conflicts, exclusions, and open questions to `context.md`.
-5. In Lattice-hosted mode, run `lattice/kernel/context/context-lint.sh <spec-id>` after `context.md` is written. Use `--strict` only when planning should be blocked by unresolved context gaps.
-6. In Lattice-hosted mode, run `lattice/kernel/context/context-run.sh <spec-id> --strict` after `context.md` passes lint and has no blocking gaps.
-7. Surface assumptions before writing irreversible decisions.
-8. Ask only material questions. Do not interview for details the model can safely infer from local code.
-9. Write `spec.md` in the target spec directory.
-10. Record `execution_mode`, reason, and source.
-11. In Lattice-hosted mode, run `lattice/kernel/orchestrator/sdd/spec-state-lint.sh <spec-id>` before leaving brainstorming.
+6. In Lattice-hosted mode, run `lattice/kernel/context/context-lint.sh <spec-id>` after `context.md` is written. Use `--strict` only when planning should be blocked by unresolved context gaps.
+7. In Lattice-hosted mode, run `lattice/kernel/context/context-run.sh <spec-id> --strict` after `context.md` passes lint and has no blocking gaps.
+8. Surface assumptions before writing irreversible decisions.
+9. Ask only material questions. Do not interview for details the model can safely infer from local code.
+10. Write `spec.md` in the target spec directory.
+11. Record `execution_mode`, reason, and source.
+12. In Lattice-hosted mode, run `lattice/kernel/orchestrator/sdd/spec-state-lint.sh <spec-id>` before leaving brainstorming.
 
 ## Outputs
 
