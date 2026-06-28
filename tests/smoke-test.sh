@@ -107,6 +107,7 @@ if bash "$SANDBOX/.lattice/framework/init.sh" --non-interactive --lang=go --name
     && [[ -x "$SANDBOX/lattice/kernel/delivery/eval-summary.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/delivery/eval-history.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/delivery/pr-comment.sh" ]] \
+    && [[ -x "$SANDBOX/lattice/kernel/delivery/failure-category-lint.sh" ]] \
     && [[ -f "$SANDBOX/lattice/config/failure-categories.yaml" ]]; then
     pass "kernel files installed"
   else
@@ -618,6 +619,30 @@ else
   cat /tmp/lattice-pipeline-escalation.log | tail -20
 fi
 
+if bash "$SANDBOX/lattice/kernel/delivery/failure-category-lint.sh" >/tmp/lattice-failure-category-lint.log 2>&1; then
+  pass "failure-category-lint passes default config"
+else
+  fail "failure-category-lint should pass default config"
+  cat /tmp/lattice-failure-category-lint.log | tail -20
+fi
+
+cat > "$SANDBOX/lattice/config/failure-categories.invalid.yaml" <<'YAML'
+schema_version: lattice.failure-categories.v1
+default:
+  category: unknown
+  default_action: escalate
+rules:
+  - name: Bad Rule
+    step_regex: "["
+    category: bad-category
+YAML
+
+if bash "$SANDBOX/lattice/kernel/delivery/failure-category-lint.sh" "$SANDBOX/lattice/config/failure-categories.invalid.yaml" >/tmp/lattice-failure-category-lint-invalid.log 2>&1; then
+  fail "failure-category-lint should reject invalid config"
+else
+  pass "failure-category-lint rejects invalid config"
+fi
+
 cat > "$SANDBOX/lattice/config/failure-categories.yaml" <<'YAML'
 schema_version: lattice.failure-categories.v1
 default:
@@ -669,7 +694,7 @@ else
   fail "eval-history output invalid"
   echo "$HISTORY_OUTPUT" | tail -10
 fi
-rm -f /tmp/lattice-ac-json.log /tmp/lattice-drift-json.log /tmp/lattice-compliance-json.log /tmp/lattice-pipeline-gate-json.log /tmp/lattice-pipeline-escalation.log /tmp/lattice-pipeline-custom-category.log
+rm -f /tmp/lattice-ac-json.log /tmp/lattice-drift-json.log /tmp/lattice-compliance-json.log /tmp/lattice-pipeline-gate-json.log /tmp/lattice-pipeline-escalation.log /tmp/lattice-pipeline-custom-category.log /tmp/lattice-failure-category-lint.log /tmp/lattice-failure-category-lint-invalid.log
 echo ""
 
 # ── 8. Context knowledge backend ──

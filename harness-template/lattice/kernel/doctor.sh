@@ -71,9 +71,15 @@ echo ""
 
 echo "── Delivery contract ──"
 check_executable "lattice/kernel/delivery/pipeline.sh" "delivery pipeline"
+check_executable "lattice/kernel/delivery/failure-category-lint.sh" "failure category lint"
 check_executable "lattice/kernel/delivery/gates/spec-lint.sh" "spec lint gate"
 check_executable "lattice/kernel/delivery/gates/ac-coverage.sh" "AC coverage gate"
 check_executable "lattice/kernel/delivery/gates/drift-check.sh" "drift check gate"
+if bash "$PROJECT_ROOT/lattice/kernel/delivery/failure-category-lint.sh" >/dev/null 2>&1; then
+  pass "failure category config lint"
+else
+  fail "failure category config lint failed"
+fi
 check_dir "lattice/state" "state root"
 mkdir -p "$PROJECT_ROOT/lattice/state/eval-runs"
 check_dir "lattice/state/eval-runs" "eval run output root"

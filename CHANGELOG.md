@@ -15,6 +15,7 @@ All notable changes to this project will be documented in this file.
 - Loop state JSON under `lattice/state/loops/`, embedded into eval runs and summarized in eval reports.
 - Failure category and default action fields in loop state, eval summaries, and escalation learn drafts.
 - Configurable failure categories via `lattice/config/failure-categories.yaml`.
+- `failure-category-lint.sh` and doctor integration for failure category config validation.
 - Escalation learn drafts under `lattice/context/drafts/` when retry budget is exhausted.
 - `pr-comment.sh` to create or update a stable GitHub PR comment from the eval Markdown summary.
 - `review-summary.sh` and `tdd-evidence.sh` to capture process evidence as structured JSON.
@@ -26,7 +27,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- README and wiki now describe pipeline/gate eval JSON, loop state, configurable failure categories, escalation learn drafts, review/TDD process evidence, Markdown summaries/history, GitHub Actions artifacts, Step Summary, and PR comments as implemented.
+- README and wiki now describe pipeline/gate eval JSON, loop state, configurable failure categories, failure category lint, escalation learn drafts, review/TDD process evidence, Markdown summaries/history, GitHub Actions artifacts, Step Summary, and PR comments as implemented.
 - PrismSpec README now documents `context.md` in both standalone and Lattice-hosted artifact layouts.
 
 ### Fixed

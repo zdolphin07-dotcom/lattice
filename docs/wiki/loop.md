@@ -33,12 +33,12 @@ Loop 的目标不是让 Agent 无限自修复，而是让失败可控：
 - 输出 escalation 诊断；
 - 在 `lattice/state/loops/<run-id>.json` 记录 loop state；
 - 基于 `lattice/config/failure-categories.yaml` 生成 `failure_category` 与 `default_action`，缺失配置时回退到内置规则；
+- 用 `failure-category-lint.sh` 校验分类配置，并由 doctor 执行；
 - retry 耗尽时在 `lattice/context/drafts/escalation-<run-id>.md` 生成 learn draft；
 - 在 eval run 中嵌入 `loop_state`，并把 retry/escalation 指标汇总到 summary 和 history。
 
 当前缺失：
 
-- failure category 配置还没有独立 lint；
 - learn draft 的 promotion / discard 流程仍需人工执行。
 
 ## 状态模型
@@ -147,12 +147,10 @@ Loop 不新增 SDD 阶段，它嵌入 Verification：
 
 | Gap | 影响 | 下一步 |
 |-----|------|--------|
-| failure category 配置未 lint | 配置写错时只能在运行时发现 | config lint |
 | learn draft promotion 未流程化 | 候选经验可能长期停留在 drafts | promotion / discard workflow |
 
 ## 演进顺序
 
-1. 增加 failure category config lint。
-2. Finishing 引用 loop state 和 learn draft。
-3. 增加 learn draft promotion / discard workflow。
-4. 将 loop history 接入 central eval sink 或 dashboard。
+1. Finishing 引用 loop state 和 learn draft。
+2. 增加 learn draft promotion / discard workflow。
+3. 将 loop history 接入 central eval sink 或 dashboard。
