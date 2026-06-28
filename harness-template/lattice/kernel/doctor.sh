@@ -84,6 +84,7 @@ check_executable "lattice/kernel/orchestrator/sdd/plan-lint.sh" "plan contract l
 check_executable "lattice/kernel/orchestrator/sdd/task-evidence-lint.sh" "task evidence lint"
 check_executable "lattice/kernel/orchestrator/sdd/spec-state-lint.sh" "spec state lint"
 check_executable "lattice/kernel/orchestrator/sdd/spec-status.sh" "spec status transition helper"
+check_executable "lattice/kernel/orchestrator/sdd/spec-history.sh" "spec transition history"
 check_executable "lattice/kernel/context/context-lint.sh" "context basis lint"
 check_executable "lattice/kernel/context/context-run.sh" "context run recorder"
 check_executable "lattice/kernel/context/learn-draft.sh" "learn draft workflow"

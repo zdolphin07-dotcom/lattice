@@ -200,8 +200,8 @@ bash lattice/kernel/orchestrator/sdd/spec-state-lint.sh <spec-id>
 # 受控推进 spec 生命周期状态
 bash lattice/kernel/orchestrator/sdd/spec-status.sh <spec-id> planned --from=drafted
 
-# 查看 spec 状态推进事件
-ls lattice/state/spec-transitions/
+# 汇总 spec 状态推进历史
+bash lattice/kernel/orchestrator/sdd/spec-history.sh --out=lattice/state/spec-history.md
 
 # 阅读项目上下文地图
 cat lattice/context/README.md
@@ -232,7 +232,7 @@ bash lattice/kernel/context/learn-draft.sh discard lattice/context/drafts/escala
 - PrismSpec 独立 skill pack manifest 与 Lattice-hosted 模式；
 - 目录化 spec、per-spec context、模板和 artifact lint；
 - doctor、spec lint、AC coverage、drift check、compliance、spec lock；
-- `pipeline --json-out`、`lattice/state/eval-runs/*.json`、`lattice/state/loops/*.json`、`lattice/state/spec-transitions/*.json`、`lattice/state/outcomes/*.json`、`lattice/state/eval-sink/`、`lattice/state/context-runs/*.json`、`lattice/state/learn-promotions/*.json`、`lattice/state/knowledge-reviews/*.json`、`lattice/config/failure-categories.yaml`、failure category lint、`lattice/context/drafts/escalation-*.md`、eval markdown summary/history、central eval sink/static dashboard/query、outcome link/report、AC/drift/compliance gate JSON、可配置 failure category、spec-state-lint、spec-status、plan-lint、task-evidence-lint、context-lint、context-run、learn draft promotion/discard、knowledge review evidence 和 review/TDD process evidence；
+- `pipeline --json-out`、`lattice/state/eval-runs/*.json`、`lattice/state/loops/*.json`、`lattice/state/spec-transitions/*.json`、`lattice/state/spec-history.md`、`lattice/state/outcomes/*.json`、`lattice/state/eval-sink/`、`lattice/state/context-runs/*.json`、`lattice/state/learn-promotions/*.json`、`lattice/state/knowledge-reviews/*.json`、`lattice/config/failure-categories.yaml`、failure category lint、`lattice/context/drafts/escalation-*.md`、eval markdown summary/history、central eval sink/static dashboard/query、outcome link/report、AC/drift/compliance gate JSON、可配置 failure category、spec-state-lint、spec-status、spec-history、plan-lint、task-evidence-lint、context-lint、context-run、learn draft promotion/discard、knowledge review evidence 和 review/TDD process evidence；
 - GitHub Actions eval artifact、Step Summary 与 best-effort PR comment workflow 模板；
 - Context map、knowledge backend、context-lint、context-run evidence、knowledge metadata lint、knowledge governance lint、中心知识 sync 和基础 `/learn` 约定；
 - Go/Gin/GORM 可运行示例与多 Agent adapter 文档。

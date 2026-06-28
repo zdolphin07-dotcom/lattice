@@ -100,7 +100,7 @@ bash lattice/kernel/orchestrator/sdd/spec-state-lint.sh <spec-id>
 bash lattice/kernel/orchestrator/sdd/spec-status.sh <spec-id> planned --from=drafted
 bash lattice/kernel/orchestrator/sdd/plan-lint.sh <spec-id>
 bash lattice/kernel/orchestrator/sdd/task-evidence-lint.sh <spec-id>
-ls lattice/state/spec-transitions/
+bash lattice/kernel/orchestrator/sdd/spec-history.sh --out=lattice/state/spec-history.md
 cat lattice/context/README.md
 bash lattice/kernel/context/backends/knowledge.sh "payment idempotency"
 bash lattice/kernel/context/context-lint.sh <spec-id> --strict
@@ -117,7 +117,7 @@ Implemented:
 
 - install/init/upgrade and smoke tests;
 - standalone PrismSpec skill pack manifest and Lattice-hosted mode;
-- doctor, `pipeline --json-out` structured eval runs, central eval sink/static dashboard/query, loop state JSON, spec transition JSON, outcome link events and attribution reports, spec-state-lint, spec-status, plan-lint, task-evidence-lint, context-lint, context-run evidence, learn promotion audit events, knowledge review evidence, configurable failure categories, failure category lint, escalation learn drafts, learn draft promotion/discard, Markdown summaries/history reports, AC/drift/compliance gate JSON, review/TDD process evidence, and GitHub Actions eval artifacts/Step Summary/best-effort PR comments;
+- doctor, `pipeline --json-out` structured eval runs, central eval sink/static dashboard/query, loop state JSON, spec transition JSON/history, outcome link events and attribution reports, spec-state-lint, spec-status, spec-history, plan-lint, task-evidence-lint, context-lint, context-run evidence, learn promotion audit events, knowledge review evidence, configurable failure categories, failure category lint, escalation learn drafts, learn draft promotion/discard, Markdown summaries/history reports, AC/drift/compliance gate JSON, review/TDD process evidence, and GitHub Actions eval artifacts/Step Summary/best-effort PR comments;
 - spec lint, AC coverage, drift check, compliance, spec lock;
 - context map, knowledge backend, context-lint, context-run evidence, knowledge metadata lint, knowledge governance lint, sync, and basic learn convention;
 - Go/Gin/GORM example and adapter docs.

@@ -30,6 +30,7 @@ All notable changes to this project will be documented in this file.
 - `pr-comment.sh` to create or update a stable GitHub PR comment from the eval Markdown summary.
 - `spec-state-lint.sh` to validate spec front matter and status-to-artifact readiness.
 - `spec-status.sh` to advance spec lifecycle status with guarded transitions, stale-state protection, and JSON transition events.
+- `spec-history.sh` to aggregate spec transition events into a Markdown lifecycle report.
 - `plan-lint.sh` to validate AC-traced implementation plans before task execution starts.
 - `task-evidence-lint.sh` to require brief, review package, and TDD evidence for completed implementation tasks.
 - `review-summary.sh` and `tdd-evidence.sh` to capture process evidence as structured JSON.

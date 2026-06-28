@@ -124,6 +124,7 @@ if bash "$SANDBOX/.lattice/framework/init.sh" --non-interactive --lang=go --name
     && [[ -x "$SANDBOX/lattice/kernel/orchestrator/sdd/task-evidence-lint.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/orchestrator/sdd/spec-state-lint.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/orchestrator/sdd/spec-status.sh" ]] \
+    && [[ -x "$SANDBOX/lattice/kernel/orchestrator/sdd/spec-history.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/context/context-lint.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/context/context-run.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/context/learn-draft.sh" ]] \
@@ -229,6 +230,7 @@ if bash "$SANDBOX/.lattice/framework/init.sh" --non-interactive --lang=go --name
     && [[ -x "$SANDBOX/lattice/kernel/orchestrator/sdd/task-evidence-lint.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/orchestrator/sdd/review-package.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/orchestrator/sdd/review-summary.sh" ]] \
+    && [[ -x "$SANDBOX/lattice/kernel/orchestrator/sdd/spec-history.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/orchestrator/sdd/tdd-evidence.sh" ]]; then
     pass "SDD helper scripts installed"
   else
@@ -826,6 +828,19 @@ if [[ "$TRANSITION_COUNT_FINAL" == "4" ]] \
 else
   fail "spec-status transition audit trail invalid"
   find "$SANDBOX/lattice/state/spec-transitions" -name '*.json' -type f -print 2>/dev/null
+fi
+SPEC_HISTORY_MD="$SANDBOX/lattice/state/spec-history-smoke.md"
+SPEC_HISTORY_OUTPUT=$(bash "$SANDBOX/lattice/kernel/orchestrator/sdd/spec-history.sh" --out="$SPEC_HISTORY_MD" --limit=10 2>&1)
+if [[ -f "$SPEC_HISTORY_MD" ]] \
+  && grep -q "Lattice Spec History" "$SPEC_HISTORY_MD" \
+  && grep -q "modern-feature" "$SPEC_HISTORY_MD" \
+  && grep -q "finished" "$SPEC_HISTORY_MD" \
+  && grep -q "plan=true, task=true, state=true" "$SPEC_HISTORY_MD"; then
+  pass "spec-history aggregates transition events"
+else
+  fail "spec-history output invalid"
+  echo "$SPEC_HISTORY_OUTPUT" | tail -20
+  [[ -f "$SPEC_HISTORY_MD" ]] && tail -40 "$SPEC_HISTORY_MD"
 fi
 
 REVIEW_SUMMARY_OUTPUT=$(bash "$SANDBOX/lattice/kernel/orchestrator/sdd/review-summary.sh" modern-feature T1 \

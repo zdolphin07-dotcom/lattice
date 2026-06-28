@@ -244,16 +244,17 @@ PrismSpec 不再维护 flat Markdown wrapper。主入口只读取 canonical `SKI
 - spec-state-lint。
 - spec-status guarded transition helper。
 - spec transition JSON events。
+- spec-history Markdown report。
 
 尚未完成：
 
-- transition event dashboard / history 聚合。
+- transition event dashboard 趋势视图。
 - 更强结构化 plan schema。
 - dashboard 趋势增强。
 
 ## 演进优先级
 
-1. 增强 spec transition event dashboard 与 history 聚合。
+1. 增强 spec transition event dashboard 趋势视图。
 2. 增强 plan schema 和任务完成证据的结构化归因。
 3. 增强 dashboard 过滤和趋势视图。
 4. 增加跨项目 outcome attribution 分析。

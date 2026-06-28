@@ -64,7 +64,7 @@ flowchart TB
 | 层 | 职责 | 当前形态 |
 |----|------|----------|
 | PrismSpec | 独立 Spec Coding workflow | `prismspec/skills/*/SKILL.md`、`guide.sh`、`lint.sh` |
-| Orchestrator | Agent 规则、阶段定义、模板入口、spec 状态推进、transition event、plan contract lint 和任务证据校验 | `lattice/kernel/orchestrator/`、`spec-state-lint.sh`、`spec-status.sh`、`plan-lint.sh`、`task-evidence-lint.sh` |
+| Orchestrator | Agent 规则、阶段定义、模板入口、spec 状态推进、transition event/history、plan contract lint 和任务证据校验 | `lattice/kernel/orchestrator/`、`spec-state-lint.sh`、`spec-status.sh`、`spec-history.sh`、`plan-lint.sh`、`task-evidence-lint.sh` |
 | Context | 给 Agent 提供项目上下文地图、项目知识、外部知识入口，并沉淀 per-spec context | `lattice/context/`、`lattice/kernel/context/`、`context-lint.sh`、`context-run.sh` |
 | Delivery | 运行可复现验证卡口 | `lattice/kernel/delivery/` |
 | Eval | 从 gate output、loop state、process evidence 与 outcome link/report 提炼质量证据 | `pipeline --json-out` 生成 eval run，收集 loop/review/TDD/outcome JSON，`eval-summary.sh` 生成 summary，`eval-history.sh` 生成趋势报告，`outcome-report.sh` 生成归因线索，`eval-sink.sh` 发布到 central sink，`eval-dashboard.sh` 生成静态 dashboard，`eval-query.sh` 查询 central sink |
