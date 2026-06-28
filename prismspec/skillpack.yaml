@@ -25,24 +25,31 @@ skills:
     - id: sdd
       type: controller
       path: prismspec/skills/sdd/SKILL.md
+      interface: prismspec/skills/sdd/agents/openai.yaml
     - id: brainstorm
       type: stage
       path: prismspec/skills/brainstorm/SKILL.md
+      interface: prismspec/skills/brainstorm/agents/openai.yaml
     - id: plan
       type: stage
       path: prismspec/skills/plan/SKILL.md
+      interface: prismspec/skills/plan/agents/openai.yaml
     - id: implement
       type: stage
       path: prismspec/skills/implement/SKILL.md
+      interface: prismspec/skills/implement/agents/openai.yaml
     - id: verify
       type: stage
       path: prismspec/skills/verify/SKILL.md
+      interface: prismspec/skills/verify/agents/openai.yaml
     - id: finish
       type: stage
       path: prismspec/skills/finish/SKILL.md
+      interface: prismspec/skills/finish/agents/openai.yaml
     - id: learn
       type: support
       path: prismspec/skills/learn/SKILL.md
+      interface: prismspec/skills/learn/agents/openai.yaml
 workflow:
   stages:
     - id: brainstorm

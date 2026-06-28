@@ -43,6 +43,8 @@ prismspec/
 
 `skills/*/SKILL.md` is the only canonical skill source. Do not maintain parallel flat `skills/*.md` entries.
 
+Each canonical skill includes `agents/openai.yaml` for UI, installer, or marketplace discovery: `display_name`, `short_description`, and a default invocation prompt. The root-level `agents/` directory still contains lightweight reviewer personas; it has a different role.
+
 `skillpack.yaml` is the distributable contract. It declares workflow stages, skills, templates, references, host modes, and quality gates. Agents, installers, and wrappers should prefer it over guessing the layout from the README.
 
 ## Artifact Layout
@@ -158,7 +160,7 @@ bash prismspec/bin/lint.sh lattice/specs/checkout-flow
 `skillpack` checks the PrismSpec distribution itself:
 
 - `skillpack.yaml` entrypoints, workflow stages, and quality gates;
-- canonical `skills/*/SKILL.md` frontmatter, trigger descriptions, and core sections;
+- canonical `skills/*/SKILL.md` frontmatter, trigger descriptions, core sections, and `agents/openai.yaml`;
 - templates, references, command, guide/lint scripts;
 - absence of flat skill wrappers.
 

@@ -43,6 +43,8 @@ prismspec/
 
 `skills/*/SKILL.md` 是唯一 canonical skill source。不要再维护 flat `skills/*.md` 入口，避免同一流程出现多个事实源。
 
+每个 canonical skill 都带有 `agents/openai.yaml`，用于 UI、安装器或 marketplace 展示时读取 `display_name`、`short_description` 和默认调用提示。根目录 `agents/` 仍用于轻量 reviewer persona，两者职责不同。
+
 `skillpack.yaml` 是可分发契约，声明 workflow stages、skills、templates、references、host modes 和质量门禁。Agent、安装器或 wrapper 应该优先读它，而不是从 README 猜目录结构。
 
 ## 产物结构
@@ -158,7 +160,7 @@ bash prismspec/bin/lint.sh lattice/specs/checkout-flow
 `skillpack` 会检查 PrismSpec 分发包自身：
 
 - `skillpack.yaml` 的 entrypoints、workflow stages 和 quality gates；
-- canonical `skills/*/SKILL.md` 的 frontmatter、触发描述和核心章节；
+- canonical `skills/*/SKILL.md` 的 frontmatter、触发描述、核心章节和 `agents/openai.yaml`；
 - templates、references、command、guide/lint 脚本是否齐全；
 - 是否误引入 flat skill wrappers。
 

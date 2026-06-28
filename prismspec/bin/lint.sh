@@ -81,6 +81,18 @@ check_skill_file() {
   fi
 }
 
+check_skill_interface() {
+  local root="$1" stage="$2"
+  local metadata_file="$root/skills/$stage/agents/openai.yaml"
+  check_file "$metadata_file" "$stage UI metadata"
+  [[ -f "$metadata_file" ]] || return
+
+  check_contains "$metadata_file" '^interface:$' "$stage metadata interface root"
+  check_contains "$metadata_file" '^[[:space:]]+display_name: "[^"]{3,}"$' "$stage metadata display_name"
+  check_contains "$metadata_file" '^[[:space:]]+short_description: "[^"]{25,64}"$' "$stage metadata short_description"
+  check_contains "$metadata_file" '^[[:space:]]+default_prompt: ".*\$prismspec-'"$stage" "$stage metadata default_prompt"
+}
+
 check_skillpack() {
   local root="$1"
   local manifest="$root/skillpack.yaml"
@@ -108,7 +120,9 @@ check_skillpack() {
   local stage
   for stage in sdd brainstorm plan implement verify finish learn; do
     check_skill_file "$root" "$stage"
+    check_skill_interface "$root" "$stage"
     check_contains "$manifest" "path: prismspec/skills/$stage/SKILL\\.md" "$stage canonical skill catalog entry"
+    check_contains "$manifest" "interface: prismspec/skills/$stage/agents/openai\\.yaml" "$stage interface catalog entry"
   done
 
   for stage in brainstorm plan implement verify finish; do

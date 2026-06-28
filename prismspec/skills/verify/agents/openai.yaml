@@ -1,0 +1,4 @@
+interface:
+  display_name: "PrismSpec Verify"
+  short_description: "Run command-backed verification evidence"
+  default_prompt: "Use $prismspec-verify to run verification commands and record verify.md evidence."
