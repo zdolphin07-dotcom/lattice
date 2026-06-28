@@ -8,6 +8,6 @@ Execute `prismspec/skills/finish/SKILL.md`.
 2. Write `lattice/specs/<spec-id>/summary.md`.
 3. Link task briefs, review packages, review verdicts, verification evidence, and final status.
 4. Treat `cannot-verify` review verdicts as explicit residual risk or add evidence and re-review.
-5. Extract only durable knowledge; use `/learn` when needed.
+5. Extract only durable knowledge candidates; use `/learn` when needed.
 
 User input: $ARGUMENTS

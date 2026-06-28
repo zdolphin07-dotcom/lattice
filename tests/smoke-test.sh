@@ -161,6 +161,14 @@ if bash "$SANDBOX/.lattice/framework/init.sh" --non-interactive --lang=go --name
     fail "CLAUDE.md not created"
   fi
 
+  if grep -q '@import lattice/kernel/orchestrator/rules.md' "$SANDBOX/CLAUDE.md" \
+    && grep -q 'pipeline.sh --json-out' "$SANDBOX/lattice/kernel/orchestrator/rules.md" \
+    && ! grep -qE 'lattice/kernel/knowledge|lattice/knowledge|kernel/knowledge/loader\.sh|delivery gates|lattice/context/knowledge/drafts' "$SANDBOX/lattice/kernel/orchestrator/rules.md"; then
+    pass "target Agent rules are current"
+  else
+    fail "target Agent rules are stale or missing"
+  fi
+
   if [[ -f "$SANDBOX/lattice/skills/init.md" ]]; then
     pass "Lattice init skill installed"
   else

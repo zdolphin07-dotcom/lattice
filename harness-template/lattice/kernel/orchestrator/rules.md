@@ -1,154 +1,201 @@
-## Lattice — Agent Behavior Rules
+## Lattice Agent Rules
 
-> Lattice injects project-level constraints into your AI coding agent via `CLAUDE.md` `@import`.
-> Lattice hosts PrismSpec as its default spec-coding workflow and enhances it with project context loading and delivery verification.
+> Lattice injects repo-local AI Coding constraints through `CLAUDE.md` `@import`.
+> PrismSpec owns the Spec Coding workflow; Lattice adds project context, verification gates, evidence, loop, and learn.
 
----
+### Operating Rule
+
+Route from current artifacts, not conversation memory:
+
+```bash
+bash prismspec/bin/guide.sh --json
+```
+
+Use the returned `stage`, `mode`, `skill`, `spec_dir`, `run_dir`, and `verify_command` as the source of truth.
 
 ### Routing
 
-| Trigger | Path | When to use |
-|---------|------|-------------|
-| Describe a requirement (default) | **Brainstorming** | Clarify intent, load context, write persistent spec |
-| `/init` | **Init Skill** | Set up harness, generate `lattice/manifest.yaml`, inject `CLAUDE.md` |
-| `/sdd` | **PrismSpec Guided Skill** | Route or resume the full spec-coding workflow from artifacts |
-| `/brainstorm` | **Brainstorm Skill** | Produce `lattice/specs/<id>/spec.md` |
-| `/plan` | **Plan Skill** | Produce `lattice/specs/<id>/plan.md` |
-| `/implement` | **Implement Skill** | Execute plan or tdd policy from the spec |
-| `/verify` | **Verify Skill** | Run manifest-driven verification pipeline |
-| `/finish` | **Finish Skill** | Close delivery, link evidence, extract durable knowledge |
-| `/learn` | **Learn Skill** | Capture durable knowledge into project context |
+| Trigger | Route | Output |
+|---------|-------|--------|
+| Requirement without spec | Brainstorm | `lattice/specs/<spec-id>/context.md`, `spec.md` |
+| `/sdd` | PrismSpec controller | Next stage from `guide.sh --json` |
+| `/brainstorm` | Brainstorm skill | context basis and spec |
+| `/plan` | Plan skill | AC-traced `plan.md` |
+| `/implement` | Implement skill | code, tests, task evidence |
+| `/verify` | Verify skill | `verify.md`, eval JSON when available |
+| `/finish` | Finish skill | `summary.md`, residual risk, outcome links |
+| `/learn` | Learn skill | knowledge draft or promoted project knowledge |
 
----
+### Source Of Truth
 
-### Phase Rules
+| Surface | Path |
+|---------|------|
+| Project declaration | `lattice/manifest.yaml` |
+| Project context map | `lattice/context/README.md` |
+| External context map | `lattice/context/external.md` |
+| Durable project knowledge | `lattice/context/knowledge/` |
+| Spec artifacts | `lattice/specs/<spec-id>/` |
+| Task evidence | `.lattice/sdd/<spec-id>/<task-id>/` |
+| Eval runs and loop state | `lattice/state/` |
+| PrismSpec skills | `prismspec/skills/*/SKILL.md` |
 
-> The following rules apply to each phase of development. If your workflow engine provides
-> phases with different names, map them accordingly (see docs/adapters/ for engine-specific mappings).
+Current code, tests, schemas, contracts, and command output override stale notes.
 
-#### Phase: Brainstorming — Spec format and context basis
+### Brainstorm
 
-- **Spec path**: `lattice/specs/{spec-id}/spec.md`
-- **Context basis path**: `lattice/specs/{spec-id}/context.md`
-- **Template**: read `specs.template` from `lattice/manifest.yaml`; default is `lattice/kernel/orchestrator/templates/spec-template.md`
-- **Dual-audience principle**: diagrams for humans, DDL/AC/API examples for AI execution
-- **AC numbering**: globally unique `AC-{nn}`, traced through spec -> test -> coverage
-- **Execution policy**: read `specs.default_execution_mode`; `auto` means choose `plan` or `tdd` by risk
-- **Active spec**: prefer `specs.active` when configured; do not infer from recently modified `plan.md` or `summary.md`
+- Write both `context.md` and `spec.md`.
+- Read `lattice/context/README.md` first when present.
+- Load only context that changes scope, AC, risk, interface, compatibility, or verification.
+- Optional curated knowledge search: `bash lattice/kernel/context/backends/knowledge.sh <keywords>`.
+- Do not paste large knowledge files into the spec; record selected facts, constraints, conflicts, exclusions, and gaps in `context.md`.
+- Record `execution_mode`, reason, and source: `model-selected`, `project-default`, or `user-override`.
+- Use stable `AC-{n}` identifiers.
 
-Before drafting the spec:
-1. Read `lattice/manifest.yaml`
-2. Read `lattice/context/README.md` as the project context map when present.
-3. Follow the map to relevant project knowledge, external references, code, tests, schemas, interface contracts, and historical specs.
-4. Write `lattice/specs/{spec-id}/context.md` with selected facts, constraints, conflicts, exclusions, and open questions.
-5. Use `context.md` as the design basis; if context is insufficient, ask the user first.
-6. Record whether the execution mode came from model selection, project default, or user override.
-
-#### Phase: Planning — AC traceability
-
-- Plan path: `lattice/specs/{spec-id}/plan.md`
-- Each task must reference its associated AC number
-- Plan must include `Global Constraints` for versions, dependencies, naming, security, data, compatibility, and out-of-scope limits
-- Each task must declare interfaces: inputs, outputs, touched files/contracts, and verification evidence
-- If `execution_mode: plan` but planning reveals bug-fix, money/security/permission/state-machine, concurrency, idempotency, or regression risk, upgrade to `tdd`
-- If `execution_mode: tdd`, include test-first tasks; do not downgrade to `plan` without explicit user override
-- If spec drift is discovered during coding, update the spec first, then continue implementation
-
-#### Phase: Implementation — Plan/TDD policy
-
-- Unit tests: `TestAC{nn}_{description}` (Go) / `test_ac{nn}_{description}` (Python) / `describe('AC-{nn}: ...')` (Node)
-- Integration tests: `TestIntegration_{scenario}`
-- Smoke tests: `TestSmoke_{API}`
-- Plan mode: execute `plan.md`, add necessary tests for behavior changes
-- TDD mode: write red tests first, implement green, then refactor; no red test, no implementation
-- Before each task: resolve the next task with `bash lattice/kernel/orchestrator/sdd/task-next.sh <spec-id> --json`, then generate a task brief with `bash lattice/kernel/orchestrator/sdd/task-brief.sh <spec-id> <task-id>`
-- After each task: generate a review package with `bash lattice/kernel/orchestrator/sdd/review-package.sh <spec-id> <task-id>`
-- Mark a task complete only with `bash lattice/kernel/orchestrator/sdd/task-complete.sh <spec-id> <task-id>` after required evidence exists
-- Before marking implementation complete: run `bash lattice/kernel/orchestrator/sdd/task-evidence-lint.sh <spec-id>`
-- Store transient evidence under `.lattice/sdd/{spec-id}/{task-id}/`; do not put execution scratch files in `.git/`
-
-#### Review contract
-
-- Review is read-only: reviewers must not modify the working tree
-- Return both verdicts: spec compliance and code quality
-- Valid verdicts: `pass`, `fail`, `cannot-verify`
-- Use `cannot-verify` when the diff package lacks enough evidence; do not invent certainty
-
-#### Phase: Verification — Delivery pipeline
-
-Before declaring completion, run:
+Run when available:
 
 ```bash
-bash lattice/kernel/delivery/pipeline.sh
+bash lattice/kernel/context/context-lint.sh <spec-id>
+bash lattice/kernel/context/context-run.sh <spec-id> --strict
+bash lattice/kernel/orchestrator/sdd/spec-state-lint.sh <spec-id>
+```
+
+### Plan
+
+- Write `lattice/specs/<spec-id>/plan.md`.
+- Every behavior task must reference at least one AC.
+- Every task must name scope, touched files/contracts, verification command, evidence path, and done conditions.
+- Use thin vertical slices when possible.
+- Upgrade `plan -> tdd` when planning reveals bug-fix, permission, security, money, state-machine, migration, concurrency, idempotency, or regression risk.
+- Do not silently downgrade `tdd -> plan`.
+
+Run when available:
+
+```bash
+bash lattice/kernel/orchestrator/sdd/plan-lint.sh <spec-id>
+bash lattice/kernel/orchestrator/sdd/spec-status.sh <spec-id> planned --from=drafted
+```
+
+### Implement
+
+- Resolve the next task from artifacts:
+
+```bash
+bash lattice/kernel/orchestrator/sdd/task-next.sh <spec-id> --json
+```
+
+- Implement one planned slice at a time.
+- In Plan Mode, add tests for behavior changes or write an explicit no-test rationale.
+- In TDD Mode, write the red test first, make it fail for the expected reason, then implement green and refactor.
+- Generate task brief and review package when helpers exist.
+- Mark tasks complete only through evidence-gated helper:
+
+```bash
+bash lattice/kernel/orchestrator/sdd/task-complete.sh <spec-id> <task-id> --json
+```
+
+- Do not mix unrelated refactors.
+- If implementation needs scope not in the spec, update the spec first.
+
+Before treating implementation as complete:
+
+```bash
+bash lattice/kernel/orchestrator/sdd/task-evidence-lint.sh <spec-id>
+bash lattice/kernel/orchestrator/sdd/spec-status.sh <spec-id> implemented --from=planned
+```
+
+### Verify
+
+Verification is command-backed proof, not a prose assertion.
+
+Default Lattice-hosted verification:
+
+```bash
+bash lattice/kernel/delivery/pipeline.sh --json-out
 ```
 
 Rules:
-- No completion claims without verification evidence
-- On failure: fix -> re-run loop, default max 3 retries
-- After retry budget exhausted: escalation, await human intervention
 
-#### Phase: Finishing — Evidence closeout
+- No completion claim without command output or recorded evidence.
+- Fix retryable failures within spec scope and rerun relevant commands.
+- Escalate when the fix requires product, architecture, credential, data, or permission decisions.
+- Record exact commands and outcomes in `verify.md`.
 
-Before merge/PR, confirm:
-- `ac-coverage`: every AC has a corresponding test
-- `drift-check`: DDL / routes / error codes match spec
-- `compliance`: per-spec context, knowledge references, and clarification traces are auditable
-- For multi-agent concurrent spec edits, use `spec-lock.sh`
-- Write `lattice/specs/{spec-id}/summary.md`
-- Link task briefs, review packages, and review verdicts
-- Extract only durable knowledge via `/learn`; do not preserve one-off implementation details
+When verification passes:
 
----
+```bash
+bash lattice/kernel/orchestrator/sdd/spec-status.sh <spec-id> verified --from=implemented
+```
 
-### Available Skills
+### Finish
 
-| Skill | Trigger | Capability |
-|-------|---------|------------|
-| `init` | `/init`, initialize Lattice | Generate manifest, copy harness-template, inject CLAUDE.md |
-| `sdd` | `/sdd`, PrismSpec guided workflow | Route/resume Brainstorming -> Planning -> Implementation -> Verification -> Finishing |
-| `brainstorm` | `/brainstorm`, draft spec | Clarify intent, load context, write persistent spec |
-| `plan` | `/plan`, write plan | Decompose spec into AC-traced tasks |
-| `implement` | `/implement`, tdd | Execute plan or tdd policy |
-| `verify` | `/verify`, verify, run pipeline | Execute `lattice/kernel/delivery/pipeline.sh` |
-| `finish` | `/finish`, close out | Write summary and extract durable knowledge |
-| `learn` | `/learn`, capture, remember | Write to `lattice/context/knowledge/drafts` or `project` and update index |
+- Write `lattice/specs/<spec-id>/summary.md`.
+- Summarize AC coverage, changed files, verification commands, evidence links, residual risk, and deferred work.
+- Treat `cannot_verify` as residual risk, not pass.
+- Link known post-run review findings, rework, escaped defects, incidents, or success signals with `outcome-link.sh` when available.
+- Use `summary-draft.sh` as a draft generator when available; edit for human readability.
+
+When summary exists and verification evidence is real:
+
+```bash
+bash lattice/kernel/orchestrator/sdd/spec-status.sh <spec-id> finished --from=verified
+```
+
+### Learn
+
+Promote only durable, reusable, non-secret lessons.
+
+- Prefer `lattice/kernel/context/summary-learn-draft.sh <spec-id>` when `summary.md` contains Knowledge Candidates.
+- Store drafts under `lattice/context/drafts/`.
+- Promote to `lattice/context/knowledge/` only after checking duplicates and conflicts.
+- When governance is required, record reviewer evidence:
+
+```bash
+bash lattice/kernel/context/knowledge-review.sh approve lattice/context/drafts/<draft>.md --reviewer=<name> --reason=<reason> --conflicts-checked
+bash lattice/kernel/context/learn-draft.sh promote lattice/context/drafts/<draft>.md --require-review --to=lattice/context/knowledge/pitfalls.md
+```
+
+### Review Contract
+
+- Review is read-only.
+- Valid verdicts: `pass`, `fail`, `cannot_verify`.
+- Check spec compliance, code quality, test coverage, and risk.
+- Do not treat missing evidence as pass.
 
 ### Artifact Layout
 
 ```text
 lattice/
 ├── manifest.yaml
-├── kernel/
-│   ├── _lib.sh
-│   ├── orchestrator/
-│   │   ├── rules.md
-│   │   ├── flow.yaml
-│   │   └── templates/
-│   ├── context/
-│   └── delivery/
 ├── context/
-│   ├── sources.yaml
-│   └── knowledge/
-│       ├── project/
-│       ├── central/
-│       └── drafts/
+│   ├── README.md
+│   ├── external.md
+│   ├── knowledge/
+│   └── drafts/
 ├── specs/
-│   └── {spec-id}/
+│   └── <spec-id>/
 │       ├── context.md
 │       ├── spec.md
 │       ├── plan.md
+│       ├── verify.md
 │       └── summary.md
-├── state/
-└── skills/
+└── state/
+    ├── eval-runs/
+    ├── loops/
+    ├── outcomes/
+    ├── context-runs/
+    ├── learn-promotions/
+    └── knowledge-reviews/
 
 prismspec/
+├── skillpack.yaml
 ├── skills/
-└── templates/
+├── templates/
+├── references/
+└── bin/
 
-.lattice/
-└── sdd/
-    └── {spec-id}/
-        └── {task-id}/
-            ├── brief.md
-            └── review-package.md
+.lattice/sdd/<spec-id>/<task-id>/
+├── brief.md
+├── review-package.md
+├── review-summary.json
+└── tdd-evidence.json
 ```
