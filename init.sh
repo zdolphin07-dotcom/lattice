@@ -212,7 +212,7 @@ copy_if_not_exists "$HARNESS_TEMPLATE_DIR/lattice/kernel/doctor.sh" "lattice/ker
 copy_if_not_exists "$HARNESS_TEMPLATE_DIR/lattice/kernel/orchestrator/templates/spec-template.md" "lattice/kernel/orchestrator/templates/spec-template.md"
 copy_if_not_exists "$HARNESS_TEMPLATE_DIR/lattice/kernel/orchestrator/rules.md" "lattice/kernel/orchestrator/rules.md"
 copy_if_not_exists "$HARNESS_TEMPLATE_DIR/lattice/kernel/orchestrator/flow.yaml" "lattice/kernel/orchestrator/flow.yaml"
-for f in task-brief.sh review-package.sh; do
+for f in task-brief.sh review-package.sh review-summary.sh tdd-evidence.sh; do
   copy_if_not_exists "$HARNESS_TEMPLATE_DIR/lattice/kernel/orchestrator/sdd/$f" "lattice/kernel/orchestrator/sdd/$f"
 done
 

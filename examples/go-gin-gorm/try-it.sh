@@ -51,14 +51,24 @@ echo "── 5. Context Knowledge Backend ──"
 bash lattice/kernel/context/backends/knowledge.sh naming
 echo ""
 
-echo "── 6. Pipeline Eval JSON ──"
-bash lattice/kernel/delivery/pipeline.sh --only=ac-coverage --spec="$SPEC" --json-out=lattice/state/eval-runs/example.json
-yq '.metrics, .gates[0].metrics' lattice/state/eval-runs/example.json
+echo "── 6. Review Summary Evidence ──"
+bash lattice/kernel/orchestrator/sdd/review-summary.sh create-item-api branch \
+  --spec-compliance=pass \
+  --code-quality=pass \
+  --test-coverage=pass \
+  --risk=pass \
+  --evidence="spec-lint, ac-coverage, drift-check"
+yq '.verdict, .axes' .lattice/sdd/create-item-api/branch/review-summary.json
 echo ""
 
-echo "── 7. Eval Markdown Summary ──"
+echo "── 7. Pipeline Eval JSON ──"
+bash lattice/kernel/delivery/pipeline.sh --only=ac-coverage --spec="$SPEC" --json-out=lattice/state/eval-runs/example.json
+yq '.metrics, .gates[0].metrics, .process_evidence.review_summaries[0].verdict' lattice/state/eval-runs/example.json
+echo ""
+
+echo "── 8. Eval Markdown Summary ──"
 bash lattice/kernel/delivery/eval-summary.sh lattice/state/eval-runs/example.json --out=lattice/state/eval-runs/example.md
-sed -n '1,32p' lattice/state/eval-runs/example.md
+sed -n '1,48p' lattice/state/eval-runs/example.md
 echo ""
 
 echo "══════════════════════════════════"

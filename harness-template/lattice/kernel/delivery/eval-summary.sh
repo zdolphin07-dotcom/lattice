@@ -96,6 +96,8 @@ render_summary() {
   local status project spec_file git_sha kernel_version duration_ms exit_code
   local steps_total steps_passed steps_failed steps_skipped
   local ac_total ac_covered ac_uncovered drift_count compliance_warnings
+  local review_total review_passed review_failed review_cannot_verify
+  local tdd_total tdd_complete tdd_invalid
 
   status="$(json_get ".pipeline.status")"
   project="$(json_get ".project")"
@@ -113,6 +115,13 @@ render_summary() {
   ac_uncovered="$(metric_value "ac_uncovered")"
   drift_count="$(metric_value "drift_count")"
   compliance_warnings="$(metric_value "compliance_warnings")"
+  review_total="$(metric_value "review_total")"
+  review_passed="$(metric_value "review_passed")"
+  review_failed="$(metric_value "review_failed")"
+  review_cannot_verify="$(metric_value "review_cannot_verify")"
+  tdd_total="$(metric_value "tdd_total")"
+  tdd_complete="$(metric_value "tdd_complete")"
+  tdd_invalid="$(metric_value "tdd_invalid")"
 
   echo "# Lattice Eval Summary"
   echo ""
@@ -134,6 +143,8 @@ render_summary() {
   echo "| AC Coverage | $(md_escape "${ac_covered:-0}") / $(md_escape "${ac_total:-0}") covered, $(md_escape "${ac_uncovered:-0}") uncovered |"
   echo "| Drift Count | $(md_escape "${drift_count:-0}") |"
   echo "| Compliance Warnings | $(md_escape "${compliance_warnings:-0}") |"
+  echo "| Review Verdicts | $(md_escape "${review_passed:-0}") pass / $(md_escape "${review_failed:-0}") fail / $(md_escape "${review_cannot_verify:-0}") cannot_verify / $(md_escape "${review_total:-0}") total |"
+  echo "| TDD Evidence | $(md_escape "${tdd_complete:-0}") complete / $(md_escape "${tdd_invalid:-0}") invalid / $(md_escape "${tdd_total:-0}") total |"
   echo ""
   echo "## Gates"
   echo ""
@@ -151,6 +162,48 @@ render_summary() {
       gate_status="$(json_get ".gates[$i].status")"
       metrics="$(gate_metric_summary "$i")"
       echo "| $(md_escape "${gate:-unknown}") | $(md_escape "${gate_status:-unknown}") | $(md_escape "$metrics") |"
+    done
+  fi
+
+  echo ""
+  echo "## Review Evidence"
+  echo ""
+
+  local review_count
+  review_count="$(yq -r '(.process_evidence.review_summaries // []) | length' "$EVAL_JSON")"
+  if [[ "$review_count" -eq 0 ]]; then
+    echo "_No review-summary.json captured._"
+  else
+    echo "| Task | Verdict | Axes | Findings |"
+    echo "|---|---|---|---|"
+    local i task verdict axes findings_count
+    for i in $(seq 0 $((review_count - 1))); do
+      task="$(json_get ".process_evidence.review_summaries[$i].task_id")"
+      verdict="$(json_get ".process_evidence.review_summaries[$i].verdict")"
+      axes="spec=$(json_get ".process_evidence.review_summaries[$i].axes.spec_compliance"), code=$(json_get ".process_evidence.review_summaries[$i].axes.code_quality"), test=$(json_get ".process_evidence.review_summaries[$i].axes.test_coverage"), risk=$(json_get ".process_evidence.review_summaries[$i].axes.risk")"
+      findings_count="$(yq -r "(.process_evidence.review_summaries[$i].findings // []) | length" "$EVAL_JSON")"
+      echo "| $(md_escape "${task:-unknown}") | $(md_escape "${verdict:-unknown}") | $(md_escape "$axes") | $(md_escape "$findings_count") |"
+    done
+  fi
+
+  echo ""
+  echo "## TDD Evidence"
+  echo ""
+
+  local tdd_count
+  tdd_count="$(yq -r '(.process_evidence.tdd_evidence // []) | length' "$EVAL_JSON")"
+  if [[ "$tdd_count" -eq 0 ]]; then
+    echo "_No tdd-evidence.json captured._"
+  else
+    echo "| Task | Status | ACs | Test |"
+    echo "|---|---|---|---|"
+    local i task status ac_ids test_name
+    for i in $(seq 0 $((tdd_count - 1))); do
+      task="$(json_get ".process_evidence.tdd_evidence[$i].task_id")"
+      status="$(json_get ".process_evidence.tdd_evidence[$i].status")"
+      ac_ids="$(yq -r "(.process_evidence.tdd_evidence[$i].ac_ids // []) | join(\", \")" "$EVAL_JSON")"
+      test_name="$(json_get ".process_evidence.tdd_evidence[$i].test.name")"
+      echo "| $(md_escape "${task:-unknown}") | $(md_escape "${status:-unknown}") | $(md_escape "$ac_ids") | $(md_escape "$test_name") |"
     done
   fi
 

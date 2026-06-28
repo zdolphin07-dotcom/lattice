@@ -8,7 +8,7 @@ Eval 在 Lattice 中不是“多跑几个测试”，而是回答三个问题：
 2. Agent 的工作过程是否可靠？
 3. 团队的 AI Coding 质量是否在变好？
 
-当前实现已经有 eval 原材料：spec-lint、AC coverage、drift check、compliance、build/lint/test output 和 smoke test。`pipeline.sh --json-out` 会把一次运行写成结构化 eval run，并嵌入 AC coverage、drift check、compliance 的 gate JSON；`eval-summary.sh` 会把 eval JSON 渲染成 Markdown summary，供本地阅读和 CI Step Summary 使用。后续再把 review/TDD 语义证据接入同一模型。
+当前实现已经有 eval 原材料：spec-lint、AC coverage、drift check、compliance、build/lint/test output、review summary、TDD red/green evidence 和 smoke test。`pipeline.sh --json-out` 会把一次运行写成结构化 eval run，并嵌入 AC coverage、drift check、compliance 的 gate JSON 以及当前 spec 对应的 process evidence；`eval-summary.sh` 会把 eval JSON 渲染成 Markdown summary，供本地阅读和 CI Step Summary 使用。
 
 ## 当前形态
 
@@ -18,6 +18,8 @@ Eval 在 Lattice 中不是“多跑几个测试”，而是回答三个问题：
 | `ac-coverage.sh` | coverage diagnostics | AC 是否有测试追踪 |
 | `drift-check.sh` | drift diagnostics | Spec 与代码是否偏移 |
 | `compliance.sh` | warnings | 是否引用知识、是否有澄清痕迹 |
+| `review-summary.sh` | review verdict JSON | spec compliance、code quality、test coverage、risk 是否被审查 |
+| `tdd-evidence.sh` | TDD red/green JSON | TDD task 是否有红灯、绿灯和 AC trace |
 | build/lint/test | terminal output | 工程基础质量 |
 | smoke test | pass/fail summary | 框架自身是否可运行 |
 
@@ -69,7 +71,12 @@ lattice/state/eval-runs/
     "ac_total": 5,
     "ac_covered": 5,
     "drift_count": 0,
-    "compliance_warnings": 1
+    "compliance_warnings": 1,
+    "review_total": 1,
+    "review_failed": 0,
+    "review_cannot_verify": 0,
+    "tdd_total": 1,
+    "tdd_complete": 1
   },
   "steps": [
     {
@@ -89,7 +96,28 @@ lattice/state/eval-runs/
       },
       "findings": []
     }
-  ]
+  ],
+  "process_evidence": {
+    "review_summaries": [
+      {
+        "kind": "review-summary",
+        "verdict": "pass",
+        "axes": {
+          "spec_compliance": "pass",
+          "code_quality": "pass",
+          "test_coverage": "pass",
+          "risk": "pass"
+        }
+      }
+    ],
+    "tdd_evidence": [
+      {
+        "kind": "tdd-evidence",
+        "status": "pass",
+        "ac_ids": ["AC-1"]
+      }
+    ]
+  }
 }
 ```
 
@@ -105,6 +133,8 @@ lattice/state/eval-runs/
 | drift count | 规约与代码漂移数量 |
 | retry count | 修复轮数 |
 | escalation count | 超出重试预算次数 |
+| review verdict | pass / fail / cannot_verify 分布 |
+| TDD completeness | TDD red/green evidence 完整度 |
 
 中期指标：
 
@@ -139,12 +169,11 @@ Lattice 在 `harness-template/.github/workflows/lattice-eval.yml` 提供 GitHub 
 
 | Gap | 影响 | 下一步 |
 |-----|------|--------|
-| review/TDD 语义证据未结构化 | review、TDD、人工检查还不能统一入库 | `review-summary.json`、`tdd-evidence.json` |
-| review verdict 未结构化 | 语义质量无法进入指标 | `review-summary.json` |
+| review/TDD 趋势指标未沉淀 | 已能进入 eval run，但还没有跨 run 趋势 | eval history aggregation |
 | PR comment 未实现 | Step Summary 只在 CI run 页面展示，PR 对话页还不能直接看 | 复用 eval markdown summary 发布 PR comment |
 
 ## 演进顺序
 
-1. 引入 review verdict 和 TDD red/green evidence。
-2. 复用 eval markdown summary 发布 PR comment。
-3. 增加趋势报告。
+1. 复用 eval markdown summary 发布 PR comment。
+2. 增加 review/TDD 趋势报告。
+3. 将 loop retry state 写入 eval run。

@@ -80,6 +80,8 @@ bash prismspec/bin/guide.sh --json
 ```bash
 bash lattice/kernel/delivery/pipeline.sh
 bash lattice/kernel/delivery/pipeline.sh --json-out
+bash lattice/kernel/orchestrator/sdd/review-summary.sh <spec-id> <task-id> --spec-compliance=pass --code-quality=pass --test-coverage=pass --risk=pass
+bash lattice/kernel/orchestrator/sdd/tdd-evidence.sh <spec-id> <task-id> --ac=AC-1 --test=TestAC1 --red-command="..." --red-exit=1 --green-command="..." --green-exit=0
 bash lattice/kernel/delivery/eval-summary.sh lattice/state/eval-runs/<run-id>.json
 bash lattice/kernel/delivery/pipeline.sh --only=spec-lint
 bash lattice/kernel/doctor.sh
@@ -96,14 +98,14 @@ Implemented:
 
 - install/init/upgrade and smoke tests;
 - standalone PrismSpec skill pack manifest and Lattice-hosted mode;
-- doctor, `pipeline --json-out` structured eval runs, Markdown summaries, AC/drift/compliance gate JSON, and GitHub Actions eval artifacts/Step Summary;
+- doctor, `pipeline --json-out` structured eval runs, Markdown summaries, AC/drift/compliance gate JSON, review/TDD process evidence, and GitHub Actions eval artifacts/Step Summary;
 - spec lint, AC coverage, drift check, compliance, spec lock;
 - context map, knowledge backend, sync, and basic learn convention;
 - Go/Gin/GORM example and adapter docs.
 
 Planned:
 
-- review/TDD evidence JSON and trend metrics;
+- review/TDD evidence trend metrics and PR comment presentation;
 - stronger context/knowledge metadata and stale/conflict checks;
 - more drift parsers for Node/Python and other stacks;
 - plugin manifest/schema/versioning;

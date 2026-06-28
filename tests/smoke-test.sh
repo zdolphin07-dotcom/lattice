@@ -197,7 +197,10 @@ if bash "$SANDBOX/.lattice/framework/init.sh" --non-interactive --lang=go --name
     fail "PrismSpec guide did not accept command aliases"
   fi
 
-  if [[ -x "$SANDBOX/lattice/kernel/orchestrator/sdd/task-brief.sh" ]] && [[ -x "$SANDBOX/lattice/kernel/orchestrator/sdd/review-package.sh" ]]; then
+  if [[ -x "$SANDBOX/lattice/kernel/orchestrator/sdd/task-brief.sh" ]] \
+    && [[ -x "$SANDBOX/lattice/kernel/orchestrator/sdd/review-package.sh" ]] \
+    && [[ -x "$SANDBOX/lattice/kernel/orchestrator/sdd/review-summary.sh" ]] \
+    && [[ -x "$SANDBOX/lattice/kernel/orchestrator/sdd/tdd-evidence.sh" ]]; then
     pass "SDD helper scripts installed"
   else
     fail "SDD helper scripts missing"
@@ -495,6 +498,38 @@ else
   fail "review-package did not generate expected package"
   echo "$REVIEW_OUTPUT" | tail -10
 fi
+
+REVIEW_SUMMARY_OUTPUT=$(bash "$SANDBOX/lattice/kernel/orchestrator/sdd/review-summary.sh" modern-feature T1 \
+  --spec-compliance=pass \
+  --code-quality=pass \
+  --test-coverage=cannot_verify \
+  --risk=pass \
+  --finding="medium|internal/handler/item_test.go|missing regression test evidence" \
+  --evidence="review-package.md" 2>&1)
+if yq -e '.kind == "review-summary" and .verdict == "cannot_verify" and .axes.test_coverage == "cannot_verify" and (.findings | length == 1)' "$SANDBOX/.lattice/sdd/modern-feature/T1/review-summary.json" >/dev/null 2>&1; then
+  pass "review-summary writes structured verdict JSON"
+else
+  fail "review-summary JSON invalid"
+  echo "$REVIEW_SUMMARY_OUTPUT" | tail -10
+fi
+
+TDD_EVIDENCE_OUTPUT=$(bash "$SANDBOX/lattice/kernel/orchestrator/sdd/tdd-evidence.sh" modern-feature T1 \
+  --ac=AC-1 \
+  --test=TestAC1_CreateItem \
+  --test-file=internal/handler/item_test.go \
+  --red-command="go test ./internal/handler -run TestAC1_CreateItem" \
+  --red-exit=1 \
+  --red-summary="handler not implemented" \
+  --green-command="go test ./internal/handler -run TestAC1_CreateItem" \
+  --green-exit=0 \
+  --green-summary="focused AC test passes" \
+  --refactor=none 2>&1)
+if yq -e '.kind == "tdd-evidence" and .status == "pass" and .red.exit_code == 1 and .green.exit_code == 0 and (.ac_ids | length == 1)' "$SANDBOX/.lattice/sdd/modern-feature/T1/tdd-evidence.json" >/dev/null 2>&1; then
+  pass "tdd-evidence writes structured red/green JSON"
+else
+  fail "tdd-evidence JSON invalid"
+  echo "$TDD_EVIDENCE_OUTPUT" | tail -10
+fi
 echo ""
 
 # ── 7. AC-coverage (no tests — should report uncovered) ──
@@ -541,7 +576,7 @@ fi
 PIPELINE_GATE_JSON="$SANDBOX/lattice/state/pipeline-ac-smoke.json"
 PIPELINE_GATE_EXIT=0
 bash "$SANDBOX/lattice/kernel/delivery/pipeline.sh" --only=ac-coverage --spec="$SANDBOX/lattice/specs/modern-feature/spec.md" --json-out="$PIPELINE_GATE_JSON" >/tmp/lattice-pipeline-gate-json.log 2>&1 || PIPELINE_GATE_EXIT=$?
-if [[ $PIPELINE_GATE_EXIT -eq 1 ]] && yq -e '.metrics.ac_total == 2 and .metrics.ac_uncovered == 2 and (.gates | length == 1) and .gates[0].gate == "ac-coverage"' "$PIPELINE_GATE_JSON" >/dev/null 2>&1; then
+if [[ $PIPELINE_GATE_EXIT -eq 1 ]] && yq -e '.metrics.ac_total == 2 and .metrics.ac_uncovered == 2 and (.gates | length == 1) and .gates[0].gate == "ac-coverage" and .metrics.review_total == 1 and .metrics.review_cannot_verify == 1 and .metrics.tdd_total == 1 and .metrics.tdd_complete == 1 and .process_evidence.review_summaries[0].kind == "review-summary" and .process_evidence.tdd_evidence[0].kind == "tdd-evidence"' "$PIPELINE_GATE_JSON" >/dev/null 2>&1; then
   pass "pipeline embeds structured gate JSON in eval run"
 else
   fail "pipeline gate JSON embedding invalid"
@@ -550,7 +585,7 @@ fi
 
 PIPELINE_SUMMARY_MD="$SANDBOX/lattice/state/eval-summary-smoke.md"
 SUMMARY_OUTPUT=$(bash "$SANDBOX/lattice/kernel/delivery/eval-summary.sh" "$PIPELINE_GATE_JSON" --out="$PIPELINE_SUMMARY_MD" 2>&1)
-if [[ -f "$PIPELINE_SUMMARY_MD" ]] && grep -q "Lattice Eval Summary" "$PIPELINE_SUMMARY_MD" && grep -q "AC Coverage" "$PIPELINE_SUMMARY_MD" && grep -q "ac-coverage" "$PIPELINE_SUMMARY_MD"; then
+if [[ -f "$PIPELINE_SUMMARY_MD" ]] && grep -q "Lattice Eval Summary" "$PIPELINE_SUMMARY_MD" && grep -q "AC Coverage" "$PIPELINE_SUMMARY_MD" && grep -q "ac-coverage" "$PIPELINE_SUMMARY_MD" && grep -q "Review Evidence" "$PIPELINE_SUMMARY_MD" && grep -q "TDD Evidence" "$PIPELINE_SUMMARY_MD"; then
   pass "eval-summary renders pipeline JSON as Markdown"
 else
   fail "eval-summary output invalid"

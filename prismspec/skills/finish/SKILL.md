@@ -24,7 +24,7 @@ Close the loop. Preserve the useful delivery evidence and avoid turning transien
 1. Read spec, plan, verification evidence, and changed files.
 2. Summarize what changed against ACs.
 3. Record verification commands and outcomes.
-4. Record review verdicts: `pass`, `fail`, or `cannot_verify`.
+4. Record review verdicts: `pass`, `fail`, or `cannot_verify`; write `review-summary.json` when the helper exists.
 5. Write residual risks and deferred work with owners or next actions.
 6. Write `summary.md` next to `spec.md`.
 7. Capture reusable lessons through `prismspec-learn` only when durable.
@@ -32,6 +32,7 @@ Close the loop. Preserve the useful delivery evidence and avoid turning transien
 ## Outputs
 
 - `summary.md`
+- Lattice-hosted review evidence: `.lattice/sdd/<spec-id>/<task-id>/review-summary.json` when review was performed.
 - Optional knowledge draft.
 
 ## Stop Conditions

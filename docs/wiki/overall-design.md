@@ -67,7 +67,7 @@ flowchart TB
 | Orchestrator | Agent 规则、阶段定义、模板入口 | `lattice/kernel/orchestrator/` |
 | Context | 给 Agent 提供项目上下文地图、项目知识、外部知识入口，并沉淀 per-spec context | `lattice/context/`、`lattice/kernel/context/` |
 | Delivery | 运行可复现验证卡口 | `lattice/kernel/delivery/` |
-| Eval | 从 gate output 提炼质量证据 | `pipeline --json-out` 生成 eval run，`eval-summary.sh` 生成 Markdown summary；review/TDD 继续演进 |
+| Eval | 从 gate output 与 process evidence 提炼质量证据 | `pipeline --json-out` 生成 eval run，收集 review/TDD JSON，`eval-summary.sh` 生成 Markdown summary |
 
 ## 数据流
 
@@ -88,8 +88,9 @@ sequenceDiagram
     Agent->>Repo: Write spec.md
     Agent->>Repo: Write plan.md
     Agent->>Repo: Edit code/tests
+    Agent->>Repo: Write review/TDD process evidence
     Agent->>H: pipeline.sh
-    H-->>Agent: Gate evidence
+    H-->>Agent: Gate and process evidence
     Agent->>Repo: Write verify.md and summary.md
 ```
 
@@ -102,7 +103,7 @@ sequenceDiagram
 | Context source | Agent-readable context map，必要时辅以 sync 脚本 | repo-local、central context、external docs |
 | Delivery gate | `pipeline.steps[]` command | build、lint、test、drift、compliance |
 | Drift parser | `drift.plugins[]` command | route/schema/error-code parser |
-| Eval sink | `pipeline --json-out` + `eval-summary.sh` + GitHub Actions artifact | local JSON、Markdown summary、CI Step Summary、dashboard |
+| Eval sink | `pipeline --json-out` + process evidence + `eval-summary.sh` + GitHub Actions artifact | local JSON、Markdown summary、CI Step Summary、dashboard |
 
 ## 为什么不是中心化平台
 

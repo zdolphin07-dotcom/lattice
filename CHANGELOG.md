@@ -11,6 +11,7 @@ All notable changes to this project will be documented in this file.
 - `pipeline.sh --json-out[=<file>]` to write structured eval run evidence under `lattice/state/eval-runs/`.
 - `--json-out[=<file>]` for AC coverage, drift check, and compliance gates, embedded into pipeline eval runs.
 - `eval-summary.sh` to render eval run JSON into Markdown for local review and CI Step Summary.
+- `review-summary.sh` and `tdd-evidence.sh` to capture process evidence as structured JSON.
 - GitHub Actions eval artifact workflow template installed by `init.sh --ci=github`.
 - **PrismSpec** standalone spec-coding skill pack with guided `/sdd`, canonical `SKILL.md` files, templates, references, and workflow scripts.
 - Chinese-first project entrypoint via the root `README.md`; English documentation moved to `README.en.md`.
@@ -19,7 +20,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- README and wiki now describe pipeline/gate eval JSON, Markdown summaries, and GitHub Actions artifacts as implemented, with review/TDD evidence JSON as the next step.
+- README and wiki now describe pipeline/gate eval JSON, review/TDD process evidence, Markdown summaries, and GitHub Actions artifacts as implemented.
 - PrismSpec README now documents `context.md` in both standalone and Lattice-hosted artifact layouts.
 
 ### Fixed

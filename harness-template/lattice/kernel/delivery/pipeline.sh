@@ -43,11 +43,20 @@ RUN_ID="${RUN_STARTED_AT//:/}"
 RUN_ID="${RUN_ID//-/}"
 GATE_JSON_DIR="$PROJECT_ROOT/lattice/state/eval-runs/${RUN_ID}.gates"
 gate_json_files=()
+process_review_files=()
+process_tdd_files=()
 METRIC_AC_TOTAL=0
 METRIC_AC_COVERED=0
 METRIC_AC_UNCOVERED=0
 METRIC_DRIFT_COUNT=0
 METRIC_COMPLIANCE_WARNINGS=0
+METRIC_REVIEW_TOTAL=0
+METRIC_REVIEW_PASSED=0
+METRIC_REVIEW_FAILED=0
+METRIC_REVIEW_CANNOT_VERIFY=0
+METRIC_TDD_TOTAL=0
+METRIC_TDD_COMPLETE=0
+METRIC_TDD_INVALID=0
 
 json_escape() {
   local s="${1:-}"
@@ -104,6 +113,58 @@ collect_gate_json() {
       METRIC_COMPLIANCE_WARNINGS=$((METRIC_COMPLIANCE_WARNINGS + $(yq -r '.metrics.warnings // 0' "$file" 2>/dev/null || echo 0)))
       ;;
   esac
+}
+
+spec_id_from_spec() {
+  local spec="$1" rel
+  [[ -n "$spec" ]] || return 1
+  if [[ "$spec" == "$PROJECT_ROOT/"* ]]; then
+    rel="${spec#$PROJECT_ROOT/}"
+  else
+    rel="$spec"
+  fi
+  case "$rel" in
+    lattice/specs/*/spec.md)
+      rel="${rel#lattice/specs/}"
+      echo "${rel%%/*}"
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}
+
+collect_process_evidence() {
+  local spec_id evidence_dir file verdict status
+  spec_id="$(spec_id_from_spec "$SPEC_FILE" 2>/dev/null || true)"
+  [[ -n "$spec_id" ]] || return 0
+  evidence_dir="$PROJECT_ROOT/.lattice/sdd/$spec_id"
+  [[ -d "$evidence_dir" ]] || return 0
+
+  while IFS= read -r file; do
+    [[ -f "$file" ]] || continue
+    process_review_files+=("$file")
+    ((METRIC_REVIEW_TOTAL++)) || true
+    verdict="$(yq -r '.verdict // ""' "$file" 2>/dev/null || true)"
+    verdict="${verdict//-/_}"
+    case "$verdict" in
+      pass) ((METRIC_REVIEW_PASSED++)) || true ;;
+      fail) ((METRIC_REVIEW_FAILED++)) || true ;;
+      cannot_verify) ((METRIC_REVIEW_CANNOT_VERIFY++)) || true ;;
+    esac
+  done < <(find "$evidence_dir" -type f -name 'review-summary.json' -print 2>/dev/null | sort)
+
+  while IFS= read -r file; do
+    [[ -f "$file" ]] || continue
+    process_tdd_files+=("$file")
+    ((METRIC_TDD_TOTAL++)) || true
+    status="$(yq -r '.status // ""' "$file" 2>/dev/null || true)"
+    if [[ "$status" == "pass" ]]; then
+      ((METRIC_TDD_COMPLETE++)) || true
+    else
+      ((METRIC_TDD_INVALID++)) || true
+    fi
+  done < <(find "$evidence_dir" -type f -name 'tdd-evidence.json' -print 2>/dev/null | sort)
 }
 
 echo "══════════════════════════════════"
@@ -280,7 +341,14 @@ write_eval_json() {
     printf '    "ac_covered": %s,\n' "$METRIC_AC_COVERED"
     printf '    "ac_uncovered": %s,\n' "$METRIC_AC_UNCOVERED"
     printf '    "drift_count": %s,\n' "$METRIC_DRIFT_COUNT"
-    printf '    "compliance_warnings": %s\n' "$METRIC_COMPLIANCE_WARNINGS"
+    printf '    "compliance_warnings": %s,\n' "$METRIC_COMPLIANCE_WARNINGS"
+    printf '    "review_total": %s,\n' "$METRIC_REVIEW_TOTAL"
+    printf '    "review_passed": %s,\n' "$METRIC_REVIEW_PASSED"
+    printf '    "review_failed": %s,\n' "$METRIC_REVIEW_FAILED"
+    printf '    "review_cannot_verify": %s,\n' "$METRIC_REVIEW_CANNOT_VERIFY"
+    printf '    "tdd_total": %s,\n' "$METRIC_TDD_TOTAL"
+    printf '    "tdd_complete": %s,\n' "$METRIC_TDD_COMPLETE"
+    printf '    "tdd_invalid": %s\n' "$METRIC_TDD_INVALID"
     printf '  },\n'
     printf '  "steps": [\n'
     local idx
@@ -297,13 +365,32 @@ write_eval_json() {
       [[ "$gate_idx" -lt $((${#gate_json_files[@]} - 1)) ]] && printf ','
       printf '\n'
     done
-    printf '  ]\n'
+    printf '  ],\n'
+    printf '  "process_evidence": {\n'
+    printf '    "review_summaries": [\n'
+    local review_idx
+    for review_idx in "${!process_review_files[@]}"; do
+      sed 's/^/      /' "${process_review_files[$review_idx]}"
+      [[ "$review_idx" -lt $((${#process_review_files[@]} - 1)) ]] && printf ','
+      printf '\n'
+    done
+    printf '    ],\n'
+    printf '    "tdd_evidence": [\n'
+    local tdd_idx
+    for tdd_idx in "${!process_tdd_files[@]}"; do
+      sed 's/^/      /' "${process_tdd_files[$tdd_idx]}"
+      [[ "$tdd_idx" -lt $((${#process_tdd_files[@]} - 1)) ]] && printf ','
+      printf '\n'
+    done
+    printf '    ]\n'
+    printf '  }\n'
     printf '}\n'
   } > "$out"
 
   echo "🧾 Eval JSON: ${out#$PROJECT_ROOT/}"
 }
 
+collect_process_evidence
 write_eval_json
 
 if [[ $STEP_FAIL -gt 0 ]]; then

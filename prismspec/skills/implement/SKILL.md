@@ -27,7 +27,8 @@ Implement one planned slice at a time. Keep scope narrow, produce evidence, and 
    - `tdd`: write and run the red test first, then implement green, then refactor.
 5. Run focused verification for the task.
 6. Generate a review package when helpers exist.
-7. Mark the task complete only when evidence exists.
+7. In TDD mode, write `tdd-evidence.json` when the helper exists.
+8. Mark the task complete only when evidence exists.
 
 ## Scope Rules
 
@@ -40,6 +41,7 @@ Implement one planned slice at a time. Keep scope narrow, produce evidence, and 
 
 - Code and tests.
 - Task evidence under `.prismspec/runs/<spec-id>/<task-id>/` or `.lattice/sdd/<spec-id>/<task-id>/`.
+- For Lattice-hosted TDD tasks: `.lattice/sdd/<spec-id>/<task-id>/tdd-evidence.json`.
 - Updated `plan.md` task status when appropriate.
 
 ## Stop Conditions

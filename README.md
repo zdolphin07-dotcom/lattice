@@ -146,6 +146,10 @@ bash lattice/kernel/delivery/pipeline.sh
 # 写出结构化 evidence
 bash lattice/kernel/delivery/pipeline.sh --json-out
 
+# 写出 review / TDD 语义 evidence
+bash lattice/kernel/orchestrator/sdd/review-summary.sh <spec-id> <task-id> --spec-compliance=pass --code-quality=pass --test-coverage=pass --risk=pass
+bash lattice/kernel/orchestrator/sdd/tdd-evidence.sh <spec-id> <task-id> --ac=AC-1 --test=TestAC1 --red-command="..." --red-exit=1 --green-command="..." --green-exit=0
+
 # 将 eval JSON 渲染成人可读摘要
 bash lattice/kernel/delivery/eval-summary.sh lattice/state/eval-runs/<run-id>.json
 
@@ -170,14 +174,14 @@ bash lattice/kernel/context/backends/knowledge.sh "payment idempotency"
 - PrismSpec 独立 skill pack manifest 与 Lattice-hosted 模式；
 - 目录化 spec、per-spec context、模板和 artifact lint；
 - doctor、spec lint、AC coverage、drift check、compliance、spec lock；
-- `pipeline --json-out`、`lattice/state/eval-runs/*.json`、eval markdown summary 和 AC/drift/compliance gate JSON；
+- `pipeline --json-out`、`lattice/state/eval-runs/*.json`、eval markdown summary、AC/drift/compliance gate JSON 和 review/TDD process evidence；
 - GitHub Actions eval artifact 与 Step Summary workflow 模板；
 - Context map、knowledge backend、中心知识 sync 和基础 `/learn` 约定；
 - Go/Gin/GORM 可运行示例与多 Agent adapter 文档。
 
 仍在演进：
 
-- review/TDD evidence 的结构化记录和趋势指标；
+- review/TDD evidence 的趋势指标与 PR comment 呈现；
 - context/knowledge metadata、过期检测和冲突治理；
 - Node/Python 等更多 drift parser；
 - 插件 manifest/schema/versioning 与多 Agent lease 模型。
