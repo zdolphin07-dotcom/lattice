@@ -196,6 +196,17 @@ copy_if_not_exists() {
   fi
 }
 
+copy_tree_files_if_not_exists() {
+  local src_dir="$1" dest_dir="$2"
+  [[ -d "$src_dir" ]] || return 0
+  while IFS= read -r -d '' src; do
+    local rel dest
+    rel="${src#$src_dir/}"
+    dest="$dest_dir/$rel"
+    copy_if_not_exists "$src" "$dest"
+  done < <(find "$src_dir" -type f -print0)
+}
+
 copy_if_not_exists "$SCAFFOLD_DIR/lattice/kernel/_lib.sh" "lattice/kernel/_lib.sh"
 copy_if_not_exists "$SCAFFOLD_DIR/lattice/kernel/orchestrator/templates/spec-template.md" "lattice/kernel/orchestrator/templates/spec-template.md"
 copy_if_not_exists "$SCAFFOLD_DIR/lattice/kernel/orchestrator/rules.md" "lattice/kernel/orchestrator/rules.md"
@@ -224,19 +235,17 @@ done
 
 if [[ -d "$PRISMSPEC_SOURCE" ]]; then
   mkdir -p prismspec
-  for dir in skills templates; do
+  for dir in skills templates bin references agents commands; do
     if [[ -d "$PRISMSPEC_SOURCE/$dir" ]]; then
-      mkdir -p "prismspec/$dir"
-      for src in "$PRISMSPEC_SOURCE/$dir"/*; do
-        [[ -f "$src" ]] || continue
-        copy_if_not_exists "$src" "prismspec/$dir/$(basename "$src")"
-      done
+      copy_tree_files_if_not_exists "$PRISMSPEC_SOURCE/$dir" "prismspec/$dir"
     fi
   done
   copy_if_not_exists "$PRISMSPEC_SOURCE/README.md" "prismspec/README.md"
+  copy_if_not_exists "$PRISMSPEC_SOURCE/README.en.md" "prismspec/README.en.md"
 fi
 
 chmod +x lattice/kernel/_lib.sh lattice/kernel/knowledge/*.sh lattice/kernel/delivery/*.sh lattice/kernel/delivery/gates/*.sh lattice/kernel/orchestrator/sdd/*.sh 2>/dev/null || true
+chmod +x prismspec/bin/*.sh 2>/dev/null || true
 
 if [[ -d ".git" ]]; then
   touch .gitignore

@@ -40,6 +40,12 @@ SDD helpers create file-backed context instead of pasting large briefs or diffs 
 
 These files are transient execution evidence. They should be ignored by git and summarized in `/finish`, not promoted to long-term knowledge by default.
 
+## Relationship with PrismSpec Canonical Skills
+
+PrismSpec now ships canonical skill folders such as `prismspec/skills/sdd/SKILL.md`. Prefer those files when present. The flat Markdown files in `lattice/skills/` and `prismspec/skills/*.md` remain compatibility entry points for older installs and simpler agents.
+
+Canonical PrismSpec skills include frontmatter, workflow, inputs/outputs, stop conditions, common rationalizations, red flags, and verification criteria. Lattice adds manifest routing, knowledge, delivery gates, and evidence helpers around the same workflow.
+
 ## Relationship with `.claude/commands/`
 
-`.claude/commands/` provides Claude Code slash command entry points that reference `lattice/skills/*.md`.
+`.claude/commands/` provides Claude Code slash command entry points that prefer `prismspec/skills/*/SKILL.md`, then fall back to compatibility files.

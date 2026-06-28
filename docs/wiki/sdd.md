@@ -647,7 +647,14 @@ completed | partial | reverted | escalated
 
 ## Skills 设计
 
-PrismSpec skills 保持小集合：一个引导入口，加五个阶段 skill。`/sdd` 只负责编排和恢复，不复制阶段逻辑。Lattice 安装时会把 PrismSpec 复制到 `prismspec/skills/`，并保留 `lattice/skills/` 作为 Lattice-hosted 兼容入口。
+PrismSpec skills 保持小集合：一个引导入口，加五个阶段 skill。`/sdd` 只负责编排和恢复，不复制阶段逻辑。Lattice 安装时会把 PrismSpec 复制到 `prismspec/skills/*/SKILL.md`，并保留 `prismspec/skills/*.md` 与 `lattice/skills/` 作为兼容入口。
+
+PrismSpec 同时提供：
+
+- `prismspec/bin/guide.sh`：判断 host、spec、stage、mode 和下一步 skill；
+- `prismspec/bin/lint.sh`：对 `spec.md`、`plan.md`、`verify.md` / `summary.md` 做最小 artifact contract 校验；
+- `prismspec/references/`：mode selection、spec quality、TDD evidence、review evidence、definition of done；
+- `prismspec/agents/`：spec compliance、code quality、test coverage 三类轻量 reviewer persona。
 
 | Skill | 阶段 | 产物 |
 |-------|------|------|
@@ -701,7 +708,7 @@ drafted -> planned -> implemented -> verified -> finished
 |------|----------|--------|
 | Spec template | `specs.template` 已支持项目覆盖 | init 时校验模板存在；`spec-lint` 校验模板必需语义 |
 | Execution mode | 支持 `auto | plan | tdd`、项目默认、用户单次覆盖 | `spec-lint` 校验 mode、mode source、plan->tdd 升级记录 |
-| Plan contract | `plan.md` 已要求 `Global Constraints`、task `Interfaces`、AC/Scope 引用 | 增加 `plan-lint.sh`，把格式和追踪关系变成 gate |
+| Plan contract | `plan.md` 已要求 `Global Constraints`、task `Interfaces`、AC/Scope 引用；`prismspec/bin/lint.sh` 已做最小 plan contract 校验 | 后续增加可选结构化 plan schema |
 | Task evidence | 独立模式使用 `.prismspec/runs/...`，Lattice-hosted 使用 `.lattice/sdd/...` | 增加结构化 `review.json` / `evidence.json` |
 | Verification | 已有 pipeline、spec-lint、AC coverage、drift check | 增加 `verify.md` writer 和 eval JSON，支持趋势与回放 |
 | TDD enforcement | skill 已规定 red-first，AC coverage 可验证测试命名 | 记录 red/green 命令和结果，形成可检查 evidence |
@@ -709,7 +716,7 @@ drafted -> planned -> implemented -> verified -> finished
 ## 演进优先级
 
 1. 强化 `spec-lint`：校验 front matter、`execution_mode`、mode source、必需语义和模板路径。
-2. 新增 `plan-lint.sh`：校验 `Global Constraints`、task `Interfaces`、AC/Scope 引用、TDD red-test tasks。
+2. 强化 `prismspec/bin/lint.sh`：补充更严格的 task interfaces、AC/Scope 引用、TDD red/green evidence 校验。
 3. 结构化 evidence：把 review verdict、red/green、pipeline run 写成 JSON。
 4. 补 `verify.md` writer：把 pipeline output 收敛成可读交付证据。
 

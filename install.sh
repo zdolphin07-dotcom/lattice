@@ -86,19 +86,29 @@ upgrade_project_prismspec() {
   echo ""
   echo "🔄 Upgrading PrismSpec module → $target_module"
 
-  if [ -d "$target_module/skills" ] || [ -d "$target_module/templates" ]; then
+  if [ -d "$target_module/skills" ] || [ -d "$target_module/templates" ] || [ -d "$target_module/bin" ] || [ -d "$target_module/references" ] || [ -d "$target_module/agents" ] || [ -d "$target_module/commands" ]; then
     local backup_dir
     backup_dir="$TARGET/lattice/state/prismspec-backups/$(date +%Y%m%d%H%M%S)"
     mkdir -p "$backup_dir"
     [ -d "$target_module/skills" ] && mv "$target_module/skills" "$backup_dir/skills"
     [ -d "$target_module/templates" ] && mv "$target_module/templates" "$backup_dir/templates"
+    [ -d "$target_module/bin" ] && mv "$target_module/bin" "$backup_dir/bin"
+    [ -d "$target_module/references" ] && mv "$target_module/references" "$backup_dir/references"
+    [ -d "$target_module/agents" ] && mv "$target_module/agents" "$backup_dir/agents"
+    [ -d "$target_module/commands" ] && mv "$target_module/commands" "$backup_dir/commands"
     echo "  Backup: $backup_dir"
   fi
 
   mkdir -p "$target_module"
   cp -R "$src_module/skills" "$target_module/skills"
   cp -R "$src_module/templates" "$target_module/templates"
+  cp -R "$src_module/bin" "$target_module/bin"
+  [ -d "$src_module/references" ] && cp -R "$src_module/references" "$target_module/references"
+  [ -d "$src_module/agents" ] && cp -R "$src_module/agents" "$target_module/agents"
+  [ -d "$src_module/commands" ] && cp -R "$src_module/commands" "$target_module/commands"
   cp "$src_module/README.md" "$target_module/README.md"
+  [ -f "$src_module/README.en.md" ] && cp "$src_module/README.en.md" "$target_module/README.en.md"
+  chmod +x "$target_module"/bin/*.sh 2>/dev/null || true
   echo "✅ PrismSpec upgraded"
 }
 

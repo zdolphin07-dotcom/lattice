@@ -1,6 +1,6 @@
 Run Lattice Finishing after verification.
 
-Execute `prismspec/skills/finish.md` when present; otherwise execute `lattice/skills/finish.md`.
+Execute `prismspec/skills/finish/SKILL.md` when present; otherwise execute `prismspec/skills/finish.md` or `lattice/skills/finish.md`.
 
 ## Core behavior
 

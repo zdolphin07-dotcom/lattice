@@ -12,6 +12,23 @@ brainstorm -> plan -> implement(plan|tdd) -> verify -> finish
 
 This is a controller skill, not a new phase. Delegate stage behavior to the stage skills.
 
+## Flow Guide
+
+Before deciding manually, run the deterministic guide when available:
+
+```bash
+bash prismspec/bin/guide.sh [--spec=<spec-id>] [--from=<stage>] [--mode=auto|plan|tdd]
+```
+
+Use its output as the routing source of truth:
+
+- `Stage` tells which stage skill to read next.
+- `Skill` gives the stage skill file.
+- `Spec dir` and `Evidence` give durable and transient artifact paths.
+- `Template` gives the initial template hint for Brainstorming.
+
+If `guide.sh` is unavailable, follow the Host Detection and Routing rules below.
+
 ## Host Detection
 
 Before routing:

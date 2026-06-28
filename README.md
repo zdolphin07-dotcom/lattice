@@ -52,7 +52,7 @@ Lattice is intentionally modular. Each component can be used on its own, while t
 
 | Component | Role | Current form |
 |-----------|------|--------------|
-| **PrismSpec** | Standalone progressive spec-coding skills: brainstorm, plan, implement, verify, finish. | `prismspec/skills/`, `prismspec/templates/` |
+| **PrismSpec** | Standalone progressive spec-coding skill pack: guided `/sdd`, brainstorm, plan, implement, verify, finish, artifact lint, references, reviewer personas. | `prismspec/skills/*/SKILL.md`, `prismspec/bin/`, `prismspec/references/`, `prismspec/templates/` |
 | **Context** | Load project knowledge, naming rules, domain constraints, and historical decisions. | `lattice/knowledge/`, `loader.sh`, `sync.sh` |
 | **Spec** | Standardize requirements into executable contracts with ACs, design decisions, risks, and test strategy. | `spec-template.md`, `spec-lint.sh`, `lattice/specs/` |
 | **Harness** | Run agent-independent verification gates before delivery claims. | `pipeline.sh`, build/lint/test, AC coverage, drift check |

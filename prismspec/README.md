@@ -38,6 +38,13 @@ PrismSpec 对 spec 的理解来自三个判断：
 ```text
 prismspec/
 ├── skills/
+│   ├── sdd/SKILL.md
+│   ├── brainstorm/SKILL.md
+│   └── ...
+├── references/
+├── agents/
+├── commands/
+├── bin/
 ├── templates/
 └── specs/
     └── {spec-id}/
@@ -60,6 +67,34 @@ prismspec/
 lattice/specs/{spec-id}/{spec.md,plan.md,summary.md}
 .lattice/sdd/{spec-id}/{task-id}/
 ```
+
+## 流程引导
+
+PrismSpec 提供一个轻量的本地引导脚本，用来判断当前 spec 处于哪个阶段、下一步应该执行哪个 skill：
+
+```bash
+bash prismspec/bin/guide.sh
+bash prismspec/bin/guide.sh --spec=checkout-flow
+bash prismspec/bin/guide.sh --spec=checkout-flow --json
+```
+
+它只负责路由和状态识别，不替代 agent 写 spec、plan、代码或验证结论。`--json` 输出是命令入口和 agent wrapper 的推荐协议。
+
+## 质量门禁
+
+PrismSpec 内置轻量 artifact lint，用来在 closeout 前检查 spec、plan 和证据是否满足最小契约：
+
+```bash
+bash prismspec/bin/lint.sh prismspec/specs/checkout-flow
+bash prismspec/bin/lint.sh lattice/specs/checkout-flow
+```
+
+它会检查：
+
+- `spec.md` 是否包含 AC、execution mode、risk、verification plan；
+- `plan.md` 是否引用 AC、包含稳定任务 ID 和验证步骤；
+- `verify.md` 或 `summary.md` 是否记录真实命令/结果证据；
+- TDD 模式是否包含 red-test 任务。
 
 ## 模板
 
@@ -93,13 +128,29 @@ PrismSpec 只支持两种实现策略：
 
 | Skill | 作用 |
 |-------|------|
-| `sdd.md` | 引导式 controller，解析当前阶段并从产物恢复 |
-| `brainstorm.md` | 澄清需求并生成 `spec.md` |
-| `plan.md` | 把 `spec.md` 拆成可执行、可审查、可追踪 AC 的 `plan.md` |
-| `implement.md` | 按 plan 或 TDD 策略执行 |
-| `verify.md` | 运行本地验证并记录证据 |
-| `finish.md` | 生成 summary，沉淀后续工作和可复用经验 |
-| `learn.md` | 捕获可复用知识 |
+| `skills/sdd/SKILL.md` | 引导式 controller，解析当前阶段并从产物恢复 |
+| `skills/brainstorm/SKILL.md` | 澄清需求并生成 `spec.md` |
+| `skills/plan/SKILL.md` | 把 `spec.md` 拆成可执行、可审查、可追踪 AC 的 `plan.md` |
+| `skills/implement/SKILL.md` | 按 plan 或 TDD 策略执行 |
+| `skills/verify/SKILL.md` | 运行本地验证并记录证据 |
+| `skills/finish/SKILL.md` | 生成 summary，沉淀后续工作和可复用经验 |
+| `skills/learn/SKILL.md` | 捕获可复用知识 |
+
+每个 canonical skill 都包含 frontmatter、工作流、输入输出、停机条件、常见跳步借口、红旗和验证清单。旧的 `skills/*.md` 文件保留为兼容入口。
+
+## References 与 Reviewer
+
+PrismSpec 把长规则拆到 `references/`，按需加载：
+
+| Reference | 作用 |
+|-----------|------|
+| `mode-selection.md` | 判断 plan / tdd 与升级规则 |
+| `spec-quality-checklist.md` | 检查 spec 是否可审、可执行、可验证 |
+| `tdd-evidence-checklist.md` | 约束 red / green 证据 |
+| `review-evidence-checklist.md` | 统一 pass / fail / cannot_verify |
+| `definition-of-done.md` | closeout 的完成标准 |
+
+`agents/` 提供轻量 review persona：spec compliance、code quality、test coverage。它们不绑定某个 agent runtime，可以被 Claude Code、Codex 或其他 agent wrapper 使用。
 
 ## 设计原则
 

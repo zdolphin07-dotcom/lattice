@@ -1,6 +1,6 @@
 Run Lattice Brainstorming and produce a persistent spec.
 
-Execute `prismspec/skills/brainstorm.md` when present; otherwise execute `lattice/skills/brainstorm.md`.
+Execute `prismspec/skills/brainstorm/SKILL.md` when present; otherwise execute `prismspec/skills/brainstorm.md` or `lattice/skills/brainstorm.md`.
 
 ## Core behavior
 

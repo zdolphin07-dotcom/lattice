@@ -1,6 +1,6 @@
 Run the full verification pipeline and paste evidence.
 
-Execute `prismspec/skills/verify.md` when present; otherwise execute `lattice/skills/verify.md` verification flow.
+Execute `prismspec/skills/verify/SKILL.md` when present; otherwise execute `prismspec/skills/verify.md` or `lattice/skills/verify.md` verification flow.
 
 ## Core behavior
 

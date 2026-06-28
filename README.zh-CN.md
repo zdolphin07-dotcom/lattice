@@ -53,6 +53,7 @@ Lattice 采用组件化设计。每个组件都可以单独使用，同时通过
 | 组件 | 作用 | 当前形态 |
 |------|------|----------|
 | **Context** | 加载项目知识、命名规范、领域约束和历史决策。 | `lattice/knowledge/`、`loader.sh`、`sync.sh` |
+| **PrismSpec** | 可独立使用的渐进式 Spec Coding skill pack：`/sdd` 引导、brainstorm、plan、implement、verify、finish、artifact lint、references、reviewer personas。 | `prismspec/skills/*/SKILL.md`、`prismspec/bin/`、`prismspec/references/`、`prismspec/templates/` |
 | **Spec** | 将需求标准化为可执行契约，包含 AC、设计决策、风险和测试策略。 | `spec-template.md`、`spec-lint.sh`、`lattice/specs/` |
 | **Harness** | 在交付声明前运行独立于 Agent 的验证卡口。 | `pipeline.sh`、build/lint/test、AC coverage、drift check |
 | **Eval** | 基于验收覆盖与漂移检查生成可复现的质量证据。 | 证据化 gate 输出；可通过 `drift.plugins[]` 扩展 |
