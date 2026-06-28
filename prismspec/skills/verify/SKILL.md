@@ -1,6 +1,6 @@
 ---
 name: prismspec-verify
-description: Runs independent verification for a PrismSpec run and records durable verify.md evidence. Use when implementation tasks appear complete, before finish, or whenever /sdd routes to verification.
+description: Runs independent command-backed verification for a PrismSpec run and records durable verify.md evidence. Use when implementation tasks appear complete, before finish, after fixing failures, when Lattice pipeline gates should run, or whenever /sdd routes to verification.
 ---
 
 # PrismSpec Verify
@@ -23,7 +23,7 @@ Run actual commands and record evidence. Verification is external proof, not a p
 2. In Lattice-hosted mode, run:
 
 ```bash
-bash lattice/kernel/delivery/pipeline.sh
+bash lattice/kernel/delivery/pipeline.sh --json-out
 ```
 
 3. In standalone mode, detect and run the smallest meaningful set:

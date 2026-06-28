@@ -1,6 +1,6 @@
 ---
 name: prismspec-sdd
-description: Orchestrates the PrismSpec spec-coding workflow. Use when the user asks for SDD, PrismSpec, guided spec workflow, /sdd, resuming a spec, or running an AI coding task from intent through plan, implementation, verification, and closeout.
+description: Orchestrates the PrismSpec spec-coding workflow from intent to verified closeout. Use when the user asks for SDD, PrismSpec, spec-driven development, /sdd, guided spec workflow, resuming an existing spec, choosing plan vs TDD mode, or running an AI coding task through brainstorm, plan, implement, verify, and finish.
 ---
 
 # PrismSpec SDD

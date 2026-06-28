@@ -1,6 +1,6 @@
 ---
 name: prismspec-brainstorm
-description: Turns vague or new requirements into a durable PrismSpec spec.md. Use when starting a feature, project, bug fix, or significant change without an approved spec, or when /sdd routes to the brainstorm stage.
+description: Turns vague or new requirements into durable PrismSpec context.md and spec.md artifacts. Use when starting a feature, bug fix, product change, refactor, or project without an approved spec; when acceptance criteria, scope, risk, context basis, or execution mode are unclear; or when /sdd routes to brainstorm.
 ---
 
 # PrismSpec Brainstorm

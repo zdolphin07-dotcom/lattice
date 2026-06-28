@@ -1,6 +1,6 @@
 ---
 name: prismspec-implement
-description: Executes PrismSpec plan.md in plan or TDD mode. Use when /sdd routes to implementation, when implementing AC-traced tasks, or when code/tests must be changed under a PrismSpec execution policy.
+description: Executes PrismSpec plan.md one AC-traced slice at a time in plan or TDD mode. Use when /sdd routes to implementation, when code/tests must be changed under a PrismSpec execution policy, when task-next/task-complete evidence gating is available, or when TDD red/green evidence must be produced.
 ---
 
 # PrismSpec Implement

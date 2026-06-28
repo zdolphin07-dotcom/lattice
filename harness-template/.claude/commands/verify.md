@@ -4,7 +4,7 @@ Execute `prismspec/skills/verify/SKILL.md`.
 
 ## Core behavior
 
-1. Execute `lattice/kernel/delivery/pipeline.sh` (manifest.yaml driven)
+1. Execute `lattice/kernel/delivery/pipeline.sh --json-out` (manifest.yaml driven)
 2. If harness not found, fallback to language defaults
 3. Paste actual terminal output for each step
 4. Summarize: ✅ PASS / ❌ FAIL

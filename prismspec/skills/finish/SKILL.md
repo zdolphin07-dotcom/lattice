@@ -1,13 +1,13 @@
 ---
 name: prismspec-finish
-description: Closes a PrismSpec run with summary.md, review evidence, residual risks, and reusable lessons. Use after verification passes or when a run needs an explicit closeout.
+description: Closes a PrismSpec run with summary.md, review evidence, residual risks, outcome links, and reusable lesson candidates. Use after verification passes, when a run needs explicit closeout, when cannot_verify risks must be recorded, or when /sdd routes to finish.
 ---
 
 # PrismSpec Finish
 
 ## Overview
 
-Close the loop. Preserve the useful delivery evidence and avoid turning transient details into permanent knowledge.
+Close the loop. Preserve useful verification and eval evidence, and avoid turning transient details into permanent knowledge.
 
 ## Inputs
 

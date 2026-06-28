@@ -1,6 +1,6 @@
 ---
 name: prismspec-plan
-description: Converts an approved PrismSpec spec.md into an AC-traced plan.md. Use when a spec exists but implementation tasks, dependencies, verification steps, or TDD red-test tasks are missing.
+description: Converts an approved PrismSpec spec.md into an AC-traced plan.md. Use when a spec exists but implementation tasks, dependency order, touched files/contracts, verification steps, task evidence requirements, or TDD red-test tasks are missing; or when /sdd routes to plan.
 ---
 
 # PrismSpec Plan

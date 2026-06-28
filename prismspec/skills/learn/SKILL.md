@@ -1,6 +1,6 @@
 ---
 name: prismspec-learn
-description: Captures durable project knowledge discovered during PrismSpec work. Use when a run reveals reusable domain rules, decisions, pitfalls, verification lessons, or team conventions that should inform future specs.
+description: Captures durable project knowledge discovered during PrismSpec work. Use when a run reveals reusable domain rules, architecture decisions, pitfalls, verification lessons, context rules, or team conventions that should inform future specs; or when a summary contains Knowledge Candidates.
 ---
 
 # PrismSpec Learn
@@ -48,7 +48,7 @@ expires_at: "YYYY-MM-DD" # optional
 ## Outputs
 
 - Knowledge draft in `lattice/context/drafts/`, promoted project knowledge in `lattice/context/knowledge/`, or standalone `prismspec/knowledge/`.
-- Updated `index.md`.
+- Updated project context map or relevant knowledge file.
 - Lattice reviewer event from `bash lattice/kernel/context/knowledge-review.sh approve <draft.md> --reviewer=<name> --reason=<reason> --conflicts-checked` when promotion review is required.
 - Lattice advisory output from `bash lattice/kernel/context/knowledge-lint.sh --target=<knowledge-file>` when available.
 
