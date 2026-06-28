@@ -32,7 +32,7 @@ Aider can execute shell commands via `/run`:
 ```
 /run bash lattice/kernel/delivery/pipeline.sh
 /run bash lattice/kernel/context/backends/knowledge.sh <keywords>
-/run bash lattice/kernel/delivery/gates/spec-lint.sh lattice/specs/my-spec.md
+/run bash lattice/kernel/delivery/gates/spec-lint.sh lattice/specs/my-spec/spec.md
 ```
 
 ## Limitations

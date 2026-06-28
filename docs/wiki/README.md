@@ -7,10 +7,10 @@
 Lattice 的技术路线是可行的，但它不是中心化 AI 平台，也不是新的 IDE。它更适合定位为安装在业务仓库内的 **AI Coding harness**：
 
 - 在意图到代码之间，用 PrismSpec 和 Context 减少 Agent 猜测。
-- 在代码到交付之间，用 Delivery gates 和 Eval evidence 抑制 Agent 自评。
+- 在代码到交付之间，用 Delivery gates 和 evidence 抑制 Agent 自评。
 - 在单次交付之后，用 Loop 和 Learn 把可复用经验沉淀回项目上下文资产。
 
-当前实现已经具备最小可信闭环：安装、初始化、PrismSpec 引导、基础 context 供给、验证 pipeline、基础 gates 和 smoke test。尚未完成的是结构化 eval、context 地图模板、插件协议和多语言 drift parser。
+当前实现已经具备最小可信闭环：安装、初始化、PrismSpec 引导、目录化 spec、per-spec context、基础 context 供给、验证 pipeline、基础 gates 和 smoke test。尚未完成的是结构化 eval、插件协议和多语言 drift parser。
 
 ## 系统图
 
@@ -22,7 +22,7 @@ flowchart LR
     SPEC --> A["AI Agent"]
     A --> CODE["Code / Tests"]
     CODE --> H["Delivery Harness"]
-    H --> EV["Eval Evidence"]
+    H --> EV["Evidence"]
     EV --> F["summary.md"]
     F --> L["Learn Draft"]
     L -. durable lessons .-> K
@@ -65,7 +65,7 @@ flowchart LR
 未完成：
 
 - `pipeline --json-out` 与 eval run 数据集。
-- `lattice/context/README.md`、`external.md` 和更好的 context 模板。
+- 更强的 context metadata、过期检测和冲突治理。
 - review / TDD evidence 的结构化记录。
 - 插件 manifest/schema/versioning。
 - 多 Agent 状态、owner 和 lease 模型。

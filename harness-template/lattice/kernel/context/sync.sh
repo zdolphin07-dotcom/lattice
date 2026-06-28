@@ -15,6 +15,9 @@ central_cache_dir=$(manifest_get '.context.central.cache_dir')
 PROJECT_KNOWLEDGE_DIR="${PROJECT_ROOT}/${knowledge_dir:-lattice/context/knowledge}"
 CENTRAL_CACHE_DIR="${PROJECT_ROOT}/${central_cache_dir:-lattice/context/.central}"
 REMOTE_DIR="$CENTRAL_CACHE_DIR/.remote"
+PROJECT_NAMESPACE=$(manifest_get '.project.name')
+PROJECT_NAMESPACE="${PROJECT_NAMESPACE:-project}"
+PROJECT_NAMESPACE=$(printf '%s' "$PROJECT_NAMESPACE" | tr '/[:space:]' '__')
 
 CENTRAL_REPO=$(manifest_get '.context.central.repo')
 SYNC_MODE=$(manifest_get '.context.central.mode')
@@ -55,23 +58,23 @@ case "$ACTION" in
     mkdir -p "$CENTRAL_CACHE_DIR"
     SYNCED=0
     while IFS= read -r -d '' f; do
-      fname="$(basename "$f")"
-      [[ "$fname" == ".git" ]] && continue
-      local_file="$CENTRAL_CACHE_DIR/$fname"
+      rel="${f#$REMOTE_DIR/}"
+      local_file="$CENTRAL_CACHE_DIR/$rel"
+      mkdir -p "$(dirname "$local_file")"
 
       if [[ -f "$local_file" ]]; then
         case "$CONFLICT_POLICY" in
-          project-wins|prefer-local)  echo "  ⏭️  Keeping local central cache: $fname" ;;
-          central-wins|prefer-remote) cp "$f" "$local_file"; echo "  🔄 Updated from central: $fname" ;;
-          fail)                       echo "  ❌ Conflict: $fname"; exit 1 ;;
-          *)                          echo "  ⏭️  Unknown conflict policy, keeping local: $fname" ;;
+          project-wins|prefer-local)  echo "  ⏭️  Keeping local central cache: $rel" ;;
+          central-wins|prefer-remote) cp "$f" "$local_file"; echo "  🔄 Updated from central: $rel" ;;
+          fail)                       echo "  ❌ Conflict: $rel"; exit 1 ;;
+          *)                          echo "  ⏭️  Unknown conflict policy, keeping local: $rel" ;;
         esac
       else
         cp "$f" "$local_file"
-        echo "  ✅ Added: $fname"
+        echo "  ✅ Added: $rel"
         ((SYNCED++)) || true
       fi
-    done < <(find "$REMOTE_DIR" -maxdepth 1 -type f -name "*.md" -print0 2>/dev/null)
+    done < <(find "$REMOTE_DIR" -path "$REMOTE_DIR/.git" -prune -o -type f -name "*.md" -print0 2>/dev/null)
 
     echo ""
     echo "📊 Sync complete: $SYNCED new entries"
@@ -90,7 +93,12 @@ case "$ACTION" in
       exit 1
     fi
 
-    find "$PROJECT_KNOWLEDGE_DIR" -maxdepth 2 -type f -name "*.md" -exec cp {} "$REMOTE_DIR/" \; 2>/dev/null || true
+    while IFS= read -r -d '' f; do
+      rel="${f#$PROJECT_KNOWLEDGE_DIR/}"
+      target="$REMOTE_DIR/projects/$PROJECT_NAMESPACE/$rel"
+      mkdir -p "$(dirname "$target")"
+      cp "$f" "$target"
+    done < <(find "$PROJECT_KNOWLEDGE_DIR" -type f -name "*.md" -print0 2>/dev/null)
     git -C "$REMOTE_DIR" add -A
     if git -C "$REMOTE_DIR" diff --cached --quiet; then
       echo "  ⏭️  No changes"
@@ -111,12 +119,12 @@ case "$ACTION" in
     echo ""
 
     project_count=$(find "$PROJECT_KNOWLEDGE_DIR" -type f -name "*.md" 2>/dev/null | wc -l | tr -d ' ')
-    central_count=$(find "$CENTRAL_CACHE_DIR" -maxdepth 1 -name "*.md" 2>/dev/null | wc -l | tr -d ' ')
+    central_count=$(find "$CENTRAL_CACHE_DIR" -path "$REMOTE_DIR" -prune -o -type f -name "*.md" -print 2>/dev/null | wc -l | tr -d ' ')
     echo "  Project entries: $project_count"
     echo "  Central entries: $central_count"
 
     if [[ -d "$REMOTE_DIR/.git" ]]; then
-      remote_count=$(find "$REMOTE_DIR" -maxdepth 1 -name "*.md" 2>/dev/null | wc -l | tr -d ' ')
+      remote_count=$(find "$REMOTE_DIR" -type f -name "*.md" 2>/dev/null | wc -l | tr -d ' ')
       echo "  Remote cache: $remote_count"
     else
       echo "  Remote cache: not initialized (run sync.sh pull)"

@@ -27,7 +27,7 @@ Cursor doesn't have a slash-command system like Claude Code, so invoke skills ma
 # In Cursor chat:
 "Run bash lattice/kernel/delivery/pipeline.sh"
 "Read lattice/context/README.md, then run bash lattice/kernel/context/backends/knowledge.sh <keywords> only if curated knowledge lookup is useful"
-"Run bash lattice/kernel/delivery/gates/spec-lint.sh lattice/specs/my-spec.md"
+"Run bash lattice/kernel/delivery/gates/spec-lint.sh lattice/specs/my-spec/spec.md"
 ```
 
 ## Limitations

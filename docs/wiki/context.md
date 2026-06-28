@@ -57,7 +57,13 @@ lattice/
 3. 不同来源冲突时如何取舍。
 4. 哪些内容不要直接塞进 prompt 或 spec。
 
-推荐模板：
+模板文件：
+
+```text
+prismspec/templates/context-template.md
+```
+
+推荐结构：
 
 ```markdown
 # Project Context Map
@@ -246,15 +252,15 @@ PrismSpec 负责 SDD 工作流；Context 负责提供更准确的项目上下文
 
 | Gap | 影响 | 优先级 |
 |-----|------|--------|
-| 默认 context map 仍是通用模板 | 需要项目初始化后补充真实模块、链路和风险 | P0 |
-| 项目知识文件仍需人工填充 | Agent 只能看到结构，缺少真实领域知识 | P0 |
+| 默认 context map 仍需项目化 | 初始化后需要补充真实模块、链路和风险 | P0 |
+| 项目知识文件仍需真实沉淀 | Agent 只能看到结构，缺少真实领域知识 | P0 |
 | `sources.yaml` 尚未被自动化消费 | 当前更多是未来扩展点 | P1 |
-| `context.md` 质量依赖 Agent 自觉 | 需要更好的模板和少量 sanity check | P1 |
+| context metadata 不足 | 来源、owner、过期和冲突难治理 | P1 |
+| context-runs 未落地 | 不知道哪些上下文真的有用 | P1 |
 
 ## 推荐演进
 
 1. 在真实示例中填充 `lattice/context/README.md`、`external.md` 和项目知识文件。
-2. 让 PrismSpec Brainstorm skill 更明确地要求先读 context map，再写 `context.md`。
+2. 为项目知识增加轻量 front matter metadata。
 3. 将 `sources.yaml` 保留为可选自动化配置，后续脚本真正消费后再提升权重。
-4. 增加轻量 sanity check，避免空 `context.md`，但不要把 Context 做成重 gate。
-5. 记录 context-runs，用于后续 Eval 分析哪些上下文真的有用。
+4. 记录 context-runs，用于后续 Eval 分析哪些上下文真的有用。

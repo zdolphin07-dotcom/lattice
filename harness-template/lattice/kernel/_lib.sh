@@ -158,12 +158,6 @@ find_spec() {
       echo "$latest"
       return 0
     fi
-
-    latest=$(find "$PROJECT_ROOT/$spec_dir" -name '*.md' -type f -not -path '*/.locks/*' -not -name 'plan.md' -not -name 'summary.md' -print0 2>/dev/null | xargs -0 ls -t 2>/dev/null | head -1)
-    if [[ -n "$latest" ]]; then
-      echo "$latest"
-      return 0
-    fi
   fi
 
   return 1

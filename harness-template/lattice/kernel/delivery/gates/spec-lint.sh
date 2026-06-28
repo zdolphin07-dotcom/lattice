@@ -14,14 +14,32 @@ fi
 echo "🔍 Spec Lint: $(basename "$SPEC")"
 echo ""
 
+# ── 0. Artifact layout check ──
+echo "── Artifact layout ──"
+
+SPEC_BASENAME="$(basename "$SPEC")"
+SPEC_DIR="$(dirname "$SPEC")"
+CONTEXT_FILE="$SPEC_DIR/context.md"
+
+if [[ "$SPEC_BASENAME" == "spec.md" ]]; then
+  pass "Directory spec layout"
+else
+  fail "Spec must use directory layout: lattice/specs/<spec-id>/spec.md"
+fi
+
+if [[ -f "$CONTEXT_FILE" ]]; then
+  pass "Context basis: ${CONTEXT_FILE#$PROJECT_ROOT/}"
+else
+  fail "Missing context basis: ${CONTEXT_FILE#$PROJECT_ROOT/}"
+fi
+
+echo ""
+
 # ── 1. Required sections check ──
 echo "── Section completeness ──"
 
 SECTION_COUNT=$(yq '.specs.required_sections | length // 0' "$MANIFEST" 2>/dev/null || echo 0)
-SPEC_PROFILE="legacy"
-if grep -qiE '^## +Intent$|^## +Execution Policy$|execution_mode:' "$SPEC"; then
-  SPEC_PROFILE="lattice"
-fi
+SPEC_PROFILE="lattice"
 
 if [[ "$SECTION_COUNT" -gt 0 ]]; then
   REQUIRED_SECTIONS=()
@@ -29,7 +47,7 @@ if [[ "$SECTION_COUNT" -gt 0 ]]; then
     section=$(yq -r ".specs.required_sections[$i]" "$MANIFEST")
     [[ -n "$section" && "$section" != "null" ]] && REQUIRED_SECTIONS+=("$section")
   done
-elif [[ "$SPEC_PROFILE" == "lattice" ]]; then
+else
   REQUIRED_SECTIONS=(
     "Intent"
     "Scope"
@@ -38,21 +56,6 @@ elif [[ "$SPEC_PROFILE" == "lattice" ]]; then
     "Design Decisions"
     "Execution Policy"
     "Verification Plan"
-  )
-else
-  REQUIRED_SECTIONS=(
-    "Background & Goals"
-    "Naming Conventions"
-    "Technical Design"
-    "API Design"
-    "Data Model"
-    "Design Alternatives"
-    "Acceptance Criteria"
-    "Risk Review"
-    "Test Strategy"
-    "Release Checklist"
-    "Rollout & Rollback"
-    "Decision Log"
   )
 fi
 
@@ -78,7 +81,7 @@ echo ""
 # ── 2. AC numbering continuity ──
 echo "── AC numbering check ──"
 
-AC_NUMS=$({ grep -o 'AC-[0-9]*' "$SPEC" || true; } | sed 's/AC-//' | sort -n | uniq)
+AC_NUMS=$({ grep -oE 'AC-[0-9]+' "$SPEC" || true; } | sed 's/AC-//' | sort -n | uniq)
 AC_COUNT=$(echo "$AC_NUMS" | grep -c . || true)
 
 if [[ "$AC_COUNT" -eq 0 ]]; then
@@ -101,7 +104,7 @@ else
     fail "AC number gaps:$GAPS"
   fi
 
-  TABLE_ACS=$({ grep -E '^\| *AC-[0-9]+ *\|' "$SPEC" || true; } | { grep -o 'AC-[0-9]*' || true; } | sort)
+  TABLE_ACS=$({ grep -E '^\| *AC-[0-9]+ *\|' "$SPEC" || true; } | { grep -oE 'AC-[0-9]+' || true; } | sort)
   TABLE_DUPES=$(echo "$TABLE_ACS" | uniq -d)
   if [[ -z "$TABLE_DUPES" ]]; then
     pass "No duplicate AC rows in table"
@@ -153,10 +156,10 @@ echo ""
 echo "── Mermaid diagram check ──"
 
 MERMAID_COUNT=$(grep -c '```mermaid' "$SPEC" || true)
-if [[ "$MERMAID_COUNT" -ge 2 ]]; then
+if [[ "$MERMAID_COUNT" -gt 0 ]]; then
   pass "Mermaid diagrams: $MERMAID_COUNT"
 else
-  warn "Only $MERMAID_COUNT Mermaid diagrams (recommend at least 2)"
+  skip "No Mermaid diagrams required"
 fi
 
 echo ""
@@ -193,13 +196,10 @@ if [[ "$RISK_COUNT" -gt 0 ]]; then
       MANDATORY_RISK_COUNT=$((MANDATORY_RISK_COUNT + 1))
     fi
   done
-elif [[ "$SPEC_PROFILE" == "legacy" ]]; then
-  RISK_CATEGORIES=("Financial Safety" "Technical Risk" "Data Risk" "Release Process")
-  MANDATORY_RISK_COUNT=4
 fi
 
 if [[ "$MANDATORY_RISK_COUNT" -eq 0 ]]; then
-  warn "No mandatory risk categories for $SPEC_PROFILE profile"
+  skip "No mandatory risk categories for $SPEC_PROFILE profile"
 else
   for cat_val in "${RISK_CATEGORIES[@]}"; do
     if grep -qi "$cat_val" "$SPEC"; then

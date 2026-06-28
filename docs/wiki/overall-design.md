@@ -34,7 +34,7 @@ flowchart TB
         OR["Orchestrator"]
         CTX["Context"]
         DH["Delivery Harness"]
-        EV["Eval Evidence"]
+        EV["Evidence"]
         MF["manifest.yaml"]
     end
 

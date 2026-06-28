@@ -1,40 +1,40 @@
-# Project Context Map
+# 项目上下文地图
 
-This file is the first context entry for AI agents. Read it before drafting a spec.
+这是 AI Agent 在编写 spec 前应该先读的入口。它不承载全部知识，只告诉 Agent：关键知识在哪里、冲突时如何取舍、本次需求应该怎样形成最小可信上下文依据。
 
-## Project Snapshot
+## 项目快照
 
-- Project purpose: _fill in after init_
-- Core domain objects: _fill in after init_
-- Main modules: _fill in after init_
-- High-risk flows: _fill in after init_
+- 项目定位：_初始化后补充_
+- 核心业务对象：_初始化后补充_
+- 主要模块：_初始化后补充_
+- 高风险链路：_初始化后补充_
 
-## Where To Find Context
+## 上下文入口
 
 | Need | Read |
 |------|------|
-| Architecture and module boundaries | `knowledge/architecture.md` |
-| Business rules and interface contracts | `knowledge/rules.md` |
-| Historical pitfalls and incident lessons | `knowledge/pitfalls.md` |
-| Domain terms and naming conventions | `knowledge/glossary.md` |
-| Architecture decisions | `knowledge/decisions/` |
-| External docs, central knowledge, third-party contracts | `external.md` |
-| Historical specs | `../specs/` |
+| 架构与模块边界 | `knowledge/architecture.md` |
+| 业务规则与接口契约 | `knowledge/rules.md` |
+| 历史踩坑与事故教训 | `knowledge/pitfalls.md` |
+| 领域术语与命名约定 | `knowledge/glossary.md` |
+| 架构决策 | `knowledge/decisions/` |
+| 外部文档、中心知识、第三方协议 | `external.md` |
+| 历史 spec | `../specs/` |
 
-## Loading Policy
+## 加载策略
 
-- Start with the current user request and current code, tests, schema, and contracts.
-- Use project knowledge to understand durable rules and historical decisions.
-- Use external or central knowledge as reference only; it must not override current project facts.
-- Do not copy large documents into `spec.md`; summarize only facts that affect scope, ACs, risk, interface, compatibility, or verification.
+- 先读用户本次需求，再查当前代码、测试、schema 和接口契约。
+- 项目知识用于理解长期规则、历史决策和踩坑，不替代当前代码事实。
+- 外部知识和中心知识只作补充，不覆盖项目内事实。
+- 不把大段文档复制进 `spec.md`；只把影响 scope、AC、risk、interface、compatibility 或 verification 的事实写入 `lattice/specs/<spec-id>/context.md`。
 
-## Conflict Policy
+## 冲突优先级
 
-1. Current user instruction.
-2. Current code, tests, schema, and interface contracts.
-3. Project knowledge under `lattice/context/knowledge/`.
-4. Historical specs under `lattice/specs/`.
-5. External or central knowledge from `external.md`.
-6. Model prior knowledge.
+1. 用户本次明确指令。
+2. 当前代码、测试、schema 和接口契约。
+3. `lattice/context/knowledge/` 下的项目知识。
+4. `lattice/specs/` 下的历史 spec。
+5. `external.md` 和中心知识。
+6. 模型先验。
 
-Record meaningful conflicts in `lattice/specs/<spec-id>/context.md`.
+有实质影响的冲突必须记录到 `lattice/specs/<spec-id>/context.md`。

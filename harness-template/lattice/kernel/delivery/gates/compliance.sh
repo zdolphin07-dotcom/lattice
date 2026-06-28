@@ -35,6 +35,13 @@ WARNINGS=0
 echo "── Context basis check ──"
 if [[ -f "$CONTEXT_FILE" ]]; then
   echo "  ✅ Found per-spec context basis: ${CONTEXT_FILE#$PROJECT_ROOT/}"
+  if grep -qiE '^## +(Decision Frame|Selected Facts|Constraints|Conflicts|Context Gaps)' "$CONTEXT_FILE"; then
+    echo "  ✅ Context basis has structured decision sections"
+  else
+    echo "  ⚠️  Context basis is present but lacks structured decision sections"
+    echo "     Expected Decision Frame, Selected Facts, Constraints, Conflicts, or Context Gaps."
+    ((WARNINGS++)) || true
+  fi
 else
   echo "  ⚠️  Missing per-spec context basis: ${CONTEXT_FILE#$PROJECT_ROOT/}"
   echo "     Expected the design phase to persist retrieved context and gaps."
@@ -42,9 +49,8 @@ else
 fi
 
 echo ""
-echo "── Knowledge reference check ──"
+echo "── Knowledge source check ──"
 KNOWLEDGE_FILES=$(find "$PROJECT_KNOWLEDGE_DIR" -name "*.md" -not -name "README.md" 2>/dev/null || true)
-REFERENCED=0
 TOTAL_KB=0
 SEARCH_FILES=("$SPEC")
 [[ -f "$CONTEXT_FILE" ]] && SEARCH_FILES+=("$CONTEXT_FILE")
@@ -52,38 +58,34 @@ SEARCH_FILES=("$SPEC")
 while IFS= read -r kb_file; do
   [[ -z "$kb_file" ]] && continue
   ((TOTAL_KB++)) || true
-  slug=$(basename "$kb_file" .md)
-  if grep -qi "$slug" "${SEARCH_FILES[@]}" 2>/dev/null; then
-    ((REFERENCED++)) || true
-    echo "  ✅ Referenced knowledge: $slug"
-  fi
 done <<< "$KNOWLEDGE_FILES"
 
-if [[ "$TOTAL_KB" -gt 0 ]] && [[ "$REFERENCED" -eq 0 ]]; then
-  echo "  ⚠️  Spec/context does not reference any knowledge entries"
+if [[ "$TOTAL_KB" -gt 0 ]] && grep -qiE 'lattice/context/knowledge|knowledge/' "${SEARCH_FILES[@]}" 2>/dev/null; then
+  echo "  ✅ Spec/context references project knowledge paths"
+elif [[ "$TOTAL_KB" -gt 0 ]]; then
+  echo "  ⚠️  Spec/context does not reference project knowledge paths"
   echo "     Found $TOTAL_KB entries under lattice/context/knowledge."
-  echo "     Possible cause: Context Discovery did not select any durable project knowledge."
+  echo "     This is acceptable only when the current change does not depend on durable project knowledge."
   ((WARNINGS++)) || true
 elif [[ "$TOTAL_KB" -eq 0 ]]; then
   echo "  ⏭️  Context knowledge is empty, skipping"
 fi
 
 echo ""
-echo "── Context activity trace ──"
-RECENT_COMMITS=$(git -C "$PROJECT_ROOT" log --oneline -20 2>/dev/null || echo "")
-if echo "$RECENT_COMMITS" | grep -qi "context\|knowledge\|loader"; then
-  echo "  ✅ Recent commits contain context-related activity"
+echo "── Source trace check ──"
+if [[ -f "$CONTEXT_FILE" ]] && grep -qiE '\| *(user|code|test|schema|contract|knowledge|external) *\|' "$CONTEXT_FILE"; then
+  echo "  ✅ Context basis records source categories"
 else
-  echo "  ⚠️  No context-related activity in last 20 commits"
+  echo "  ⚠️  Context basis does not clearly record source categories"
   ((WARNINGS++)) || true
 fi
 
 echo ""
-echo "── Requirements clarification check ──"
-if grep -qiE 'clarif|confirm|Q&A|TBD|Open Questions|Questions' "$SPEC" 2>/dev/null; then
-  echo "  ✅ Spec contains clarification/confirmation content"
+echo "── Ambiguity tracking check ──"
+if [[ -f "$CONTEXT_FILE" ]] && grep -qiE 'Open Questions|Context Gaps|Conflicts|Ambiguities|None|N/A' "$CONTEXT_FILE" 2>/dev/null; then
+  echo "  ✅ Context basis records ambiguities or explicitly marks none"
 else
-  echo "  ⚠️  No clarification records found in spec"
+  echo "  ⚠️  No ambiguity or gap records found in context basis"
   ((WARNINGS++)) || true
 fi
 

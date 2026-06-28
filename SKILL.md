@@ -3,7 +3,7 @@ name: lattice
 version: 1.0.0
 description: >
   Lattice — team-native AI Coding framework for reusable, verifiable delivery.
-  Provides Context / Spec / Harness / Eval-oriented project harness;
+  Provides Context / Spec / Harness / Evidence-oriented project harness;
   guide or resume the SDD workflow, brainstorm persistent specs, plan execution, implement with plan/tdd policies,
   generate task briefs and review packages, verify with gates, finish with evidence,
   and capture knowledge with /learn.
@@ -72,7 +72,8 @@ my-project/
 
 - User assets never overwritten: `lattice/manifest.yaml`, `lattice/context/knowledge/`, `lattice/specs/`
 - `manifest.yaml` is the single project configuration entry point
-- Spec template: `lattice/kernel/orchestrator/templates/spec-template.md`
+- Spec templates: `prismspec/templates/`
+- Context template: `prismspec/templates/context-template.md`
 - Guided SDD entry point: `prismspec/skills/sdd/SKILL.md`
 - SDD evidence helpers: `lattice/kernel/orchestrator/sdd/task-brief.sh`, `lattice/kernel/orchestrator/sdd/review-package.sh`
 - Verification entry point: `lattice/kernel/delivery/pipeline.sh`

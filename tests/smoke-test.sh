@@ -145,6 +145,7 @@ if bash "$SANDBOX/.lattice/framework/init.sh" --non-interactive --lang=go --name
     && [[ -f "$SANDBOX/prismspec/templates/spec-template-service.md" ]] \
     && [[ -f "$SANDBOX/prismspec/templates/spec-template-frontend.md" ]] \
     && [[ -f "$SANDBOX/prismspec/templates/spec-template-tdd.md" ]] \
+    && [[ -f "$SANDBOX/prismspec/templates/context-template.md" ]] \
     && [[ -f "$SANDBOX/prismspec/references/mode-selection.md" ]] \
     && [[ -f "$SANDBOX/prismspec/references/definition-of-done.md" ]] \
     && [[ -f "$SANDBOX/prismspec/agents/spec-compliance-reviewer.md" ]] \
@@ -241,148 +242,46 @@ else
 fi
 echo ""
 
-# ── 6. Spec-lint on sample spec ──
-echo "── 6. Spec-lint gate ──"
-mkdir -p "$SANDBOX/lattice/specs"
-cat > "$SANDBOX/lattice/specs/test-feature.md" << 'SPEC'
-# Test Feature
-
-## Intent
-Test feature for smoke testing.
-
-## Scope
-
-### In
-- Widget CRUD.
-
-### Out
-- Export.
-
-## Context
-No special project knowledge required.
-
-## Design Decisions
-Use the existing smoke handler structure.
-
-## Risk Notes
-No high-risk behavior.
-
-## Execution Policy
-- Mode: `plan`
-- Reason: smoke test.
-
-## Verification Plan
-- spec-lint
-- ac-coverage
-
-## Part I — Background & Goals
-
-### 1.1 Background & Goals
-Test feature for smoke testing.
-
-### 1.2 Naming Conventions
-Standard conventions apply.
-
-## Part II — Technical Design
-
-### 2.1 Technical Design
-Simple CRUD endpoint.
-
-### 2.2 API Design
-REST API.
-
-```mermaid
-graph TB
-    A --> B
-```
-
-```mermaid
-sequenceDiagram
-    A->>B: request
-```
-
-### 2.3 Data Model
-
-```sql
-CREATE TABLE `test_items` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-```
-
-### 2.4 Design Alternatives
-Go + Gin — obvious choice for this scale.
-
-## Part III — Quality Assurance
-
-### 3.1 Acceptance Criteria
-
-| # | When | Then | Ref step |
-|---|------|------|----------|
-| AC-1 | Create widget | Returns 201 | ① |
-| AC-2 | Get widget | Returns widget | ② |
-| AC-3 | Delete widget | Returns 204 | ③ |
-
-### 3.2 Risk Review
-
-| Category | Review Item | Status | Design Basis |
-|----------|-------------|--------|-------------|
-| **Financial Safety** | N/A | ✅ | No financial operations |
-| **Technical Risk** | Rate limiting | ✅ | Standard middleware |
-| **Data Risk** | Tenant isolation | ✅ | Single tenant |
-| **Release Process** | Rollback capable | ✅ | Stateless |
-
-### 3.3 Test Strategy
-Unit tests for handlers, integration tests for DB.
-
-## Part IV — Release
-
-### 4.1 Release Checklist
-
-| # | Action | Owner | Notes |
-|---|--------|-------|-------|
-
-### 4.2 Rollout & Rollback
-Simple restart, no canary needed.
-
-## Decision Log
-
-| # | Decision | Impact | Default | Status |
-|---|----------|--------|---------|--------|
-| D-1 | Use Gin | Low | Gin | ✅ |
-SPEC
-
-LINT_EXIT=0
-LINT_OUTPUT=$(bash "$SANDBOX/lattice/kernel/delivery/gates/spec-lint.sh" "$SANDBOX/lattice/specs/test-feature.md" 2>&1) || LINT_EXIT=$?
-
-if [[ $LINT_EXIT -eq 0 ]]; then
-  pass "spec-lint passes on valid spec"
-else
-  fail "spec-lint failed on valid spec (exit=$LINT_EXIT)"
-  echo "$LINT_OUTPUT" | tail -10
-fi
-echo ""
-
-# ── 6b. Spec-lint on modern persistent spec layout ──
-echo "── 6b. Spec-lint modern layout ──"
+# ── 6. Spec-lint on directory spec layout ──
+echo "── 6. Spec-lint modern layout ──"
 mkdir -p "$SANDBOX/lattice/specs/modern-feature"
 cat > "$SANDBOX/lattice/specs/modern-feature/context.md" << 'CONTEXT'
 # Context: modern-feature
 
-## User Intent
-- Smoke-test PrismSpec modern artifact layout.
+## Decision Frame
 
-## Selected Knowledge
-| Source | Entry | Why it matters |
-|--------|-------|----------------|
-| project | none | No durable project rule required |
+| Item | Value |
+|------|-------|
+| Requirement type | feature |
+| Execution mode impact | tdd |
+| Main affected surface | test fixture |
+| Verification focus | spec-lint / prismspec-lint |
 
-## Code Facts
-- No production code is required for this fixture.
+## Selected Facts
 
-## Open Questions
-- None.
+| Type | Source | Fact | Decision Impact |
+|------|--------|------|-----------------|
+| user | smoke test | Smoke-test PrismSpec modern artifact layout. | Use a minimal fixture. |
+| code | N/A | No production code is required for this fixture. | Keep scope small. |
+| knowledge | N/A | No durable project rule required. | No knowledge dependency. |
+
+## Constraints
+
+| Type | Constraint | Source | Impact |
+|------|------------|--------|--------|
+| test | Keep AC ids stable. | fixture | Lint should pass predictably. |
+
+## Conflicts / Ambiguities
+
+| Issue | Sources | Required Decision |
+|-------|---------|-------------------|
+| None | N/A | N/A |
+
+## Context Gaps
+
+| Gap | Blocks planning? | Question / Next action |
+|-----|------------------|------------------------|
+| None | no | N/A |
 CONTEXT
 
 cat > "$SANDBOX/lattice/specs/modern-feature/spec.md" << 'SPEC'
@@ -557,7 +456,7 @@ echo ""
 # ── 7. AC-coverage (no tests — should report uncovered) ──
 echo "── 7. AC-coverage gate ──"
 AC_EXIT=0
-AC_OUTPUT=$(bash "$SANDBOX/lattice/kernel/delivery/gates/ac-coverage.sh" "$SANDBOX/lattice/specs/test-feature.md" "$SANDBOX" 2>&1) || AC_EXIT=$?
+AC_OUTPUT=$(bash "$SANDBOX/lattice/kernel/delivery/gates/ac-coverage.sh" "$SANDBOX/lattice/specs/modern-feature/spec.md" "$SANDBOX" 2>&1) || AC_EXIT=$?
 
 if [[ $AC_EXIT -eq 1 ]] && echo "$AC_OUTPUT" | grep -qi "uncovered"; then
   pass "ac-coverage correctly reports uncovered ACs"
@@ -580,14 +479,14 @@ echo ""
 
 # ── 9. Spec-lock ──
 echo "── 9. Spec-lock ──"
-LOCK_OUTPUT=$(bash "$SANDBOX/lattice/kernel/delivery/gates/spec-lock.sh" acquire "$SANDBOX/lattice/specs/test-feature.md" 2>&1)
+LOCK_OUTPUT=$(bash "$SANDBOX/lattice/kernel/delivery/gates/spec-lock.sh" acquire "$SANDBOX/lattice/specs/modern-feature/spec.md" 2>&1)
 if echo "$LOCK_OUTPUT" | grep -q "Locked"; then
   pass "spec-lock acquire works"
 else
   fail "spec-lock acquire failed"
 fi
 
-UNLOCK_OUTPUT=$(bash "$SANDBOX/lattice/kernel/delivery/gates/spec-lock.sh" release "$SANDBOX/lattice/specs/test-feature.md" 2>&1)
+UNLOCK_OUTPUT=$(bash "$SANDBOX/lattice/kernel/delivery/gates/spec-lock.sh" release "$SANDBOX/lattice/specs/modern-feature/spec.md" 2>&1)
 if echo "$UNLOCK_OUTPUT" | grep -q "Released"; then
   pass "spec-lock release works"
 else

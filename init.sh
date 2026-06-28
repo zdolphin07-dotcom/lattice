@@ -431,6 +431,7 @@ pipeline:
   steps:
     - { name: bootstrap,        run: "lattice/kernel/delivery/bootstrap.sh check",              skip_when: never }
     - { name: spec-lint,        run: "lattice/kernel/delivery/gates/spec-lint.sh \${SPEC_FILE}",      skip_when: no_spec }
+    - { name: prismspec-lint,   run: "prismspec/bin/lint.sh \$(dirname \${SPEC_FILE}) spec",          skip_when: no_spec }
     - { name: build,            run: "\${commands.build}",                                   skip_when: no_code }
     - { name: lint,             run: "\${commands.lint}",                                    skip_when: no_code }
     - { name: unit-test,        run: "\${commands.test}",                                    skip_when: no_code }
@@ -474,8 +475,8 @@ context:
   policy:
     precedence:
       - user_instruction
-      - project_knowledge
       - code_facts
+      - project_knowledge
       - project_specs
       - central_knowledge
       - model_prior

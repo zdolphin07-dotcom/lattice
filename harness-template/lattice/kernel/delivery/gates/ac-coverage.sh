@@ -49,7 +49,7 @@ case "$LANG" in
     ;;
 esac
 
-SPEC_ACS=$(grep -E '^\| *AC-[0-9]+ *\|' "$SPEC" | grep -o 'AC-[0-9]*' | sort -t- -k2 -n | uniq)
+SPEC_ACS=$({ grep -E '^\| *AC-[0-9]+ *\|' "$SPEC" || true; } | { grep -o 'AC-[0-9]*' || true; } | sort -t- -k2 -n | uniq)
 SPEC_COUNT=$(echo "$SPEC_ACS" | grep -c . || true)
 
 if [[ "$SPEC_COUNT" -eq 0 ]]; then

@@ -1,7 +1,7 @@
 <p align="center">
   <h1 align="center">Lattice</h1>
   <p align="center">
-    <strong>Team-native AI Coding framework for spec, context, verification, and evidence</strong>
+    <strong>Repo-local AI Coding harness for spec, context, verification, and evidence</strong>
   </p>
   <p align="center">
     <a href="README.md">中文文档</a> ·
@@ -18,10 +18,10 @@
 
 Lattice is a repo-local AI Coding framework. It does not replace Claude Code, Cursor, Aider, or other agents. Instead, it gives them versioned project contracts:
 
-- **PrismSpec** turns requirements into `spec.md`, `plan.md`, `verify.md`, and `summary.md`.
+- **PrismSpec** turns requirements into `context.md`, `spec.md`, `plan.md`, `verify.md`, and `summary.md`.
 - **Context** loads project rules, decisions, code facts, and pitfalls before spec drafting.
 - **Delivery Harness** runs build, lint, test, AC coverage, drift checks, and other gates before delivery claims.
-- **Eval Evidence** turns "the agent says it is done" into command-backed proof.
+- **Evidence** turns "the agent says it is done" into command-backed proof. Structured Eval runs are planned.
 
 In short: **Lattice turns individual AI Coding practice into reusable team engineering assets.**
 
@@ -73,7 +73,7 @@ bash prismspec/bin/guide.sh --json
 | Orchestrator | Agent rules and phase definitions | `lattice/kernel/orchestrator/` |
 | Context | Agent-readable context map, project knowledge assets, external context entry, and optional retrieval backend | `lattice/context/`, `lattice/kernel/context/` |
 | Delivery | Independent verification pipeline and gates | `lattice/kernel/delivery/` |
-| Eval | Evidence today; structured run records later | pipeline output, AC coverage, drift diagnostics |
+| Evidence | Gate output today; structured Eval run records later | pipeline output, AC coverage, drift diagnostics |
 
 ## Common Commands
 

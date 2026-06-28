@@ -165,6 +165,10 @@ template_hint() {
   esac
 }
 
+context_template_hint() {
+  echo "$TEMPLATE_ROOT/context-template.md"
+}
+
 skill_for_stage() {
   case "$1" in
     brainstorm) echo "prismspec/skills/brainstorm/SKILL.md" ;;
@@ -198,6 +202,7 @@ if [[ "$JSON" == "true" ]]; then
   printf '  "context_file": "%s",\n' "$CONTEXT_FILE"
   printf '  "run_dir": "%s",\n' "$RUN_DIR"
   printf '  "template_hint": "%s",\n' "$(template_hint)"
+  printf '  "context_template_hint": "%s",\n' "$(context_template_hint)"
   printf '  "verify_command": "%s"\n' "$VERIFY_CMD"
   printf '}\n'
   exit 0
@@ -214,5 +219,6 @@ echo "Spec dir:    ${SPEC_DIR:-$SPEC_ROOT/<spec-id>}"
 echo "Context:     ${CONTEXT_FILE:-$SPEC_ROOT/<spec-id>/context.md}"
 echo "Evidence:    ${RUN_DIR:-$RUN_ROOT/<spec-id>}"
 echo "Template:    $(template_hint)"
+echo "Context tpl: $(context_template_hint)"
 echo ""
 echo "Next action: $(next_action)"

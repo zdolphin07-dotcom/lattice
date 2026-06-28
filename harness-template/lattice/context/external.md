@@ -1,23 +1,24 @@
-# External Context
+# 外部上下文
 
-Use this file to point agents to project-related knowledge that lives outside this repository.
+这个文件用于告诉 Agent：哪些项目相关知识不在当前仓库内。外部知识只作参考，不应覆盖当前项目事实。
 
-## Central Knowledge
+## 中心知识
 
-- Team standards:
-- Shared component docs:
-- Cross-project pitfalls:
+- 团队规范：
+- 公共组件文档：
+- 跨项目踩坑：
+- 可选同步缓存：`lattice/context/.central/`
 
-## External Contracts
+## 外部契约
 
-- Third-party APIs:
-- Protocol documents:
-- Design systems:
-- Product or policy docs:
+- 第三方 API：
+- 协议文档：
+- 设计系统：
+- 产品或政策文档：
 
-## Usage Policy
+## 使用策略
 
-- External knowledge is advisory.
-- Current project code, tests, schema, and project knowledge win when sources conflict.
-- Confirm permissions before accessing private systems or network resources.
-- Do not copy secrets, tokens, private user data, or production raw data into repo context.
+- 外部知识是参考资料，不是真相源。
+- 与当前代码、测试、schema、接口契约或项目知识冲突时，以项目事实为准。
+- 访问私有系统或联网材料前，先确认权限和数据边界。
+- 不要把密钥、token、隐私数据或生产原始数据写入 repo context。

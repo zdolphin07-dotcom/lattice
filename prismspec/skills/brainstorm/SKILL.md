@@ -15,6 +15,7 @@ Clarify just enough to write `context.md` and `spec.md`: intent, scope, acceptan
 - `lattice/manifest.yaml` when present.
 - Relevant code, tests, schemas, contracts, docs, and matched context knowledge only when they affect scope, AC, risk, or mode.
 - Template from `prismspec/templates/`.
+- Context template from `prismspec/templates/context-template.md`.
 
 Read `prismspec/references/spec-quality-checklist.md` when drafting a full spec. Read `prismspec/references/mode-selection.md` when the mode is non-obvious.
 
@@ -27,7 +28,7 @@ Read `prismspec/references/spec-quality-checklist.md` when drafting a full spec.
    - `spec-template-frontend.md` for UX, component states, accessibility.
    - `spec-template-tdd.md` for bugs, regressions, and high-risk behavior.
    - `spec-template.md` when no specialized template clearly fits.
-3. Perform Context Discovery. Load only context that changes scope, AC, risk, interface, compatibility, or verification.
+3. Perform Context Discovery with `prismspec/templates/context-template.md`. Load only context that changes scope, AC, risk, interface, compatibility, or verification.
    - In Lattice-hosted mode, read `lattice/context/README.md` when present.
    - Follow the context map to relevant project knowledge, external references, historical specs, code, tests, schemas, and contracts.
    - Use `lattice/kernel/context/backends/knowledge.sh <keywords>` only as an optional curated-knowledge backend.

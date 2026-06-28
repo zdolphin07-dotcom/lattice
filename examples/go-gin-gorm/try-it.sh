@@ -24,24 +24,29 @@ cp -r "$SCRIPT_DIR"/. "$SANDBOX"/
 cd "$SANDBOX"
 git init --quiet
 
-# Copy kernel into example's lattice/kernel/
+# Copy framework pieces used by this standalone demo.
 cp -r "$REPO_DIR/harness-template/lattice/kernel" "$SANDBOX/lattice/kernel"
+cp -r "$REPO_DIR/prismspec" "$SANDBOX/prismspec"
 
-SPEC="lattice/specs/create-item-api.md"
+SPEC="lattice/specs/create-item-api/spec.md"
 
 echo "── 1. Spec Lint ──"
 bash lattice/kernel/delivery/gates/spec-lint.sh "$SPEC"
 echo ""
 
-echo "── 2. AC Coverage ──"
+echo "── 2. PrismSpec Lint ──"
+bash prismspec/bin/lint.sh "$(dirname "$SPEC")" spec
+echo ""
+
+echo "── 3. AC Coverage ──"
 bash lattice/kernel/delivery/gates/ac-coverage.sh "$SPEC" .
 echo ""
 
-echo "── 3. Drift Check ──"
+echo "── 4. Drift Check ──"
 bash lattice/kernel/delivery/gates/drift-check.sh "$SPEC" .
 echo ""
 
-echo "── 4. Context Knowledge Backend ──"
+echo "── 5. Context Knowledge Backend ──"
 bash lattice/kernel/context/backends/knowledge.sh naming
 echo ""
 
