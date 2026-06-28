@@ -191,6 +191,9 @@ bash lattice/kernel/delivery/pipeline.sh --only=spec-lint
 # 检查 plan.md 是否具备 AC trace、任务 ID 和验证要求
 bash lattice/kernel/orchestrator/sdd/plan-lint.sh <spec-id>
 
+# 解析下一项未完成任务，供 implement 阶段恢复执行
+bash lattice/kernel/orchestrator/sdd/task-next.sh <spec-id> --json
+
 # 检查已完成任务是否具备 brief/review/TDD evidence
 bash lattice/kernel/orchestrator/sdd/task-evidence-lint.sh <spec-id>
 

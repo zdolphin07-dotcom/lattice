@@ -20,17 +20,19 @@ Implement one planned slice at a time. Keep scope narrow, produce evidence, and 
 ## Workflow
 
 1. Check worktree status and avoid mixing unrelated changes.
-2. Pick the next incomplete task from `plan.md`.
-3. Generate or write a task brief in the evidence directory.
-4. Execute according to mode:
+2. In Lattice-hosted mode, run `lattice/kernel/orchestrator/sdd/task-next.sh <spec-id> --json` and execute the returned `task_id`; otherwise pick the first incomplete task from `plan.md`.
+3. If `task-next` returns `status=complete`, run task evidence lint and advance status instead of editing code.
+4. Generate or write a task brief in the evidence directory.
+5. Execute according to mode:
    - `plan`: implement the task, add tests for behavior changes or meaningful regression risk.
    - `tdd`: write and run the red test first, then implement green, then refactor.
-5. Run focused verification for the task.
-6. Generate a review package when helpers exist.
-7. In TDD mode, write `tdd-evidence.json` when the helper exists.
-8. Mark the task complete only when evidence exists.
-9. In Lattice-hosted mode, run `lattice/kernel/orchestrator/sdd/task-evidence-lint.sh <spec-id>` after completed tasks are checked.
-10. In Lattice-hosted mode, when all planned tasks are complete, advance status with `lattice/kernel/orchestrator/sdd/spec-status.sh <spec-id> implemented --from=planned`.
+6. Run focused verification for the task.
+7. Generate a review package when helpers exist.
+8. In TDD mode, write `tdd-evidence.json` when the helper exists.
+9. Mark the task complete only when evidence exists.
+10. In Lattice-hosted mode, re-run `task-next`; if another task is returned, stop or continue only when the user asked for multi-task execution.
+11. In Lattice-hosted mode, run `lattice/kernel/orchestrator/sdd/task-evidence-lint.sh <spec-id>` after completed implementation tasks are checked.
+12. In Lattice-hosted mode, when all planned tasks are complete, advance status with `lattice/kernel/orchestrator/sdd/spec-status.sh <spec-id> implemented --from=planned`.
 
 ## Scope Rules
 
@@ -65,6 +67,7 @@ Implement one planned slice at a time. Keep scope narrow, produce evidence, and 
 ## Red Flags
 
 - More than one planned slice is implemented before running tests.
+- Implementation starts without resolving the next task from `task-next.sh` when available.
 - New abstractions appear before the third concrete need.
 - `plan.md` remains unchecked even after evidence exists.
 - Implementation changes unmentioned contracts without updating `spec.md`.

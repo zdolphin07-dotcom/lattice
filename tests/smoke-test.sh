@@ -121,6 +121,7 @@ if bash "$SANDBOX/.lattice/framework/init.sh" --non-interactive --lang=go --name
     && [[ -x "$SANDBOX/lattice/kernel/delivery/pr-comment.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/delivery/failure-category-lint.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/orchestrator/sdd/plan-lint.sh" ]] \
+    && [[ -x "$SANDBOX/lattice/kernel/orchestrator/sdd/task-next.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/orchestrator/sdd/task-evidence-lint.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/orchestrator/sdd/spec-state-lint.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/orchestrator/sdd/spec-status.sh" ]] \
@@ -227,6 +228,7 @@ if bash "$SANDBOX/.lattice/framework/init.sh" --non-interactive --lang=go --name
   fi
 
   if [[ -x "$SANDBOX/lattice/kernel/orchestrator/sdd/task-brief.sh" ]] \
+    && [[ -x "$SANDBOX/lattice/kernel/orchestrator/sdd/task-next.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/orchestrator/sdd/task-evidence-lint.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/orchestrator/sdd/review-package.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/orchestrator/sdd/review-summary.sh" ]] \
@@ -634,6 +636,14 @@ cat > "$SANDBOX/lattice/specs/modern-feature/plan.md" << 'PLAN'
     - [ ] AC-2 passes focused verification and evidence exists.
 PLAN
 
+TASK_NEXT_JSON=$(bash "$SANDBOX/lattice/kernel/orchestrator/sdd/task-next.sh" modern-feature --json)
+if echo "$TASK_NEXT_JSON" | yq -e '.kind == "task-next" and .status == "next" and .task_id == "RED-1" and .task_kind == "red-test" and .mode == "tdd" and (.ac_refs | length == 1 and .ac_refs[0] == "AC-1")' >/dev/null 2>&1; then
+  pass "task-next resolves first red-test task"
+else
+  fail "task-next did not resolve first red-test task"
+  echo "$TASK_NEXT_JSON"
+fi
+
 PRISMSPEC_PLAN_LINT_EXIT=0
 PRISMSPEC_PLAN_LINT_OUTPUT=$(bash "$SANDBOX/prismspec/bin/lint.sh" "$SANDBOX/lattice/specs/modern-feature" plan 2>&1) || PRISMSPEC_PLAN_LINT_EXIT=$?
 if [[ $PRISMSPEC_PLAN_LINT_EXIT -eq 0 ]]; then
@@ -779,6 +789,14 @@ if [[ $TASK_EVIDENCE_LINT_EXIT -eq 0 ]]; then
 else
   fail "task-evidence-lint failed completed task evidence"
   echo "$TASK_EVIDENCE_LINT_OUTPUT" | tail -20
+fi
+
+TASK_NEXT_COMPLETE_JSON=$(bash "$SANDBOX/lattice/kernel/orchestrator/sdd/task-next.sh" modern-feature --json)
+if echo "$TASK_NEXT_COMPLETE_JSON" | yq -e '.kind == "task-next" and .status == "complete" and .next_task == null' >/dev/null 2>&1; then
+  pass "task-next reports complete plan"
+else
+  fail "task-next did not report complete plan"
+  echo "$TASK_NEXT_COMPLETE_JSON"
 fi
 
 SPEC_STATUS_IMPLEMENTED_EXIT=0

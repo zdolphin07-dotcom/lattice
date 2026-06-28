@@ -99,6 +99,7 @@ bash prismspec/bin/lint.sh lattice/specs/<spec-id>
 bash lattice/kernel/orchestrator/sdd/spec-state-lint.sh <spec-id>
 bash lattice/kernel/orchestrator/sdd/spec-status.sh <spec-id> planned --from=drafted
 bash lattice/kernel/orchestrator/sdd/plan-lint.sh <spec-id>
+bash lattice/kernel/orchestrator/sdd/task-next.sh <spec-id> --json
 bash lattice/kernel/orchestrator/sdd/task-evidence-lint.sh <spec-id>
 bash lattice/kernel/orchestrator/sdd/spec-history.sh --out=lattice/state/spec-history.md
 cat lattice/context/README.md

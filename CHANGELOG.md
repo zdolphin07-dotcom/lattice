@@ -32,6 +32,7 @@ All notable changes to this project will be documented in this file.
 - `spec-status.sh` to advance spec lifecycle status with guarded transitions, stale-state protection, and JSON transition events.
 - `spec-history.sh` to aggregate spec transition events into a Markdown lifecycle report.
 - `plan-lint.sh` to validate AC-traced implementation plans before task execution starts.
+- `task-next.sh` to resolve the next incomplete plan task as text or JSON for implementation recovery.
 - `task-evidence-lint.sh` to require brief, review package, and TDD evidence for completed implementation tasks.
 - `review-summary.sh` and `tdd-evidence.sh` to capture process evidence as structured JSON.
 - GitHub Actions eval artifact workflow template installed by `init.sh --ci=github`.

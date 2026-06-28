@@ -61,7 +61,7 @@ Before drafting the spec:
 - Smoke tests: `TestSmoke_{API}`
 - Plan mode: execute `plan.md`, add necessary tests for behavior changes
 - TDD mode: write red tests first, implement green, then refactor; no red test, no implementation
-- Before each task: generate a task brief with `bash lattice/kernel/orchestrator/sdd/task-brief.sh <spec-id> <task-id>`
+- Before each task: resolve the next task with `bash lattice/kernel/orchestrator/sdd/task-next.sh <spec-id> --json`, then generate a task brief with `bash lattice/kernel/orchestrator/sdd/task-brief.sh <spec-id> <task-id>`
 - After each task: generate a review package with `bash lattice/kernel/orchestrator/sdd/review-package.sh <spec-id> <task-id>`
 - Before marking implementation complete: run `bash lattice/kernel/orchestrator/sdd/task-evidence-lint.sh <spec-id>`
 - Store transient evidence under `.lattice/sdd/{spec-id}/{task-id}/`; do not put execution scratch files in `.git/`
