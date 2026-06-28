@@ -102,6 +102,7 @@ bash lattice/kernel/orchestrator/sdd/plan-lint.sh <spec-id>
 bash lattice/kernel/orchestrator/sdd/task-next.sh <spec-id> --json
 bash lattice/kernel/orchestrator/sdd/task-complete.sh <spec-id> T1 --json
 bash lattice/kernel/orchestrator/sdd/task-evidence-lint.sh <spec-id>
+bash lattice/kernel/orchestrator/sdd/summary-draft.sh <spec-id>
 bash lattice/kernel/orchestrator/sdd/spec-history.sh --out=lattice/state/spec-history.md
 cat lattice/context/README.md
 bash lattice/kernel/context/backends/knowledge.sh "payment idempotency"

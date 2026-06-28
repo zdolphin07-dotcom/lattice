@@ -127,6 +127,7 @@ if bash "$SANDBOX/.lattice/framework/init.sh" --non-interactive --lang=go --name
     && [[ -x "$SANDBOX/lattice/kernel/orchestrator/sdd/spec-state-lint.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/orchestrator/sdd/spec-status.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/orchestrator/sdd/spec-history.sh" ]] \
+    && [[ -x "$SANDBOX/lattice/kernel/orchestrator/sdd/summary-draft.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/context/context-lint.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/context/context-run.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/context/learn-draft.sh" ]] \
@@ -235,6 +236,7 @@ if bash "$SANDBOX/.lattice/framework/init.sh" --non-interactive --lang=go --name
     && [[ -x "$SANDBOX/lattice/kernel/orchestrator/sdd/review-package.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/orchestrator/sdd/review-summary.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/orchestrator/sdd/spec-history.sh" ]] \
+    && [[ -x "$SANDBOX/lattice/kernel/orchestrator/sdd/summary-draft.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/orchestrator/sdd/tdd-evidence.sh" ]]; then
     pass "SDD helper scripts installed"
   else
@@ -955,13 +957,18 @@ else
   echo "$SPEC_STATUS_VERIFIED_OUTPUT" | tail -20
 fi
 
-cat > "$SANDBOX/lattice/specs/modern-feature/summary.md" << 'SUMMARY'
-# Summary: Modern Feature
-
-- Result: delivered
-- Verification: `go test ./...` passed
-- Residual risk: none for smoke
-SUMMARY
+SUMMARY_DRAFT_OUTPUT=$(bash "$SANDBOX/lattice/kernel/orchestrator/sdd/summary-draft.sh" modern-feature 2>&1)
+if [[ -f "$SANDBOX/lattice/specs/modern-feature/summary.md" ]] \
+  && grep -q "Evidence Closeout" "$SANDBOX/lattice/specs/modern-feature/summary.md" \
+  && grep -q "Task Evidence" "$SANDBOX/lattice/specs/modern-feature/summary.md" \
+  && grep -q "Verification Evidence" "$SANDBOX/lattice/specs/modern-feature/summary.md" \
+  && grep -q "Residual Risks And Follow-ups" "$SANDBOX/lattice/specs/modern-feature/summary.md"; then
+  pass "summary-draft generates closeout summary"
+else
+  fail "summary-draft did not generate expected summary"
+  echo "$SUMMARY_DRAFT_OUTPUT" | tail -20
+  [[ -f "$SANDBOX/lattice/specs/modern-feature/summary.md" ]] && tail -40 "$SANDBOX/lattice/specs/modern-feature/summary.md"
+fi
 SPEC_STATUS_FINISHED_EXIT=0
 SPEC_STATUS_FINISHED_OUTPUT=$(bash "$SANDBOX/lattice/kernel/orchestrator/sdd/spec-status.sh" modern-feature finished --from=verified 2>&1) || SPEC_STATUS_FINISHED_EXIT=$?
 if [[ $SPEC_STATUS_FINISHED_EXIT -eq 0 ]] && grep -q '^status: finished$' "$SANDBOX/lattice/specs/modern-feature/spec.md"; then
@@ -1065,6 +1072,19 @@ if [[ $PIPELINE_GATE_EXIT -eq 1 ]] && yq -e '.metrics.ac_total == 2 and .metrics
 else
   fail "pipeline gate JSON embedding invalid"
   cat /tmp/lattice-pipeline-gate-json.log | tail -20
+fi
+
+SUMMARY_WITH_EVAL="$SANDBOX/lattice/specs/modern-feature/summary-with-eval.md"
+SUMMARY_WITH_EVAL_OUTPUT=$(bash "$SANDBOX/lattice/kernel/orchestrator/sdd/summary-draft.sh" modern-feature --eval-json="$PIPELINE_GATE_JSON" --out="$SUMMARY_WITH_EVAL" 2>&1)
+if [[ -f "$SUMMARY_WITH_EVAL" ]] \
+  && grep -q "Eval Metrics" "$SUMMARY_WITH_EVAL" \
+  && grep -q "0 / 2 covered, 2 uncovered" "$SUMMARY_WITH_EVAL" \
+  && grep -q "Review evidence includes 0 fail and 1 cannot_verify verdict" "$SUMMARY_WITH_EVAL"; then
+  pass "summary-draft embeds eval JSON metrics"
+else
+  fail "summary-draft did not embed eval JSON metrics"
+  echo "$SUMMARY_WITH_EVAL_OUTPUT" | tail -20
+  [[ -f "$SUMMARY_WITH_EVAL" ]] && tail -40 "$SUMMARY_WITH_EVAL"
 fi
 
 LOOP_RUN_ID=$(yq -r '.run_id' "$PIPELINE_GATE_JSON")

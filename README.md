@@ -200,6 +200,9 @@ bash lattice/kernel/orchestrator/sdd/task-complete.sh <spec-id> T1 --json
 # 检查已完成任务是否具备 brief/review/TDD evidence
 bash lattice/kernel/orchestrator/sdd/task-evidence-lint.sh <spec-id>
 
+# 从 spec/plan/verify/task evidence 生成 summary.md 草稿
+bash lattice/kernel/orchestrator/sdd/summary-draft.sh <spec-id>
+
 # 检查 spec.md front matter 和状态对应产物
 bash lattice/kernel/orchestrator/sdd/spec-state-lint.sh <spec-id>
 
