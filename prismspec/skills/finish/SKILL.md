@@ -27,7 +27,7 @@ Close the loop. Preserve the useful delivery evidence and avoid turning transien
 4. Record review verdicts: `pass`, `fail`, or `cannot_verify`; write `review-summary.json` when the helper exists.
 5. Write residual risks and deferred work with owners or next actions.
 6. Write `summary.md` next to `spec.md`.
-7. If a post-run review finding, rework, escaped defect, incident, or success signal is already known in Lattice-hosted mode, record it with `outcome-link.sh`.
+7. If a post-run review finding, rework, escaped defect, incident, or success signal is already known in Lattice-hosted mode, record it with `outcome-link.sh` and refresh `outcome-report.sh` when useful.
 8. Capture reusable lessons through `prismspec-learn` only when durable.
 
 ## Outputs
@@ -35,6 +35,7 @@ Close the loop. Preserve the useful delivery evidence and avoid turning transien
 - `summary.md`
 - Lattice-hosted review evidence: `.lattice/sdd/<spec-id>/<task-id>/review-summary.json` when review was performed.
 - Optional Lattice outcome link: `lattice/state/outcomes/*.json`.
+- Optional Lattice outcome report: `lattice/state/outcome-report.md`.
 - Optional knowledge draft.
 
 ## Stop Conditions

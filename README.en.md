@@ -85,6 +85,7 @@ bash lattice/kernel/orchestrator/sdd/tdd-evidence.sh <spec-id> <task-id> --ac=AC
 bash lattice/kernel/delivery/eval-summary.sh lattice/state/eval-runs/<run-id>.json
 bash lattice/kernel/delivery/eval-history.sh --out=lattice/state/eval-runs/history.md
 bash lattice/kernel/delivery/outcome-link.sh record --eval=<run-id|eval.json> --type=review_finding --severity=medium --source=code-review --summary="missing regression test" --context-ref=rules.md#ac-trace
+bash lattice/kernel/delivery/outcome-report.sh --out=lattice/state/outcome-report.md
 bash lattice/kernel/delivery/pr-comment.sh lattice/state/eval-runs/<run-id>.md --dry-run
 bash lattice/kernel/delivery/pipeline.sh --only=spec-lint
 bash lattice/kernel/doctor.sh
@@ -106,14 +107,14 @@ Implemented:
 
 - install/init/upgrade and smoke tests;
 - standalone PrismSpec skill pack manifest and Lattice-hosted mode;
-- doctor, `pipeline --json-out` structured eval runs, loop state JSON, outcome link events, context-run evidence, learn promotion audit events, knowledge review evidence, configurable failure categories, failure category lint, escalation learn drafts, learn draft promotion/discard, Markdown summaries/history reports, AC/drift/compliance gate JSON, review/TDD process evidence, and GitHub Actions eval artifacts/Step Summary/best-effort PR comments;
+- doctor, `pipeline --json-out` structured eval runs, loop state JSON, outcome link events and attribution reports, context-run evidence, learn promotion audit events, knowledge review evidence, configurable failure categories, failure category lint, escalation learn drafts, learn draft promotion/discard, Markdown summaries/history reports, AC/drift/compliance gate JSON, review/TDD process evidence, and GitHub Actions eval artifacts/Step Summary/best-effort PR comments;
 - spec lint, AC coverage, drift check, compliance, spec lock;
 - context map, knowledge backend, context-run evidence, knowledge metadata lint, knowledge governance lint, sync, and basic learn convention;
 - Go/Gin/GORM example and adapter docs.
 
 Planned:
 
-- outcome analytics/dashboard and stronger semantic conflict governance;
+- dashboard/central eval sink and stronger semantic conflict governance;
 - more drift parsers for Node/Python and other stacks;
 - plugin manifest/schema/versioning;
 - multi-agent state and lease model.

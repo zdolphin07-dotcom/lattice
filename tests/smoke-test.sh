@@ -107,6 +107,7 @@ if bash "$SANDBOX/.lattice/framework/init.sh" --non-interactive --lang=go --name
     && [[ -x "$SANDBOX/lattice/kernel/delivery/eval-summary.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/delivery/eval-history.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/delivery/outcome-link.sh" ]] \
+    && [[ -x "$SANDBOX/lattice/kernel/delivery/outcome-report.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/delivery/pr-comment.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/delivery/failure-category-lint.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/context/context-run.sh" ]] \
@@ -796,6 +797,15 @@ if [[ -n "$OUTCOME_EVENT" ]] \
 else
   fail "outcome-link event invalid"
   echo "$OUTCOME_LINK_OUTPUT" | tail -20
+fi
+
+OUTCOME_REPORT_MD="$SANDBOX/lattice/state/outcome-report-smoke.md"
+OUTCOME_REPORT_OUTPUT=$(bash "$SANDBOX/lattice/kernel/delivery/outcome-report.sh" --out="$OUTCOME_REPORT_MD" --limit=5 2>&1)
+if [[ -f "$OUTCOME_REPORT_MD" ]] && grep -q "Lattice Outcome Attribution Report" "$OUTCOME_REPORT_MD" && grep -q "Context Ref Signals" "$OUTCOME_REPORT_MD" && grep -q "rules.md#ac-trace" "$OUTCOME_REPORT_MD" && grep -q "Runs Needing Review" "$OUTCOME_REPORT_MD" && grep -q "missing regression test evidence" "$OUTCOME_REPORT_MD"; then
+  pass "outcome-report renders attribution signals"
+else
+  fail "outcome-report output invalid"
+  echo "$OUTCOME_REPORT_OUTPUT" | tail -20
 fi
 
 PIPELINE_SUMMARY_MD="$SANDBOX/lattice/state/eval-summary-smoke.md"

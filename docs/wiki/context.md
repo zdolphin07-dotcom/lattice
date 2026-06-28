@@ -340,11 +340,11 @@ PrismSpec 负责 SDD 工作流；Context 负责提供更准确的项目上下文
 | 项目知识文件仍需真实沉淀 | Agent 只能看到结构，缺少真实领域知识 | P0 |
 | `sources.yaml` 尚未被自动化消费 | 当前更多是未来扩展点 | P1 |
 | 语义冲突处理仍依赖 reviewer | 已有 metadata lint 和 review evidence，但不能自动判断跨文件语义冲突 | P1 |
-| context-run 仍偏计数型 | 已能通过 outcome link 关联真实反馈，但还不能自动做语义归因 | P1 |
+| context-run 仍偏计数型 | 已能通过 outcome link/report 关联真实反馈，但还缺真实样本和跨项目统计 | P1 |
 
 ## 推荐演进
 
 1. 在真实示例中填充 `lattice/context/README.md`、`external.md` 和项目知识文件。
 2. 增加跨文件 semantic conflict resolution。
 3. 将 `sources.yaml` 保留为可选自动化配置，后续脚本真正消费后再提升权重。
-4. 基于 outcome link 分析哪些上下文真的降低返工、review finding 和 escaped defect。
+4. 基于 outcome report 和真实样本分析哪些上下文真的降低返工、review finding 和 escaped defect。

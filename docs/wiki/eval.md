@@ -8,7 +8,7 @@ Eval 在 Lattice 中不是“多跑几个测试”，而是回答三个问题：
 2. Agent 的工作过程是否可靠？
 3. 团队的 AI Coding 质量是否在变好？
 
-当前实现已经有 eval 原材料：spec-lint、AC coverage、drift check、compliance、build/lint/test output、context-run、review summary、TDD red/green evidence、loop state、outcome link、可配置 failure category、failure category lint、escalation learn draft、knowledge review event、learn promotion event、knowledge governance lint 和 smoke test。`pipeline.sh --json-out` 会把一次运行写成结构化 eval run，并嵌入 AC coverage、drift check、compliance 的 gate JSON、当前 spec 对应的 context-run、process evidence 以及 loop state；失败时，loop state 会包含 `failure_category` 和 `default_action`，分类规则来自 `lattice/config/failure-categories.yaml`；`failure-category-lint.sh` 和 doctor 会前置检查分类配置；当 retry budget 耗尽时，它会在 `lattice/context/drafts/` 生成待确认 learn draft；确认后，`knowledge-review.sh` 会记录 approve/reject 证据，`learn-draft.sh` 会记录 promotion/discard 事件，并运行 advisory knowledge lint；交付后的 review finding、返工、逃逸缺陷、事故或成功反馈可以用 `outcome-link.sh` 关联回 eval run。`eval-summary.sh` 会把 eval JSON 渲染成 Markdown summary，供本地阅读和 CI Step Summary 使用；`eval-history.sh` 会把多次 eval run 和 outcome link 聚合为趋势报告。
+当前实现已经有 eval 原材料：spec-lint、AC coverage、drift check、compliance、build/lint/test output、context-run、review summary、TDD red/green evidence、loop state、outcome link、outcome attribution report、可配置 failure category、failure category lint、escalation learn draft、knowledge review event、learn promotion event、knowledge governance lint 和 smoke test。`pipeline.sh --json-out` 会把一次运行写成结构化 eval run，并嵌入 AC coverage、drift check、compliance 的 gate JSON、当前 spec 对应的 context-run、process evidence 以及 loop state；失败时，loop state 会包含 `failure_category` 和 `default_action`，分类规则来自 `lattice/config/failure-categories.yaml`；`failure-category-lint.sh` 和 doctor 会前置检查分类配置；当 retry budget 耗尽时，它会在 `lattice/context/drafts/` 生成待确认 learn draft；确认后，`knowledge-review.sh` 会记录 approve/reject 证据，`learn-draft.sh` 会记录 promotion/discard 事件，并运行 advisory knowledge lint；交付后的 review finding、返工、逃逸缺陷、事故或成功反馈可以用 `outcome-link.sh` 关联回 eval run，并用 `outcome-report.sh` 汇总归因线索。`eval-summary.sh` 会把 eval JSON 渲染成 Markdown summary，供本地阅读和 CI Step Summary 使用；`eval-history.sh` 会把多次 eval run 和 outcome link 聚合为趋势报告。
 
 ## 当前形态
 
@@ -26,6 +26,7 @@ Eval 在 Lattice 中不是“多跑几个测试”，而是回答三个问题：
 | `lattice/state/knowledge-reviews/*.json` | knowledge review event | 经验候选 approve/reject、reviewer、reason 和 conflict check |
 | `lattice/state/learn-promotions/*.json` | learn promotion event | 经验候选被晋升或废弃的审计记录 |
 | `lattice/state/outcomes/*.json` | outcome link event | 交付后真实结果与 eval run 的关联 |
+| `outcome-report.sh` | attribution Markdown | outcome 类型、严重度、context refs 和风险线索 |
 | `knowledge-lint.sh` | governance diagnostics | source、placeholder、conflict marker、expiry、duplicate heading 检查 |
 | `eval-history.sh` | history Markdown | 多次运行的 pass rate、AC coverage、review/TDD/outcome 趋势 |
 | build/lint/test | terminal output | 工程基础质量 |
@@ -184,6 +185,21 @@ bash lattice/kernel/delivery/outcome-link.sh record \
 }
 ```
 
+归因线索报告：
+
+```bash
+bash lattice/kernel/delivery/outcome-report.sh --out=lattice/state/outcome-report.md
+```
+
+它会输出：
+
+- outcome 类型和严重度分布；
+- 被 outcome 引用最多的 context refs；
+- 需要复盘的 run、spec、source、summary；
+- 风险线索，例如 `negative-outcome`、`severe-outcome`、`no-context-run`、`blocking-context-gap`、`review-failed`、`review-cannot-verify`。
+
+这不是因果判定，只是把“哪些 evidence 值得复盘”排到前面。
+
 ## 指标
 
 短期指标：
@@ -235,11 +251,11 @@ Lattice 在 `harness-template/.github/workflows/lattice-eval.yml` 提供 GitHub 
 
 | Gap | 影响 | 下一步 |
 |-----|------|--------|
-| outcome attribution 仍偏人工 | 已有 outcome link，但还不能自动判断哪些 context 真正降低缺陷率和返工率 | dashboard / analysis |
+| outcome attribution 仍是线索级 | 已有 outcome report，但还不能做跨项目统计和因果判定 | dashboard / central eval sink |
 | dashboard 未实现 | history report 仍是 repo-local 文件，不能跨项目横向比较 | dashboard / central eval sink |
 
 ## 演进顺序
 
 1. 增加 dashboard 或 central eval sink。
-2. 增加 outcome attribution 分析。
+2. 增加跨项目 outcome attribution 分析。
 3. 扩展更多语言的 drift parser。

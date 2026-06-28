@@ -67,7 +67,7 @@ flowchart TB
 | Orchestrator | Agent 规则、阶段定义、模板入口 | `lattice/kernel/orchestrator/` |
 | Context | 给 Agent 提供项目上下文地图、项目知识、外部知识入口，并沉淀 per-spec context | `lattice/context/`、`lattice/kernel/context/` |
 | Delivery | 运行可复现验证卡口 | `lattice/kernel/delivery/` |
-| Eval | 从 gate output、loop state、process evidence 与 outcome link 提炼质量证据 | `pipeline --json-out` 生成 eval run，收集 loop/review/TDD/outcome JSON，`eval-summary.sh` 生成 summary，`eval-history.sh` 生成趋势报告 |
+| Eval | 从 gate output、loop state、process evidence 与 outcome link/report 提炼质量证据 | `pipeline --json-out` 生成 eval run，收集 loop/review/TDD/outcome JSON，`eval-summary.sh` 生成 summary，`eval-history.sh` 生成趋势报告，`outcome-report.sh` 生成归因线索 |
 
 ## 数据流
 
@@ -103,7 +103,7 @@ sequenceDiagram
 | Context source | Agent-readable context map，必要时辅以 sync 脚本 | repo-local、central context、external docs |
 | Delivery gate | `pipeline.steps[]` command | build、lint、test、drift、compliance |
 | Drift parser | `drift.plugins[]` command | route/schema/error-code parser |
-| Eval sink | `pipeline --json-out` + process evidence + `outcome-link.sh` + `eval-summary.sh` / `eval-history.sh` + GitHub Actions artifact/comment | local JSON、Markdown summary/history、CI Step Summary、PR comment、dashboard |
+| Eval sink | `pipeline --json-out` + process evidence + `outcome-link.sh` / `outcome-report.sh` + `eval-summary.sh` / `eval-history.sh` + GitHub Actions artifact/comment | local JSON、Markdown summary/history/report、CI Step Summary、PR comment、dashboard |
 
 ## 为什么不是中心化平台
 
