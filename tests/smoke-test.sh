@@ -597,6 +597,25 @@ else
   cat /tmp/lattice-pipeline-gate-json.log | tail -20
 fi
 
+PIPELINE_ESCALATION_JSON="$SANDBOX/lattice/state/pipeline-escalation-smoke.json"
+PIPELINE_ESCALATION_EXIT=0
+SH_RETRY_COUNT=3 SH_RETRY_MAX=3 bash "$SANDBOX/lattice/kernel/delivery/pipeline.sh" --only=ac-coverage --spec="$SANDBOX/lattice/specs/modern-feature/spec.md" --json-out="$PIPELINE_ESCALATION_JSON" >/tmp/lattice-pipeline-escalation.log 2>&1 || PIPELINE_ESCALATION_EXIT=$?
+ESCALATION_RUN_ID=""
+ESCALATION_LEARN_DRAFT=""
+if [[ -f "$PIPELINE_ESCALATION_JSON" ]]; then
+  ESCALATION_RUN_ID=$(yq -r '.run_id' "$PIPELINE_ESCALATION_JSON")
+  ESCALATION_LEARN_DRAFT="$SANDBOX/lattice/context/drafts/escalation-${ESCALATION_RUN_ID}.md"
+fi
+if [[ $PIPELINE_ESCALATION_EXIT -eq 2 ]] \
+  && [[ -f "$ESCALATION_LEARN_DRAFT" ]] \
+  && yq -e '.pipeline.status == "escalation" and .metrics.loop_escalated == true and .loop_state.next_action == "escalate" and .loop_state.learn_draft != ""' "$PIPELINE_ESCALATION_JSON" >/dev/null 2>&1 \
+  && grep -q "Learn Draft: Pipeline Escalation" "$ESCALATION_LEARN_DRAFT"; then
+  pass "pipeline writes escalation learn draft"
+else
+  fail "pipeline escalation learn draft invalid"
+  cat /tmp/lattice-pipeline-escalation.log | tail -20
+fi
+
 PIPELINE_SUMMARY_MD="$SANDBOX/lattice/state/eval-summary-smoke.md"
 SUMMARY_OUTPUT=$(bash "$SANDBOX/lattice/kernel/delivery/eval-summary.sh" "$PIPELINE_GATE_JSON" --out="$PIPELINE_SUMMARY_MD" 2>&1)
 if [[ -f "$PIPELINE_SUMMARY_MD" ]] && grep -q "Lattice Eval Summary" "$PIPELINE_SUMMARY_MD" && grep -q "AC Coverage" "$PIPELINE_SUMMARY_MD" && grep -q "ac-coverage" "$PIPELINE_SUMMARY_MD" && grep -q "Review Evidence" "$PIPELINE_SUMMARY_MD" && grep -q "TDD Evidence" "$PIPELINE_SUMMARY_MD" && grep -q "Loop" "$PIPELINE_SUMMARY_MD"; then
@@ -625,7 +644,7 @@ else
   fail "eval-history output invalid"
   echo "$HISTORY_OUTPUT" | tail -10
 fi
-rm -f /tmp/lattice-ac-json.log /tmp/lattice-drift-json.log /tmp/lattice-compliance-json.log /tmp/lattice-pipeline-gate-json.log
+rm -f /tmp/lattice-ac-json.log /tmp/lattice-drift-json.log /tmp/lattice-compliance-json.log /tmp/lattice-pipeline-gate-json.log /tmp/lattice-pipeline-escalation.log
 echo ""
 
 # ── 8. Context knowledge backend ──

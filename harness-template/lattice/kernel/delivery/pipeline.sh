@@ -23,6 +23,7 @@ ONLY_STEP=""
 USER_SPEC=""
 WRITE_JSON=false
 JSON_OUT=""
+EVAL_JSON_FILE=""
 
 for arg in "$@"; do
   case "$arg" in
@@ -41,8 +42,10 @@ RUN_STARTED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 RUN_STARTED_SEC="$(date +%s)"
 RUN_ID="${RUN_STARTED_AT//:/}"
 RUN_ID="${RUN_ID//-/}"
+RUN_ID="${RUN_ID}-$$"
 GATE_JSON_DIR="$PROJECT_ROOT/lattice/state/eval-runs/${RUN_ID}.gates"
 LOOP_JSON_FILE=""
+LEARN_DRAFT_FILE=""
 gate_json_files=()
 process_review_files=()
 process_tdd_files=()
@@ -311,9 +314,80 @@ loop_next_action() {
   fi
 }
 
+resolve_eval_json_out() {
+  [[ "$WRITE_JSON" == "true" ]] || return 0
+  if [[ -n "$EVAL_JSON_FILE" ]]; then
+    return 0
+  fi
+  if [[ -z "$JSON_OUT" ]]; then
+    EVAL_JSON_FILE="$PROJECT_ROOT/lattice/state/eval-runs/${RUN_ID}.json"
+  elif [[ "$JSON_OUT" == /* ]]; then
+    EVAL_JSON_FILE="$JSON_OUT"
+  else
+    EVAL_JSON_FILE="$PROJECT_ROOT/$JSON_OUT"
+  fi
+}
+
+write_learn_draft() {
+  [[ "$WRITE_JSON" == "true" ]] || return 0
+  [[ "$PIPELINE_STATUS" == "escalation" ]] || return 0
+  local out loop_out spec_rel eval_rel loop_rel summary_block
+  out="$PROJECT_ROOT/lattice/context/drafts/escalation-${RUN_ID}.md"
+  loop_out="$PROJECT_ROOT/lattice/state/loops/${RUN_ID}.json"
+  mkdir -p "$(dirname "$out")"
+  spec_rel="${SPEC_FILE#$PROJECT_ROOT/}"
+  eval_rel="${EVAL_JSON_FILE#$PROJECT_ROOT/}"
+  loop_rel="${loop_out#$PROJECT_ROOT/}"
+  summary_block="${FAILED_SUMMARY:-No failure summary captured.}"
+
+  {
+    printf -- '---\n'
+    printf 'kind: learn-draft\n'
+    printf 'schema_version: lattice.learn-draft.v1\n'
+    printf 'status: draft\n'
+    printf 'source: pipeline-escalation\n'
+    printf 'run_id: "%s"\n' "$(json_escape "$RUN_ID")"
+    printf 'created_at: "%s"\n' "$(json_escape "$RUN_ENDED_AT")"
+    printf 'spec_file: "%s"\n' "$(json_escape "$spec_rel")"
+    printf 'failed_step: "%s"\n' "$(json_escape "$FAILED_STEP")"
+    printf -- '---\n\n'
+    printf '# Learn Draft: Pipeline Escalation %s\n\n' "$RUN_ID"
+    printf '## Why This Exists\n\n'
+    printf 'The delivery pipeline exhausted its retry budget and needs human review before any durable knowledge is promoted.\n\n'
+    printf '## Source Evidence\n\n'
+    printf '| Field | Value |\n'
+    printf '|---|---|\n'
+    printf '| Run ID | `%s` |\n' "$RUN_ID"
+    printf '| Spec | `%s` |\n' "${spec_rel:-none}"
+    printf '| Failed Step | `%s` |\n' "${FAILED_STEP:-unknown}"
+    printf '| Failed Exit Code | `%s` |\n' "$FAILED_EXIT_CODE"
+    printf '| Retries | `%s / %s` |\n' "$SH_RETRY_COUNT" "$SH_RETRY_MAX"
+    printf '| Loop State | `%s` |\n' "${loop_rel:-none}"
+    printf '| Eval Run | `%s` |\n\n' "${eval_rel:-none}"
+    printf '## Failure Summary\n\n'
+    printf '```text\n'
+    printf '%s\n' "$summary_block"
+    printf '```\n\n'
+    printf '## Lesson Candidate\n\n'
+    printf '%s\n' '- Rule or pitfall:'
+    printf '%s\n' '- Applies when:'
+    printf '%s\n' '- Guidance:'
+    printf '%s\n\n' '- Target knowledge file: `lattice/context/knowledge/`'
+    printf '## Promotion Checklist\n\n'
+    printf '%s\n' '- [ ] Confirm the lesson is durable and reusable.'
+    printf '%s\n' '- [ ] Check existing project knowledge for duplicates or conflicts.'
+    printf '%s\n' '- [ ] Remove one-off implementation details.'
+    printf '%s\n' '- [ ] Ensure no secrets, private data, or raw production data are included.'
+    printf '%s\n' '- [ ] Promote to `lattice/context/knowledge/` or discard this draft.'
+  } > "$out"
+
+  LEARN_DRAFT_FILE="$out"
+  echo "📝 Learn draft: ${out#$PROJECT_ROOT/}"
+}
+
 write_loop_json() {
   [[ "$WRITE_JSON" == "true" ]] || return 0
-  local out retry_remaining loop_status next_action spec_rel
+  local out retry_remaining loop_status next_action spec_rel learn_draft_rel
   out="$PROJECT_ROOT/lattice/state/loops/${RUN_ID}.json"
   mkdir -p "$(dirname "$out")"
   retry_remaining=$((SH_RETRY_MAX - SH_RETRY_COUNT))
@@ -321,6 +395,8 @@ write_loop_json() {
   loop_status="$PIPELINE_STATUS"
   next_action="$(loop_next_action)"
   spec_rel="${SPEC_FILE#$PROJECT_ROOT/}"
+  learn_draft_rel="${LEARN_DRAFT_FILE#$PROJECT_ROOT/}"
+  [[ "$learn_draft_rel" == "$LEARN_DRAFT_FILE" ]] && learn_draft_rel=""
 
   {
     printf '{\n'
@@ -336,7 +412,8 @@ write_loop_json() {
     printf '  "failed_step": "%s",\n' "$(json_escape "$FAILED_STEP")"
     printf '  "failed_exit_code": %s,\n' "$FAILED_EXIT_CODE"
     printf '  "failure_summary": "%s",\n' "$(json_escape "$FAILED_SUMMARY")"
-    printf '  "spec_file": "%s"\n' "$(json_escape "$spec_rel")"
+    printf '  "spec_file": "%s",\n' "$(json_escape "$spec_rel")"
+    printf '  "learn_draft": "%s"\n' "$(json_escape "$learn_draft_rel")"
     printf '}\n'
   } > "$out"
 
@@ -346,13 +423,8 @@ write_loop_json() {
 
 write_eval_json() {
   [[ "$WRITE_JSON" == "true" ]] || return 0
-  local out="$JSON_OUT"
-  if [[ -z "$out" ]]; then
-    mkdir -p "$PROJECT_ROOT/lattice/state/eval-runs"
-    out="$PROJECT_ROOT/lattice/state/eval-runs/${RUN_ID}.json"
-  elif [[ "$out" != /* ]]; then
-    out="$PROJECT_ROOT/$out"
-  fi
+  resolve_eval_json_out
+  local out="$EVAL_JSON_FILE"
   mkdir -p "$(dirname "$out")"
 
   local git_sha kernel_version spec_hash spec_rel agent_name
@@ -450,7 +522,9 @@ write_eval_json() {
   echo "🧾 Eval JSON: ${out#$PROJECT_ROOT/}"
 }
 
+resolve_eval_json_out
 collect_process_evidence
+write_learn_draft
 write_loop_json
 write_eval_json
 

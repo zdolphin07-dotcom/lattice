@@ -54,6 +54,8 @@ check_file "lattice/kernel/_lib.sh" "kernel library"
 check_dir "lattice/specs" "spec root"
 check_file "lattice/context/README.md" "context map"
 check_file "lattice/context/external.md" "external context map"
+mkdir -p "$PROJECT_ROOT/lattice/context/drafts"
+check_dir "lattice/context/drafts" "context draft root"
 echo ""
 
 echo "── PrismSpec contract ──"

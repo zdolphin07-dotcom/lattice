@@ -13,6 +13,7 @@ All notable changes to this project will be documented in this file.
 - `eval-summary.sh` to render eval run JSON into Markdown for local review and CI Step Summary.
 - `eval-history.sh` to aggregate eval run JSON files into a Markdown trend report.
 - Loop state JSON under `lattice/state/loops/`, embedded into eval runs and summarized in eval reports.
+- Escalation learn drafts under `lattice/context/drafts/` when retry budget is exhausted.
 - `pr-comment.sh` to create or update a stable GitHub PR comment from the eval Markdown summary.
 - `review-summary.sh` and `tdd-evidence.sh` to capture process evidence as structured JSON.
 - GitHub Actions eval artifact workflow template installed by `init.sh --ci=github`.
@@ -23,7 +24,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- README and wiki now describe pipeline/gate eval JSON, loop state, review/TDD process evidence, Markdown summaries/history, GitHub Actions artifacts, Step Summary, and PR comments as implemented.
+- README and wiki now describe pipeline/gate eval JSON, loop state, escalation learn drafts, review/TDD process evidence, Markdown summaries/history, GitHub Actions artifacts, Step Summary, and PR comments as implemented.
 - PrismSpec README now documents `context.md` in both standalone and Lattice-hosted artifact layouts.
 
 ### Fixed

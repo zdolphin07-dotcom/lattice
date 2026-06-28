@@ -95,6 +95,7 @@ RETRY_TOTAL=0
 RETRY_RUNS=0
 LOOP_RETRY_ACTIONS=0
 LOOP_ESCALATE_ACTIONS=0
+LEARN_DRAFT_TOTAL=0
 
 if [[ "$RUN_TOTAL" -gt 0 ]]; then
   for file in "${EVAL_FILES[@]}"; do
@@ -122,6 +123,8 @@ if [[ "$RUN_TOTAL" -gt 0 ]]; then
     next_action="$(json_get "$file" '.loop_state.next_action')"
     [[ "$next_action" == "retry" ]] && ((LOOP_RETRY_ACTIONS++)) || true
     [[ "$next_action" == "escalate" ]] && ((LOOP_ESCALATE_ACTIONS++)) || true
+    learn_draft="$(json_get "$file" '.loop_state.learn_draft')"
+    [[ -n "$learn_draft" ]] && ((LEARN_DRAFT_TOTAL++)) || true
   done
 fi
 
@@ -146,7 +149,7 @@ render_history() {
   echo "| Compliance Warnings | $COMPLIANCE_WARNINGS |"
   echo "| Review Verdicts | $REVIEW_PASSED pass / $REVIEW_FAILED fail / $REVIEW_CANNOT_VERIFY cannot_verify / $REVIEW_TOTAL total |"
   echo "| TDD Evidence | $TDD_COMPLETE complete / $TDD_INVALID invalid / $TDD_TOTAL total |"
-  echo "| Loop | $RETRY_TOTAL total retries / $RETRY_RUNS retry runs / $LOOP_RETRY_ACTIONS next retry / $LOOP_ESCALATE_ACTIONS next escalate |"
+  echo "| Loop | $RETRY_TOTAL total retries / $RETRY_RUNS retry runs / $LOOP_RETRY_ACTIONS next retry / $LOOP_ESCALATE_ACTIONS next escalate / $LEARN_DRAFT_TOTAL learn drafts |"
   echo ""
   echo "## Recent Runs"
   echo ""
@@ -164,7 +167,7 @@ render_history() {
     start_index=$((RUN_TOTAL - LIMIT))
   fi
 
-  local i file run_id status spec git ac_total ac_covered drift review_total review_failed review_cannot_verify tdd_total tdd_invalid retry_count next_action
+  local i file run_id status spec git ac_total ac_covered drift review_total review_failed review_cannot_verify tdd_total tdd_invalid retry_count next_action learn_draft learn_flag
   for ((i = RUN_TOTAL - 1; i >= start_index; i--)); do
     file="${EVAL_FILES[$i]}"
     run_id="$(json_get "$file" '.run_id')"
@@ -181,7 +184,10 @@ render_history() {
     tdd_invalid="$(json_num "$file" '.metrics.tdd_invalid')"
     retry_count="$(json_num "$file" '.loop_state.retry_count')"
     next_action="$(json_get "$file" '.loop_state.next_action')"
-    echo "| $(md_escape "${run_id:-unknown}") | $(md_escape "${status:-unknown}") | $(md_escape "${spec:-none}") | $(md_escape "${git:-unknown}") | $ac_covered/$ac_total | $drift | $review_failed fail / $review_cannot_verify cannot_verify / $review_total | $tdd_invalid invalid / $tdd_total | retry=$retry_count, next=$(md_escape "${next_action:-unknown}") |"
+    learn_draft="$(json_get "$file" '.loop_state.learn_draft')"
+    learn_flag="no"
+    [[ -n "$learn_draft" ]] && learn_flag="yes"
+    echo "| $(md_escape "${run_id:-unknown}") | $(md_escape "${status:-unknown}") | $(md_escape "${spec:-none}") | $(md_escape "${git:-unknown}") | $ac_covered/$ac_total | $drift | $review_failed fail / $review_cannot_verify cannot_verify / $review_total | $tdd_invalid invalid / $tdd_total | retry=$retry_count, next=$(md_escape "${next_action:-unknown}"), learn=$learn_flag |"
   done
 }
 
