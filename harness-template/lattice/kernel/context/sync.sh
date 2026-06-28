@@ -10,11 +10,11 @@
 
 source "$(dirname "$0")/../_lib.sh"
 
-project_dir=$(manifest_get '.context.knowledge.project_dir')
-central_dir=$(manifest_get '.context.knowledge.central_dir')
-PROJECT_KNOWLEDGE_DIR="${PROJECT_ROOT}/${project_dir:-lattice/context/knowledge/project}"
-CENTRAL_KNOWLEDGE_DIR="${PROJECT_ROOT}/${central_dir:-lattice/context/knowledge/central}"
-REMOTE_DIR="$CENTRAL_KNOWLEDGE_DIR/.remote"
+knowledge_dir=$(manifest_get '.context.knowledge.dir')
+central_cache_dir=$(manifest_get '.context.central.cache_dir')
+PROJECT_KNOWLEDGE_DIR="${PROJECT_ROOT}/${knowledge_dir:-lattice/context/knowledge}"
+CENTRAL_CACHE_DIR="${PROJECT_ROOT}/${central_cache_dir:-lattice/context/.central}"
+REMOTE_DIR="$CENTRAL_CACHE_DIR/.remote"
 
 CENTRAL_REPO=$(manifest_get '.context.central.repo')
 SYNC_MODE=$(manifest_get '.context.central.mode')
@@ -52,12 +52,12 @@ case "$ACTION" in
       }
     fi
 
-    mkdir -p "$CENTRAL_KNOWLEDGE_DIR"
+    mkdir -p "$CENTRAL_CACHE_DIR"
     SYNCED=0
     while IFS= read -r -d '' f; do
       fname="$(basename "$f")"
       [[ "$fname" == ".git" ]] && continue
-      local_file="$CENTRAL_KNOWLEDGE_DIR/$fname"
+      local_file="$CENTRAL_CACHE_DIR/$fname"
 
       if [[ -f "$local_file" ]]; then
         case "$CONFLICT_POLICY" in
@@ -71,7 +71,7 @@ case "$ACTION" in
         echo "  ✅ Added: $fname"
         ((SYNCED++)) || true
       fi
-    done < <(find "$REMOTE_DIR" -maxdepth 1 -type f \( -name "*.md" -o -name "synonyms.txt" \) -print0 2>/dev/null)
+    done < <(find "$REMOTE_DIR" -maxdepth 1 -type f -name "*.md" -print0 2>/dev/null)
 
     echo ""
     echo "📊 Sync complete: $SYNCED new entries"
@@ -90,8 +90,7 @@ case "$ACTION" in
       exit 1
     fi
 
-    cp "$PROJECT_KNOWLEDGE_DIR"/*.md "$REMOTE_DIR/" 2>/dev/null || true
-    cp "$PROJECT_KNOWLEDGE_DIR"/synonyms.txt "$REMOTE_DIR/" 2>/dev/null || true
+    find "$PROJECT_KNOWLEDGE_DIR" -maxdepth 2 -type f -name "*.md" -exec cp {} "$REMOTE_DIR/" \; 2>/dev/null || true
     git -C "$REMOTE_DIR" add -A
     if git -C "$REMOTE_DIR" diff --cached --quiet; then
       echo "  ⏭️  No changes"
@@ -104,15 +103,15 @@ case "$ACTION" in
 
   status)
     echo "📚 Context Knowledge Status:"
-    echo "  Project dir: $PROJECT_KNOWLEDGE_DIR"
-    echo "  Central dir: $CENTRAL_KNOWLEDGE_DIR"
+    echo "  Project knowledge dir: $PROJECT_KNOWLEDGE_DIR"
+    echo "  Central cache dir: $CENTRAL_CACHE_DIR"
     echo "  Central repo: ${CENTRAL_REPO:-not configured}"
     echo "  Sync mode: $SYNC_MODE"
     echo "  Conflict policy: $CONFLICT_POLICY"
     echo ""
 
-    project_count=$(find "$PROJECT_KNOWLEDGE_DIR" -maxdepth 1 -name "*.md" ! -name "index.md" 2>/dev/null | wc -l | tr -d ' ')
-    central_count=$(find "$CENTRAL_KNOWLEDGE_DIR" -maxdepth 1 -name "*.md" ! -name "index.md" 2>/dev/null | wc -l | tr -d ' ')
+    project_count=$(find "$PROJECT_KNOWLEDGE_DIR" -type f -name "*.md" 2>/dev/null | wc -l | tr -d ' ')
+    central_count=$(find "$CENTRAL_CACHE_DIR" -maxdepth 1 -name "*.md" 2>/dev/null | wc -l | tr -d ' ')
     echo "  Project entries: $project_count"
     echo "  Central entries: $central_count"
 

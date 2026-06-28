@@ -1,8 +1,0 @@
-# Synonym table — one group per line, space-separated
-# loader.sh uses this for fuzzy matching after exact match fails
-# Example: searching "balance" also matches entries containing "deduct" or "fund"
-#
-balance fund deduct charge payment
-concurrency lock race concurrent mutex
-auth permission authentication authorization
-cache redis hotspot caching

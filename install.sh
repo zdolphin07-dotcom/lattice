@@ -70,7 +70,7 @@ upgrade_project_kernel() {
 
   mkdir -p "$target_root"
   cp -R "$src_kernel" "$target_kernel"
-  chmod +x "$target_kernel"/_lib.sh "$target_kernel"/context/*.sh "$target_kernel"/delivery/*.sh "$target_kernel"/delivery/gates/*.sh 2>/dev/null || true
+  chmod +x "$target_kernel"/_lib.sh "$target_kernel"/context/*.sh "$target_kernel"/context/backends/*.sh "$target_kernel"/delivery/*.sh "$target_kernel"/delivery/gates/*.sh 2>/dev/null || true
   echo "✅ Kernel upgraded"
 }
 

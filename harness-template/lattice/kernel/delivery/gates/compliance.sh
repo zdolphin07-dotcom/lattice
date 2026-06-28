@@ -24,10 +24,8 @@ fi
 
 SPEC_DIR="$(dirname "$SPEC")"
 CONTEXT_FILE="$SPEC_DIR/context.md"
-project_dir=$(manifest_get '.context.knowledge.project_dir')
-central_dir=$(manifest_get '.context.knowledge.central_dir')
-PROJECT_KNOWLEDGE_DIR="${PROJECT_ROOT}/${project_dir:-lattice/context/knowledge/project}"
-CENTRAL_KNOWLEDGE_DIR="${PROJECT_ROOT}/${central_dir:-lattice/context/knowledge/central}"
+knowledge_dir=$(manifest_get '.context.knowledge.dir')
+PROJECT_KNOWLEDGE_DIR="${PROJECT_ROOT}/${knowledge_dir:-lattice/context/knowledge}"
 
 echo "🔍 Compliance Audit: $(basename "$SPEC")"
 echo ""
@@ -45,7 +43,7 @@ fi
 
 echo ""
 echo "── Knowledge reference check ──"
-KNOWLEDGE_FILES=$(find "$PROJECT_KNOWLEDGE_DIR" "$CENTRAL_KNOWLEDGE_DIR" -name "*.md" -not -name "index.md" -not -name "README.md" 2>/dev/null || true)
+KNOWLEDGE_FILES=$(find "$PROJECT_KNOWLEDGE_DIR" -name "*.md" -not -name "README.md" 2>/dev/null || true)
 REFERENCED=0
 TOTAL_KB=0
 SEARCH_FILES=("$SPEC")
@@ -64,7 +62,7 @@ done <<< "$KNOWLEDGE_FILES"
 if [[ "$TOTAL_KB" -gt 0 ]] && [[ "$REFERENCED" -eq 0 ]]; then
   echo "  ⚠️  Spec/context does not reference any knowledge entries"
   echo "     Found $TOTAL_KB entries under lattice/context/knowledge."
-  echo "     Possible cause: context loader was not used during brainstorming."
+  echo "     Possible cause: Context Discovery did not select any durable project knowledge."
   ((WARNINGS++)) || true
 elif [[ "$TOTAL_KB" -eq 0 ]]; then
   echo "  ⏭️  Context knowledge is empty, skipping"

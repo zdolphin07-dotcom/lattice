@@ -38,9 +38,9 @@
 
 Before drafting the spec:
 1. Read `lattice/manifest.yaml`
-2. Run `bash lattice/kernel/context/loader.sh <requirement keywords>`
-3. Inspect relevant code, tests, schemas, and interface contracts.
-4. Write `lattice/specs/{spec-id}/context.md` with selected project knowledge, central knowledge, code facts, contract facts, conflicts, and open questions.
+2. Read `lattice/context/README.md` as the project context map when present.
+3. Follow the map to relevant project knowledge, external references, code, tests, schemas, interface contracts, and historical specs.
+4. Write `lattice/specs/{spec-id}/context.md` with selected facts, constraints, conflicts, exclusions, and open questions.
 5. Use `context.md` as the design basis; if context is insufficient, ask the user first.
 6. Record whether the execution mode came from model selection, project default, or user override.
 

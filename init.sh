@@ -215,9 +215,7 @@ for f in task-brief.sh review-package.sh; do
   copy_if_not_exists "$HARNESS_TEMPLATE_DIR/lattice/kernel/orchestrator/sdd/$f" "lattice/kernel/orchestrator/sdd/$f"
 done
 
-for f in loader.sh sync.sh README.md; do
-  copy_if_not_exists "$HARNESS_TEMPLATE_DIR/lattice/kernel/context/$f" "lattice/kernel/context/$f"
-done
+copy_tree_files_if_not_exists "$HARNESS_TEMPLATE_DIR/lattice/kernel/context" "lattice/kernel/context"
 
 for f in pipeline.sh bootstrap.sh deploy.sh; do
   copy_if_not_exists "$HARNESS_TEMPLATE_DIR/lattice/kernel/delivery/$f" "lattice/kernel/delivery/$f"
@@ -228,7 +226,7 @@ done
 
 copy_if_not_exists "$HARNESS_TEMPLATE_DIR/lattice/kernel/VERSION" "lattice/kernel/VERSION"
 
-for dir in specs state skills context context/knowledge context/knowledge/project context/knowledge/central context/knowledge/drafts state/context-runs; do
+for dir in specs state skills context context/knowledge context/knowledge/decisions context/drafts state/context-runs; do
   mkdir -p "lattice/$dir"
   [[ -f "lattice/$dir/.gitkeep" ]] || touch "lattice/$dir/.gitkeep"
 done
@@ -244,7 +242,7 @@ if [[ -d "$PRISMSPEC_SOURCE" ]]; then
   copy_if_not_exists "$PRISMSPEC_SOURCE/README.en.md" "prismspec/README.en.md"
 fi
 
-chmod +x lattice/kernel/_lib.sh lattice/kernel/context/*.sh lattice/kernel/delivery/*.sh lattice/kernel/delivery/gates/*.sh lattice/kernel/orchestrator/sdd/*.sh 2>/dev/null || true
+chmod +x lattice/kernel/_lib.sh lattice/kernel/context/*.sh lattice/kernel/context/backends/*.sh lattice/kernel/delivery/*.sh lattice/kernel/delivery/gates/*.sh lattice/kernel/orchestrator/sdd/*.sh 2>/dev/null || true
 chmod +x prismspec/bin/*.sh 2>/dev/null || true
 
 if [[ -d ".git" ]]; then
@@ -267,9 +265,7 @@ if [[ -d ".git" ]]; then
   fi
 fi
 
-copy_if_not_exists "$HARNESS_TEMPLATE_DIR/lattice/context/sources.yaml" "lattice/context/sources.yaml"
-copy_if_not_exists "$HARNESS_TEMPLATE_DIR/lattice/context/knowledge/project/index.md" "lattice/context/knowledge/project/index.md"
-copy_if_not_exists "$HARNESS_TEMPLATE_DIR/lattice/context/knowledge/project/synonyms.txt" "lattice/context/knowledge/project/synonyms.txt"
+copy_tree_files_if_not_exists "$HARNESS_TEMPLATE_DIR/lattice/context" "lattice/context"
 
 copy_if_not_exists "$HARNESS_TEMPLATE_DIR/lattice/skills/init.md" "lattice/skills/init.md"
 copy_if_not_exists "$HARNESS_TEMPLATE_DIR/lattice/skills/README.md" "lattice/skills/README.md"
@@ -464,13 +460,15 @@ kernel:
 
 context:
   root: "lattice/context"
+  map_file: "lattice/context/README.md"
+  external_file: "lattice/context/external.md"
   sources_file: "lattice/context/sources.yaml"
   knowledge:
-    project_dir: "lattice/context/knowledge/project"
-    central_dir: "lattice/context/knowledge/central"
-    drafts_dir: "lattice/context/knowledge/drafts"
+    dir: "lattice/context/knowledge"
+    drafts_dir: "lattice/context/drafts"
   central:
     repo: ""
+    cache_dir: "lattice/context/.central"
     mode: read-only
     conflict: project-wins
   policy:

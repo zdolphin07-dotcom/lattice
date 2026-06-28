@@ -13,7 +13,7 @@ Promote only durable lessons into knowledge. Keep one-off implementation details
 
 - `summary.md`
 - Verification or review findings.
-- Existing `lattice/context/knowledge/project/`, `lattice/context/knowledge/drafts/`, or `prismspec/knowledge/`.
+- Existing `lattice/context/knowledge/`, `lattice/context/drafts/`, or `prismspec/knowledge/`.
 
 ## Workflow
 
@@ -21,7 +21,7 @@ Promote only durable lessons into knowledge. Keep one-off implementation details
 2. Decide whether the lesson is durable, reusable, and non-secret.
 3. Write one concise knowledge entry per rule or pitfall.
 4. Include trigger context, rule, source, and practical guidance.
-5. Update the knowledge index.
+5. Update the relevant knowledge file or context map.
 
 ## Knowledge Entry Shape
 
@@ -37,7 +37,7 @@ Promote only durable lessons into knowledge. Keep one-off implementation details
 
 ## Outputs
 
-- Knowledge file in `lattice/context/knowledge/drafts/`, promoted project knowledge in `lattice/context/knowledge/project/`, or standalone `prismspec/knowledge/`.
+- Knowledge draft in `lattice/context/drafts/`, promoted project knowledge in `lattice/context/knowledge/`, or standalone `prismspec/knowledge/`.
 - Updated `index.md`.
 
 ## Stop Conditions
@@ -59,12 +59,12 @@ Promote only durable lessons into knowledge. Keep one-off implementation details
 
 - Knowledge entry has no source.
 - Entry describes what changed rather than what should guide future work.
-- Index is not updated.
+- Relevant knowledge file or context map is not updated.
 - One file mixes unrelated rules.
 
 ## Verification
 
 - [ ] Existing knowledge was checked.
 - [ ] New entry is concise and sourced.
-- [ ] Index links the entry.
+- [ ] Relevant context entry is discoverable from `lattice/context/README.md` or the appropriate knowledge file.
 - [ ] No secrets or raw sensitive data are included.

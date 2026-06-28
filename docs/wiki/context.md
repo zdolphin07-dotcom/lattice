@@ -222,13 +222,13 @@ Context Discovery = Agent 根据需求读上下文地图并主动查找、筛选
 knowledge loader = 可选工具，用于检索 curated project knowledge
 ```
 
-后续可以把 `loader.sh` 下沉为：
+当前实现已将检索能力下沉为：
 
 ```text
 lattice/kernel/context/backends/knowledge.sh
 ```
 
-但不应在 Brainstorming 里写成必做主入口。
+`loader.sh` 只保留为兼容包装，不应在 Brainstorming 里写成必做主入口。
 
 ## 与 PrismSpec 的关系
 
@@ -246,18 +246,15 @@ PrismSpec 负责 SDD 工作流；Context 负责提供更准确的项目上下文
 
 | Gap | 影响 | 优先级 |
 |-----|------|--------|
-| 缺少 `lattice/context/README.md` 作为 Agent 上下文地图 | Agent 不知道该按什么顺序读项目知识 | P0 |
-| wiki 和 skill 仍偏 loader-first 心智 | 容易把 Context 误解为关键词检索 | P0 |
-| 项目知识目录过于 index 化 | 不利于 Agent 直接理解架构、规则和踩坑 | P0 |
-| 外部关联知识没有统一入口 | 中心知识、第三方协议和外部文档容易散落 | P1 |
+| 默认 context map 仍是通用模板 | 需要项目初始化后补充真实模块、链路和风险 | P0 |
+| 项目知识文件仍需人工填充 | Agent 只能看到结构，缺少真实领域知识 | P0 |
 | `sources.yaml` 尚未被自动化消费 | 当前更多是未来扩展点 | P1 |
 | `context.md` 质量依赖 Agent 自觉 | 需要更好的模板和少量 sanity check | P1 |
 
 ## 推荐演进
 
-1. 新增 `lattice/context/README.md`，作为 Agent 必读上下文地图。
-2. 新增 `lattice/context/external.md`，统一外部关联知识入口。
-3. 将项目知识从 `project/index.md` 逐步演进为 `architecture.md`、`rules.md`、`pitfalls.md`、`glossary.md`、`decisions/`。
-4. 修改 PrismSpec Brainstorm skill：强调 Context Discovery，而不是强制运行 `loader.sh`。
-5. 将 `sources.yaml` 保留为可选自动化配置，后续脚本真正消费后再提升权重。
-6. 增加轻量 sanity check，避免空 `context.md`，但不要把 Context 做成重 gate。
+1. 在真实示例中填充 `lattice/context/README.md`、`external.md` 和项目知识文件。
+2. 让 PrismSpec Brainstorm skill 更明确地要求先读 context map，再写 `context.md`。
+3. 将 `sources.yaml` 保留为可选自动化配置，后续脚本真正消费后再提升权重。
+4. 增加轻量 sanity check，避免空 `context.md`，但不要把 Context 做成重 gate。
+5. 记录 context-runs，用于后续 Eval 分析哪些上下文真的有用。

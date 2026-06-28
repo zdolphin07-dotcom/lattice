@@ -86,13 +86,15 @@ kernel:
 
 context:
   root: "lattice/context"
+  map_file: "lattice/context/README.md"
+  external_file: "lattice/context/external.md"
   sources_file: "lattice/context/sources.yaml"
   knowledge:
-    project_dir: "lattice/context/knowledge/project"
-    central_dir: "lattice/context/knowledge/central"
-    drafts_dir: "lattice/context/knowledge/drafts"
+    dir: "lattice/context/knowledge"
+    drafts_dir: "lattice/context/drafts"
   central:
     repo: ""
+    cache_dir: "lattice/context/.central"
     mode: read-only
     conflict: project-wins
   runs_dir: "lattice/state/context-runs"

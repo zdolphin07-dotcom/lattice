@@ -102,9 +102,10 @@ if bash "$SANDBOX/.lattice/framework/init.sh" --non-interactive --lang=go --name
     fail "kernel files not installed"
   fi
 
-  if [[ -f "$SANDBOX/lattice/kernel/context/loader.sh" ]] \
+  if [[ -f "$SANDBOX/lattice/kernel/context/backends/knowledge.sh" ]] \
+    && [[ -f "$SANDBOX/lattice/context/README.md" ]] \
     && [[ -f "$SANDBOX/lattice/context/sources.yaml" ]] \
-    && [[ -f "$SANDBOX/lattice/context/knowledge/project/index.md" ]]; then
+    && [[ -f "$SANDBOX/lattice/context/knowledge/rules.md" ]]; then
     pass "context layer installed"
   else
     fail "context layer files missing"
@@ -567,13 +568,13 @@ else
 fi
 echo ""
 
-# ── 8. Context loader ──
-echo "── 8. Context loader ──"
-LIST_OUTPUT=$(bash "$SANDBOX/lattice/kernel/context/loader.sh" --list 2>&1)
-if echo "$LIST_OUTPUT" | grep -q "Context Index"; then
-  pass "loader.sh --list works"
+# ── 8. Context knowledge backend ──
+echo "── 8. Context knowledge backend ──"
+LIST_OUTPUT=$(bash "$SANDBOX/lattice/kernel/context/backends/knowledge.sh" --list 2>&1)
+if echo "$LIST_OUTPUT" | grep -q "Context Knowledge Files"; then
+  pass "knowledge backend --list works"
 else
-  fail "loader.sh --list failed"
+  fail "knowledge backend --list failed"
 fi
 echo ""
 

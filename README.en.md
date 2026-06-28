@@ -71,7 +71,7 @@ bash prismspec/bin/guide.sh --json
 |-----------|------|-----------|
 | PrismSpec | Standalone spec-coding skill pack | `prismspec/skills/*/SKILL.md`, `prismspec/bin/`, `prismspec/templates/` |
 | Orchestrator | Agent rules and phase definitions | `lattice/kernel/orchestrator/` |
-| Context | Project context retrieval, knowledge memory, and central sync | `lattice/context/`, `lattice/kernel/context/` |
+| Context | Agent-readable context map, project knowledge assets, external context entry, and optional retrieval backend | `lattice/context/`, `lattice/kernel/context/` |
 | Delivery | Independent verification pipeline and gates | `lattice/kernel/delivery/` |
 | Eval | Evidence today; structured run records later | pipeline output, AC coverage, drift diagnostics |
 
@@ -82,7 +82,8 @@ bash lattice/kernel/delivery/pipeline.sh
 bash lattice/kernel/delivery/pipeline.sh --only=spec-lint
 bash prismspec/bin/guide.sh --json
 bash prismspec/bin/lint.sh lattice/specs/<spec-id>
-bash lattice/kernel/context/loader.sh "payment idempotency"
+cat lattice/context/README.md
+bash lattice/kernel/context/backends/knowledge.sh "payment idempotency"
 ```
 
 ## Current Status
@@ -92,7 +93,7 @@ Implemented:
 - install/init/upgrade and smoke tests;
 - standalone PrismSpec skill pack and Lattice-hosted mode;
 - spec lint, AC coverage, drift check, compliance, spec lock;
-- context loader/sync and basic learn convention;
+- context map, knowledge backend, sync, and basic learn convention;
 - Go/Gin/GORM example and adapter docs.
 
 Planned:

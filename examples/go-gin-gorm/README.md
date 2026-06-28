@@ -13,9 +13,10 @@ examples/go-gin-gorm/
 │   │   └── create-item-api.md         # Sample spec with AC-1 through AC-4
 │   └── context/
 │       ├── sources.yaml
-│       └── knowledge/project/
-│           ├── index.md               # Context knowledge index
-│           └── naming-rules.md        # Sample knowledge entry
+│       ├── README.md                  # Agent context map
+│       └── knowledge/
+│           ├── architecture.md
+│           └── rules.md               # Sample naming rules
 ├── internal/
 │   ├── model/item.go                  # GORM model (matches spec DDL)
 │   └── handler/item.go               # Gin route registration
@@ -33,7 +34,7 @@ cd examples/go-gin-gorm
 bash ../../harness-template/lattice/kernel/delivery/gates/spec-lint.sh lattice/specs/create-item-api.md
 bash ../../harness-template/lattice/kernel/delivery/gates/ac-coverage.sh lattice/specs/create-item-api.md .
 bash ../../harness-template/lattice/kernel/delivery/gates/drift-check.sh lattice/specs/create-item-api.md .
-bash ../../harness-template/lattice/kernel/context/loader.sh naming
+bash ../../harness-template/lattice/kernel/context/backends/knowledge.sh naming
 ```
 
 ## What You'll See
@@ -41,4 +42,4 @@ bash ../../harness-template/lattice/kernel/context/loader.sh naming
 - **spec-lint**: Validates that the spec has all required sections, sequential AC numbers, risk review
 - **ac-coverage**: Maps AC-1 through AC-4 to `TestAC1_CreateItem`, `TestAC2_GetItem`, etc. — 100% coverage
 - **drift-check**: Compares spec DDL columns against GORM model tags — no drift
-- **context loader**: Searches "naming" → returns `naming-rules.md`
+- **context knowledge backend**: Searches "naming" → returns `knowledge/rules.md`

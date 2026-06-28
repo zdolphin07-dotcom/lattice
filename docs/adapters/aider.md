@@ -31,7 +31,7 @@ Aider can execute shell commands via `/run`:
 
 ```
 /run bash lattice/kernel/delivery/pipeline.sh
-/run bash lattice/kernel/context/loader.sh <keywords>
+/run bash lattice/kernel/context/backends/knowledge.sh <keywords>
 /run bash lattice/kernel/delivery/gates/spec-lint.sh lattice/specs/my-spec.md
 ```
 
@@ -39,4 +39,4 @@ Aider can execute shell commands via `/run`:
 
 - No automatic skill triggers — use `/run` for all Lattice commands
 - Aider's `/run` output is included in context, so pipeline output is visible to the model
-- Context loader results may consume significant context — use targeted keywords
+- Context knowledge backend results may consume significant context — use targeted keywords

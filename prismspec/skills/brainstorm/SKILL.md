@@ -27,10 +27,11 @@ Read `prismspec/references/spec-quality-checklist.md` when drafting a full spec.
    - `spec-template-frontend.md` for UX, component states, accessibility.
    - `spec-template-tdd.md` for bugs, regressions, and high-risk behavior.
    - `spec-template.md` when no specialized template clearly fits.
-3. Load only context that changes scope, AC, risk, or execution mode.
-   - In Lattice-hosted mode, run `bash lattice/kernel/context/loader.sh <keywords>` with targeted requirement keywords.
-   - Inspect relevant code, tests, schemas, and contracts.
-   - Write selected facts, conflicts, and open questions to `context.md`.
+3. Perform Context Discovery. Load only context that changes scope, AC, risk, interface, compatibility, or verification.
+   - In Lattice-hosted mode, read `lattice/context/README.md` when present.
+   - Follow the context map to relevant project knowledge, external references, historical specs, code, tests, schemas, and contracts.
+   - Use `lattice/kernel/context/backends/knowledge.sh <keywords>` only as an optional curated-knowledge backend.
+   - Write selected facts, constraints, conflicts, exclusions, and open questions to `context.md`.
 4. Surface assumptions before writing irreversible decisions.
 5. Ask only material questions. Do not interview for details the model can safely infer from local code.
 6. Write `spec.md` in the target spec directory.

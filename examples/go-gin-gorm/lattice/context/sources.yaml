@@ -1,18 +1,18 @@
 sources:
-  project:
-    knowledge_dir: "lattice/context/knowledge/project"
-  central:
-    repo: ""
-    knowledge_dir: "lattice/context/knowledge/central"
-    mode: read-only
-    conflict: project-wins
+  map: "lattice/context/README.md"
+  external: "lattice/context/external.md"
+  knowledge_dir: "lattice/context/knowledge"
+  drafts_dir: "lattice/context/drafts"
+  specs_dir: "lattice/specs"
 
 policy:
   precedence:
     - user_instruction
+    - current_code
+    - tests
+    - schema
     - project_knowledge
-    - code_facts
-    - project_specs
-    - central_knowledge
+    - historical_specs
+    - external_knowledge
     - model_prior
-  conflict: project_wins
+  conflict: record_in_context

@@ -1,65 +1,49 @@
 # Layer 2: Context
 
-The context layer prepares reliable project context for AI coding. It links durable project knowledge, optional central knowledge, source records, and per-spec context basis files.
+The context layer supplies reliable project context to AI agents. The primary entry is `lattice/context/README.md`, not a shell command.
 
-## CLI
+## Agent Flow
 
-```bash
-# Load context knowledge by keyword
-lattice/kernel/context/loader.sh auth rate-limit idempotency
-
-# List project and central context indexes
-lattice/kernel/context/loader.sh --list
-
-# Output all context knowledge entries
-lattice/kernel/context/loader.sh --all
-
-# Sync central context knowledge
-lattice/kernel/context/sync.sh pull
-lattice/kernel/context/sync.sh push
-lattice/kernel/context/sync.sh status
-```
+1. Read `lattice/context/README.md`.
+2. Follow its context map to relevant project knowledge, external references, code, tests, schema, and historical specs.
+3. Select only facts that affect scope, ACs, risk, interface, compatibility, or verification.
+4. Write the selected basis to `lattice/specs/<spec-id>/context.md`.
+5. Write `spec.md` from that context basis.
 
 ## Directory Contract
 
 ```text
 lattice/context/
-  sources.yaml                 # External and central context source registry
+  README.md                    # Agent-readable context map
+  external.md                  # External and central knowledge entry point
   knowledge/
-    project/                   # Project-owned durable knowledge
-      index.md
-      synonyms.txt
-    central/                   # Cached central knowledge
-    drafts/                    # Candidate learnings before review
+    architecture.md
+    rules.md
+    pitfalls.md
+    glossary.md
+    decisions/
+  drafts/                      # Candidate lessons before review
+  sources.yaml                 # Optional machine-readable source policy
 lattice/specs/<spec-id>/
   context.md                   # Per-spec context basis
 ```
 
-`context.md` is the delivery artifact for one feature iteration. It should cite which project knowledge, central knowledge, code facts, contracts, and open questions were used to produce the spec.
+## Optional Tooling
 
-## Knowledge Entry Format
+```bash
+# Search curated project knowledge as a retrieval backend
+lattice/kernel/context/backends/knowledge.sh auth rate-limit idempotency
 
-```markdown
----
-id: auth-idempotency
-type: rule
-scope: project
-status: accepted
-tags: [auth, idempotency]
-source: "decision log, 2026-06-28"
----
+# Compatibility wrapper for older docs/scripts
+lattice/kernel/context/loader.sh auth rate-limit idempotency
 
-# Auth Idempotency
-
-## Rule
-One stable business action must map to one idempotency key.
-
-## Applies When
-- Creating or retrying auth-sensitive write operations.
-
-## Evidence
-- Link to source code, decision, incident, or spec.
+# Sync optional central context knowledge cache
+lattice/kernel/context/sync.sh pull
+lattice/kernel/context/sync.sh push
+lattice/kernel/context/sync.sh status
 ```
+
+Shell scripts are deterministic helpers. They do not replace agent-led Context Discovery.
 
 ## Manifest
 
@@ -70,15 +54,15 @@ kernel:
 
 context:
   root: lattice/context
+  map_file: lattice/context/README.md
+  external_file: lattice/context/external.md
   sources_file: lattice/context/sources.yaml
   knowledge:
-    project_dir: lattice/context/knowledge/project
-    central_dir: lattice/context/knowledge/central
-    drafts_dir: lattice/context/knowledge/drafts
+    dir: lattice/context/knowledge
+    drafts_dir: lattice/context/drafts
   central:
-    repo: https://github.com/your-org/context-knowledge.git
+    repo: ""
+    cache_dir: lattice/context/.central
     mode: read-only
     conflict: project-wins
 ```
-
-Project knowledge wins over central knowledge when the two conflict.

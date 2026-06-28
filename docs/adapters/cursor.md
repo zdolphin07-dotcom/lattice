@@ -26,7 +26,7 @@ Cursor doesn't have a slash-command system like Claude Code, so invoke skills ma
 ```
 # In Cursor chat:
 "Run bash lattice/kernel/delivery/pipeline.sh"
-"Run bash lattice/kernel/context/loader.sh <keywords>"
+"Read lattice/context/README.md, then run bash lattice/kernel/context/backends/knowledge.sh <keywords> only if curated knowledge lookup is useful"
 "Run bash lattice/kernel/delivery/gates/spec-lint.sh lattice/specs/my-spec.md"
 ```
 
@@ -34,4 +34,4 @@ Cursor doesn't have a slash-command system like Claude Code, so invoke skills ma
 
 - No `.claude/commands/` — use natural language to trigger skills
 - Cursor may not auto-detect `rules.md` changes — reload the window after setup
-- Cursor's context window is smaller — context loader results should be concise
+- Cursor's context window is smaller — curated knowledge results should be concise

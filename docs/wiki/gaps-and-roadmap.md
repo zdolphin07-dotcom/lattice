@@ -23,7 +23,7 @@ Lattice 当前处于“可交付的最小工程框架”阶段，而不是完整
 |------|----------|------|
 | PrismSpec | canonical skills、guide.sh、lint.sh、多模板、Plan/TDD policy | 主链路成立 |
 | Harness | pipeline、spec-lint、AC coverage、drift、compliance、spec-lock | 最小验证闭环成立 |
-| Context | repo-local context 目录、knowledge memory、sync、learn 约定 | 最小可用，但还缺 Agent 上下文地图 |
+| Context | Agent context map、knowledge memory、external entry、backend、sync、learn 约定 | 最小可用 |
 | AI 友好 | AGENTS.md、SKILL.md、commands、JSON guide | 入口比早期清晰 |
 | 安装验证 | install/init/smoke test/CI | 可持续迭代 |
 
@@ -50,9 +50,9 @@ Lattice 当前处于“可交付的最小工程框架”阶段，而不是完整
 
 | Gap | 影响 | 建议 |
 |-----|------|------|
-| 缺少 Agent context map | Agent 不知道项目知识在哪里、如何取舍 | `lattice/context/README.md` |
-| 外部知识入口不清晰 | 中心知识、第三方协议容易散落 | `lattice/context/external.md` |
-| 项目知识过于 index 化 | 不利于 Agent 直接理解架构、规则和踩坑 | architecture/rules/pitfalls/glossary |
+| context map 仍是通用模板 | Agent 还缺真实业务模块、链路和风险 | 在真实示例中填充 |
+| 外部知识入口需要真实内容 | 中心知识、第三方协议仍需人工登记 | 维护 `lattice/context/external.md` |
+| 项目知识需要真实沉淀 | 架构、规则、踩坑还需要项目实践填充 | architecture/rules/pitfalls/glossary |
 | 无 metadata | 来源、owner、过期不可治理 | context/knowledge front matter |
 | learn 仍靠人工 | 失败经验沉淀不稳定 | escalation learn draft |
 | 无使用记录 | 不知道 context 是否有效 | context-runs 记录采用事实和排除项 |
@@ -116,9 +116,8 @@ Lattice 当前处于“可交付的最小工程框架”阶段，而不是完整
 
 任务：
 
-- `lattice/context/README.md` 作为 Agent 必读上下文地图。
-- `lattice/context/external.md` 作为外部关联知识入口。
-- 项目知识结构化为 architecture / rules / pitfalls / glossary / decisions。
+- 在真实示例中填充 `lattice/context/README.md` 和 `external.md`。
+- 持续补充 architecture / rules / pitfalls / glossary / decisions。
 - context/knowledge front matter schema。
 - learn draft workflow。
 - context-runs 记录采用事实、排除项和未解决问题。

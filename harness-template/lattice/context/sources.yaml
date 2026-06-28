@@ -1,18 +1,14 @@
-# sources.yaml — Lattice context source registry
+# sources.yaml — optional machine-readable context source policy
 #
-# This file declares where context may come from. Runtime scripts keep the
-# source of truth explicit so AI agents can cite context and handle conflicts.
+# Agents should read README.md first. This file is for scripts, CI, and future
+# automation that need structured include/exclude and precedence rules.
 
 sources:
-  project:
-    knowledge_dir: "lattice/context/knowledge/project"
-    description: "Project-owned durable rules, decisions, pitfalls, and glossary."
-  central:
-    repo: ""
-    knowledge_dir: "lattice/context/knowledge/central"
-    mode: read-only
-    conflict: project-wins
-    description: "Optional team or organization knowledge imported into this project."
+  map: "lattice/context/README.md"
+  external: "lattice/context/external.md"
+  knowledge_dir: "lattice/context/knowledge"
+  drafts_dir: "lattice/context/drafts"
+  specs_dir: "lattice/specs"
   code:
     include:
       - "README.md"
@@ -21,6 +17,9 @@ sources:
       - "app/**"
       - "internal/**"
       - "packages/**"
+      - "tests/**"
+      - "prisma/**"
+      - "migrations/**"
     exclude:
       - "**/node_modules/**"
       - "**/.git/**"
@@ -31,11 +30,17 @@ sources:
 policy:
   precedence:
     - user_instruction
+    - current_code
+    - tests
+    - schema
     - project_knowledge
-    - code_facts
-    - project_specs
-    - central_knowledge
+    - historical_specs
+    - external_knowledge
     - model_prior
-  conflict: project_wins
-  sensitivity: redact_secret
-  require_per_spec_context: true
+  conflict: record_in_context
+  sensitivity:
+    never_copy:
+      - secrets
+      - tokens
+      - private_user_data
+      - production_raw_data

@@ -23,7 +23,7 @@ Lattice is a **project-level AI Coding framework** that installs into target pro
 │       ├── kernel/        #   Framework engine (upgradable as a unit)
 │       │   ├── _lib.sh                    # Shared CLI foundation
 │       │   ├── orchestrator/              # Control plane: rules.md + flow.yaml + templates/
-│       │   ├── context/                   # Context retrieval: loader.sh + sync.sh
+│       │   ├── context/                   # Context map helpers + knowledge backend + sync
 │       │   └── delivery/                  # Delivery verification: pipeline.sh + gates/
 │       ├── context/       #   Context assets template (sources + knowledge)
 │       ├── skills/        #   Agent capability declarations (init/verify/learn)
@@ -84,13 +84,13 @@ bash lattice/kernel/delivery/pipeline.sh
 | Layer | Directory | Purpose |
 |-------|-----------|---------|
 | Orchestrator | `kernel/orchestrator/` | Inject agent behavior rules via rules.md @import |
-| Context | `kernel/context/` | loader.sh retrieves project and central context knowledge by keyword |
+| Context | `kernel/context/` | deterministic helpers for context knowledge search and sync |
 | Delivery | `kernel/delivery/` | pipeline.sh runs manifest-driven gate pipeline |
 
 ## Key Files
 
 - `harness-template/lattice/kernel/delivery/pipeline.sh` — Core delivery pipeline, reads manifest step-by-step
 - `harness-template/lattice/kernel/delivery/gates/` — 5 gates: spec-lint / ac-coverage / drift-check / compliance / spec-lock
-- `harness-template/lattice/kernel/context/loader.sh` — Context retrieval engine with keyword and synonym match
+- `harness-template/lattice/kernel/context/backends/knowledge.sh` — Optional curated knowledge search backend
 - `harness-template/lattice/kernel/orchestrator/rules.md` — Agent behavior rules with generic phase names
 - `harness-template/lattice/manifest.template.yaml` — Manifest generation template for init.sh
