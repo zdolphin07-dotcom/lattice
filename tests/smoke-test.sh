@@ -103,7 +103,9 @@ if bash "$SANDBOX/.lattice/framework/init.sh" --non-interactive --lang=go --name
     fail "CI platform not configured"
   fi
 
-  if [[ -f "$SANDBOX/lattice/kernel/_lib.sh" ]]; then
+  if [[ -f "$SANDBOX/lattice/kernel/_lib.sh" ]] \
+    && [[ -x "$SANDBOX/lattice/kernel/delivery/eval-summary.sh" ]] \
+    && [[ -x "$SANDBOX/lattice/kernel/delivery/pr-comment.sh" ]]; then
     pass "kernel files installed"
   else
     fail "kernel files not installed"
@@ -136,7 +138,9 @@ if bash "$SANDBOX/.lattice/framework/init.sh" --non-interactive --lang=go --name
     fail "Lattice init skill missing"
   fi
 
-  if [[ -f "$SANDBOX/.github/workflows/lattice-eval.yml" ]] && yq -e '.jobs.eval.steps' "$SANDBOX/.github/workflows/lattice-eval.yml" >/dev/null 2>&1; then
+  if [[ -f "$SANDBOX/.github/workflows/lattice-eval.yml" ]] \
+    && yq -e '.permissions.issues == "write" and .permissions."pull-requests" == "read"' "$SANDBOX/.github/workflows/lattice-eval.yml" >/dev/null 2>&1 \
+    && yq -e '.jobs.eval.steps[] | select(.name == "Publish Lattice PR comment")' "$SANDBOX/.github/workflows/lattice-eval.yml" >/dev/null 2>&1; then
     pass "GitHub Actions eval workflow installed"
   else
     fail "GitHub Actions eval workflow missing or invalid"
@@ -590,6 +594,15 @@ if [[ -f "$PIPELINE_SUMMARY_MD" ]] && grep -q "Lattice Eval Summary" "$PIPELINE_
 else
   fail "eval-summary output invalid"
   echo "$SUMMARY_OUTPUT" | tail -10
+fi
+
+PR_COMMENT_MD="$SANDBOX/lattice/state/pr-comment-smoke.md"
+PR_COMMENT_OUTPUT=$(bash "$SANDBOX/lattice/kernel/delivery/pr-comment.sh" "$PIPELINE_SUMMARY_MD" --dry-run --out="$PR_COMMENT_MD" 2>&1)
+if [[ -f "$PR_COMMENT_MD" ]] && grep -q "lattice-eval-comment" "$PR_COMMENT_MD" && grep -q "Lattice Eval Summary" "$PR_COMMENT_MD"; then
+  pass "pr-comment renders stable dry-run body"
+else
+  fail "pr-comment dry-run output invalid"
+  echo "$PR_COMMENT_OUTPUT" | tail -10
 fi
 rm -f /tmp/lattice-ac-json.log /tmp/lattice-drift-json.log /tmp/lattice-compliance-json.log /tmp/lattice-pipeline-gate-json.log
 echo ""

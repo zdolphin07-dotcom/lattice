@@ -8,6 +8,8 @@ on:
 
 permissions:
   contents: read
+  issues: write
+  pull-requests: read
 
 jobs:
   eval:
@@ -49,6 +51,19 @@ jobs:
           eval_md="${eval_json%.json}.md"
           bash lattice/kernel/delivery/eval-summary.sh "$eval_json" --out="$eval_md"
           cat "$eval_md" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Publish Lattice PR comment
+        if: always() && github.event_name == 'pull_request'
+        continue-on-error: true
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          eval_json="${{ steps.lattice.outputs.eval_json }}"
+          eval_md="${eval_json%.json}.md"
+          bash lattice/kernel/delivery/pr-comment.sh "$eval_md" --pr="$PR_NUMBER" --repo="$GITHUB_REPOSITORY"
 
       - name: Upload Lattice eval artifact
         if: always()

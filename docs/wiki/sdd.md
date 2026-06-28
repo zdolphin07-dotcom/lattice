@@ -239,6 +239,6 @@ PrismSpec 不再维护 flat Markdown wrapper。主入口只读取 canonical `SKI
 
 1. 强化 `spec-lint` 对 front matter、mode、status 的校验。
 2. 增加 plan schema 或 plan-lint。
-3. 复用 eval markdown summary 发布 PR comment。
-4. 做 review/TDD evidence 的跨 run 趋势。
+3. 做 review/TDD evidence 的跨 run 趋势。
+4. 将 loop retry state 写入 eval run。
 5. 用真实项目迭代模板和 mode 选择策略。

@@ -161,19 +161,20 @@ CI 是 eval 的天然执行环境：
 2. pipeline 产生 `lattice/state/eval-runs/<run-id>.json` 和 gate JSON。
 3. `eval-summary.sh` 产生 `lattice/state/eval-runs/<run-id>.md`。
 4. CI 写入 GitHub Step Summary，并上传 `lattice-eval-<run-id>` artifact。
-5. 后续 PR comment 或 dashboard 可复用同一份 Markdown/JSON 展示 pass/fail、AC coverage、drift findings。
+5. PR 事件中，`pr-comment.sh` best-effort 创建或更新一条带 marker 的 Lattice comment。
+6. 后续 dashboard 可复用同一份 Markdown/JSON 展示 pass/fail、AC coverage、drift findings。
 
-Lattice 在 `harness-template/.github/workflows/lattice-eval.yml` 提供 GitHub Actions 模板。`init.sh --ci=github` 会安装到目标项目的 `.github/workflows/lattice-eval.yml`。该 workflow 的约定是：先运行 `pipeline.sh --json-out`，再生成 Markdown summary，始终上传 eval artifact，然后再按 pipeline exit code 决定 CI 是否失败。
+Lattice 在 `harness-template/.github/workflows/lattice-eval.yml` 提供 GitHub Actions 模板。`init.sh --ci=github` 会安装到目标项目的 `.github/workflows/lattice-eval.yml`。该 workflow 的约定是：先运行 `pipeline.sh --json-out`，再生成 Markdown summary，写入 Step Summary、上传 eval artifact，并在 PR 上 best-effort 发布 comment；最后再按 pipeline exit code 决定 CI 是否失败。PR comment 使用 `continue-on-error`，避免 fork PR 或 token 权限限制影响验证结论。
 
 ## 当前 gap
 
 | Gap | 影响 | 下一步 |
 |-----|------|--------|
 | review/TDD 趋势指标未沉淀 | 已能进入 eval run，但还没有跨 run 趋势 | eval history aggregation |
-| PR comment 未实现 | Step Summary 只在 CI run 页面展示，PR 对话页还不能直接看 | 复用 eval markdown summary 发布 PR comment |
+| dashboard 未实现 | 只能看单次 CI 或 artifact，无法横向比较 | eval history aggregation / dashboard |
 
 ## 演进顺序
 
-1. 复用 eval markdown summary 发布 PR comment。
-2. 增加 review/TDD 趋势报告。
-3. 将 loop retry state 写入 eval run。
+1. 增加 review/TDD 趋势报告。
+2. 将 loop retry state 写入 eval run。
+3. 增加 dashboard 或可导出的 history report。
