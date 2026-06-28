@@ -234,12 +234,12 @@ PrismSpec 不再维护 flat Markdown wrapper。主入口只读取 canonical `SKI
 - TDD red/green evidence JSON。
 - spec state machine 强校验。
 - plan schema。
-- review/TDD evidence 与 eval run 的完整结构化联动。
+- review/TDD evidence 与 eval run / summary 的完整结构化联动。
 
 ## 演进优先级
 
 1. 将 `verify.md` / review verdict / TDD evidence 结构化为 JSON。
 2. 强化 `spec-lint` 对 front matter、mode、status 的校验。
 3. 增加 plan schema 或 plan-lint。
-4. 生成 eval markdown summary，用于 PR comment。
+4. 复用 eval markdown summary 发布 PR comment。
 5. 用真实项目迭代模板和 mode 选择策略。

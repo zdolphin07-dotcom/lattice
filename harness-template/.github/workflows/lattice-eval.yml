@@ -41,6 +41,15 @@ jobs:
           echo "eval_json=$eval_json" >> "$GITHUB_OUTPUT"
           exit 0
 
+      - name: Write Lattice eval summary
+        if: always()
+        shell: bash
+        run: |
+          eval_json="${{ steps.lattice.outputs.eval_json }}"
+          eval_md="${eval_json%.json}.md"
+          bash lattice/kernel/delivery/eval-summary.sh "$eval_json" --out="$eval_md"
+          cat "$eval_md" >> "$GITHUB_STEP_SUMMARY"
+
       - name: Upload Lattice eval artifact
         if: always()
         uses: actions/upload-artifact@v4
@@ -48,6 +57,7 @@ jobs:
           name: lattice-eval-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             lattice/state/eval-runs/*.json
+            lattice/state/eval-runs/*.md
             lattice/state/eval-runs/*.gates/*.json
           if-no-files-found: error
 

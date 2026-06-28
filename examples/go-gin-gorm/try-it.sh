@@ -56,5 +56,10 @@ bash lattice/kernel/delivery/pipeline.sh --only=ac-coverage --spec="$SPEC" --jso
 yq '.metrics, .gates[0].metrics' lattice/state/eval-runs/example.json
 echo ""
 
+echo "── 7. Eval Markdown Summary ──"
+bash lattice/kernel/delivery/eval-summary.sh lattice/state/eval-runs/example.json --out=lattice/state/eval-runs/example.md
+sed -n '1,32p' lattice/state/eval-runs/example.md
+echo ""
+
 echo "══════════════════════════════════"
 echo "✅ All gates demonstrated"

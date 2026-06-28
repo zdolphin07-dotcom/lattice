@@ -73,13 +73,14 @@ bash prismspec/bin/guide.sh --json
 | Orchestrator | Agent rules and phase definitions | `lattice/kernel/orchestrator/` |
 | Context | Agent-readable context map, project knowledge assets, external context entry, and optional retrieval backend | `lattice/context/`, `lattice/kernel/context/` |
 | Delivery | Independent verification pipeline and gates | `lattice/kernel/delivery/` |
-| Evidence | Gate output and structured Eval run records | `lattice/state/eval-runs/*.json`, AC coverage, drift diagnostics |
+| Evidence | Gate output, structured Eval runs, and Markdown summaries | `lattice/state/eval-runs/*.json`, `*.md`, AC coverage, drift diagnostics |
 
 ## Common Commands
 
 ```bash
 bash lattice/kernel/delivery/pipeline.sh
 bash lattice/kernel/delivery/pipeline.sh --json-out
+bash lattice/kernel/delivery/eval-summary.sh lattice/state/eval-runs/<run-id>.json
 bash lattice/kernel/delivery/pipeline.sh --only=spec-lint
 bash lattice/kernel/doctor.sh
 cat .github/workflows/lattice-eval.yml
@@ -95,7 +96,7 @@ Implemented:
 
 - install/init/upgrade and smoke tests;
 - standalone PrismSpec skill pack manifest and Lattice-hosted mode;
-- doctor, `pipeline --json-out` structured eval runs, AC/drift/compliance gate JSON, and GitHub Actions eval artifacts;
+- doctor, `pipeline --json-out` structured eval runs, Markdown summaries, AC/drift/compliance gate JSON, and GitHub Actions eval artifacts/Step Summary;
 - spec lint, AC coverage, drift check, compliance, spec lock;
 - context map, knowledge backend, sync, and basic learn convention;
 - Go/Gin/GORM example and adapter docs.

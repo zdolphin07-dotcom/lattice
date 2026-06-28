@@ -547,6 +547,15 @@ else
   fail "pipeline gate JSON embedding invalid"
   cat /tmp/lattice-pipeline-gate-json.log | tail -20
 fi
+
+PIPELINE_SUMMARY_MD="$SANDBOX/lattice/state/eval-summary-smoke.md"
+SUMMARY_OUTPUT=$(bash "$SANDBOX/lattice/kernel/delivery/eval-summary.sh" "$PIPELINE_GATE_JSON" --out="$PIPELINE_SUMMARY_MD" 2>&1)
+if [[ -f "$PIPELINE_SUMMARY_MD" ]] && grep -q "Lattice Eval Summary" "$PIPELINE_SUMMARY_MD" && grep -q "AC Coverage" "$PIPELINE_SUMMARY_MD" && grep -q "ac-coverage" "$PIPELINE_SUMMARY_MD"; then
+  pass "eval-summary renders pipeline JSON as Markdown"
+else
+  fail "eval-summary output invalid"
+  echo "$SUMMARY_OUTPUT" | tail -10
+fi
 rm -f /tmp/lattice-ac-json.log /tmp/lattice-drift-json.log /tmp/lattice-compliance-json.log /tmp/lattice-pipeline-gate-json.log
 echo ""
 

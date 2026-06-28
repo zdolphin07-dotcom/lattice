@@ -17,7 +17,7 @@ Do not treat this repository as a target project already using Lattice. The inst
 | PrismSpec templates | `prismspec/templates/` |
 | Lattice install template | `harness-template/` |
 | CI artifact workflow template | `harness-template/.github/workflows/lattice-eval.yml` |
-| Delivery pipeline, doctor, and gates | `harness-template/lattice/kernel/`, `harness-template/lattice/kernel/delivery/` |
+| Delivery pipeline, doctor, gates, and eval summary | `harness-template/lattice/kernel/`, `harness-template/lattice/kernel/delivery/` |
 | Context layer | `harness-template/lattice/context/`, `harness-template/lattice/kernel/context/` |
 | Target-project Claude import | `harness-template/CLAUDE.lattice.md` |
 
