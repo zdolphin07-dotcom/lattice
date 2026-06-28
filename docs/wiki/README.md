@@ -61,7 +61,7 @@ flowchart LR
 - `prismspec/bin/lint.sh` artifact contract 校验。
 - `lattice/context/` 项目上下文资产与基础 knowledge backend。
 - `lattice/kernel/delivery/pipeline.sh` 和内置 gates。
-- `review-summary.json`、`tdd-evidence.json`、context-lint、context-run、loop state、outcome link/report、central eval sink、static eval dashboard、eval query、可配置 failure category、failure category lint、escalation learn draft、learn promotion event、knowledge review event、knowledge metadata lint、knowledge governance lint、eval run 数据集、Markdown summary 和 history report。
+- `review-summary.json`、`tdd-evidence.json`、plan-lint、context-lint、context-run、loop state、outcome link/report、central eval sink、static eval dashboard、eval query、可配置 failure category、failure category lint、escalation learn draft、learn promotion event、knowledge review event、knowledge metadata lint、knowledge governance lint、eval run 数据集、Markdown summary 和 history report。
 - smoke test 和 GitHub CI。
 
 未完成：

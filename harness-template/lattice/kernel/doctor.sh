@@ -80,6 +80,7 @@ check_executable "lattice/kernel/delivery/eval-dashboard.sh" "central eval dashb
 check_executable "lattice/kernel/delivery/eval-query.sh" "central eval query"
 check_executable "lattice/kernel/delivery/outcome-link.sh" "outcome linkage recorder"
 check_executable "lattice/kernel/delivery/outcome-report.sh" "outcome attribution report"
+check_executable "lattice/kernel/orchestrator/sdd/plan-lint.sh" "plan contract lint"
 check_executable "lattice/kernel/context/context-lint.sh" "context basis lint"
 check_executable "lattice/kernel/context/context-run.sh" "context run recorder"
 check_executable "lattice/kernel/context/learn-draft.sh" "learn draft workflow"

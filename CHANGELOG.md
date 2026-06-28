@@ -28,6 +28,7 @@ All notable changes to this project will be documented in this file.
 - `context-lint.sh` to reject empty or unfinished per-spec context basis files before context-run evidence is recorded.
 - `context-run.sh` to record per-spec selected facts, constraints, exclusions, conflicts, and context gaps under `lattice/state/context-runs/`.
 - `pr-comment.sh` to create or update a stable GitHub PR comment from the eval Markdown summary.
+- `plan-lint.sh` to validate AC-traced implementation plans before task execution starts.
 - `review-summary.sh` and `tdd-evidence.sh` to capture process evidence as structured JSON.
 - GitHub Actions eval artifact workflow template installed by `init.sh --ci=github`.
 - **PrismSpec** standalone spec-coding skill pack with guided `/sdd`, canonical `SKILL.md` files, templates, references, and workflow scripts.

@@ -120,6 +120,7 @@ if bash "$SANDBOX/.lattice/framework/init.sh" --non-interactive --lang=go --name
     && [[ -x "$SANDBOX/lattice/kernel/delivery/outcome-report.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/delivery/pr-comment.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/delivery/failure-category-lint.sh" ]] \
+    && [[ -x "$SANDBOX/lattice/kernel/orchestrator/sdd/plan-lint.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/context/context-lint.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/context/context-run.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/context/learn-draft.sh" ]] \
@@ -564,6 +565,47 @@ if [[ $PRISMSPEC_PLAN_LINT_EXIT -eq 0 ]]; then
 else
   fail "PrismSpec lint failed plan contract"
   echo "$PRISMSPEC_PLAN_LINT_OUTPUT" | tail -10
+fi
+
+PLAN_LINT_EXIT=0
+PLAN_LINT_OUTPUT=$(bash "$SANDBOX/lattice/kernel/orchestrator/sdd/plan-lint.sh" modern-feature 2>&1) || PLAN_LINT_EXIT=$?
+if [[ $PLAN_LINT_EXIT -eq 0 ]]; then
+  pass "plan-lint passes AC-traced plan"
+else
+  fail "plan-lint failed AC-traced plan"
+  echo "$PLAN_LINT_OUTPUT" | tail -20
+fi
+
+mkdir -p "$SANDBOX/lattice/specs/bad-plan"
+cat > "$SANDBOX/lattice/specs/bad-plan/spec.md" << 'BAD_SPEC'
+---
+id: bad-plan
+execution_mode: plan
+---
+
+# Spec: Bad Plan
+
+## Acceptance Criteria
+
+| # | When | Then | Verification |
+|---|------|------|--------------|
+| AC-1 | Something happens | It works | Test |
+BAD_SPEC
+cat > "$SANDBOX/lattice/specs/bad-plan/plan.md" << 'BAD_PLAN'
+# Plan: Bad Plan
+
+## Tasks
+
+- Do the work
+- TODO verify later
+BAD_PLAN
+BAD_PLAN_LINT_EXIT=0
+bash "$SANDBOX/lattice/kernel/orchestrator/sdd/plan-lint.sh" bad-plan >/tmp/lattice-plan-lint-bad.log 2>&1 || BAD_PLAN_LINT_EXIT=$?
+if [[ $BAD_PLAN_LINT_EXIT -ne 0 ]] && grep -q "No stable task ids" /tmp/lattice-plan-lint-bad.log; then
+  pass "plan-lint rejects untraceable plan"
+else
+  fail "plan-lint accepted untraceable plan"
+  tail -20 /tmp/lattice-plan-lint-bad.log
 fi
 
 cat > "$SANDBOX/lattice/specs/modern-feature/verify.md" << 'VERIFY'

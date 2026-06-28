@@ -239,17 +239,18 @@ PrismSpec 不再维护 flat Markdown wrapper。主入口只读取 canonical `SKI
 - static eval dashboard。
 - eval query。
 - context-lint。
+- plan-lint。
 
 尚未完成：
 
 - spec state machine 强校验。
-- plan schema。
+- 更强结构化 plan schema。
 - dashboard 趋势增强。
 
 ## 演进优先级
 
 1. 强化 `spec-lint` 对 front matter、mode、status 的校验。
-2. 增加 plan schema 或 plan-lint。
+2. 增强 plan schema 和 state transition 校验。
 3. 增强 dashboard 过滤和趋势视图。
 4. 增加跨项目 outcome attribution 分析。
 5. 用真实项目迭代模板和 mode 选择策略。

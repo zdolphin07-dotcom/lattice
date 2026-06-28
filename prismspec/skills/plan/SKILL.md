@@ -23,6 +23,7 @@ Decompose `spec.md` into small, ordered, verifiable tasks. The plan is the imple
 4. Upgrade `plan -> tdd` when discovered risk requires red-test evidence.
 5. Write `plan.md` next to `spec.md`.
 6. Include interfaces, likely files, acceptance links, and verification per task.
+7. In Lattice-hosted mode, run `lattice/kernel/orchestrator/sdd/plan-lint.sh <spec-id>` before implementation starts.
 
 ## Task Shape
 
@@ -72,6 +73,7 @@ For TDD tasks, add explicit red tasks before implementation tasks.
 ## Verification
 
 - [ ] `plan.md` exists.
+- [ ] Lattice plan-lint passes when running in Lattice-hosted mode.
 - [ ] Every behavior task references at least one AC.
 - [ ] Every task has verification evidence requirements.
 - [ ] No task is too large to complete and verify in one focused session.
