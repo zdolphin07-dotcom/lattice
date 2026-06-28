@@ -240,6 +240,7 @@ PrismSpec 不再维护 flat Markdown wrapper。主入口只读取 canonical `SKI
 - eval query。
 - context-lint。
 - plan-lint。
+- task-evidence-lint。
 - spec-state-lint。
 - spec-status guarded transition helper。
 
@@ -252,7 +253,7 @@ PrismSpec 不再维护 flat Markdown wrapper。主入口只读取 canonical `SKI
 ## 演进优先级
 
 1. 增强 spec state transition history 与 audit trail。
-2. 增强 plan schema 和任务完成证据校验。
+2. 增强 plan schema 和任务完成证据的结构化归因。
 3. 增强 dashboard 过滤和趋势视图。
 4. 增加跨项目 outcome attribution 分析。
 5. 用真实项目迭代模板和 mode 选择策略。

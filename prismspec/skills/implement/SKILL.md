@@ -29,7 +29,8 @@ Implement one planned slice at a time. Keep scope narrow, produce evidence, and 
 6. Generate a review package when helpers exist.
 7. In TDD mode, write `tdd-evidence.json` when the helper exists.
 8. Mark the task complete only when evidence exists.
-9. In Lattice-hosted mode, when all planned tasks are complete, advance status with `lattice/kernel/orchestrator/sdd/spec-status.sh <spec-id> implemented --from=planned`.
+9. In Lattice-hosted mode, run `lattice/kernel/orchestrator/sdd/task-evidence-lint.sh <spec-id>` after completed tasks are checked.
+10. In Lattice-hosted mode, when all planned tasks are complete, advance status with `lattice/kernel/orchestrator/sdd/spec-status.sh <spec-id> implemented --from=planned`.
 
 ## Scope Rules
 
@@ -72,6 +73,7 @@ Implement one planned slice at a time. Keep scope narrow, produce evidence, and 
 
 - [ ] Focused task verification passed or blocker is explicit.
 - [ ] TDD tasks include red and green evidence.
+- [ ] Lattice task-evidence-lint passes for completed tasks.
 - [ ] Lattice spec-status advances to `implemented` when all planned tasks are complete.
 - [ ] Diff is scoped to the planned task.
 - [ ] Broader relevant tests are ready for `verify`.

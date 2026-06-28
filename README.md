@@ -191,6 +191,9 @@ bash lattice/kernel/delivery/pipeline.sh --only=spec-lint
 # 检查 plan.md 是否具备 AC trace、任务 ID 和验证要求
 bash lattice/kernel/orchestrator/sdd/plan-lint.sh <spec-id>
 
+# 检查已完成任务是否具备 brief/review/TDD evidence
+bash lattice/kernel/orchestrator/sdd/task-evidence-lint.sh <spec-id>
+
 # 检查 spec.md front matter 和状态对应产物
 bash lattice/kernel/orchestrator/sdd/spec-state-lint.sh <spec-id>
 
@@ -226,7 +229,7 @@ bash lattice/kernel/context/learn-draft.sh discard lattice/context/drafts/escala
 - PrismSpec 独立 skill pack manifest 与 Lattice-hosted 模式；
 - 目录化 spec、per-spec context、模板和 artifact lint；
 - doctor、spec lint、AC coverage、drift check、compliance、spec lock；
-- `pipeline --json-out`、`lattice/state/eval-runs/*.json`、`lattice/state/loops/*.json`、`lattice/state/outcomes/*.json`、`lattice/state/eval-sink/`、`lattice/state/context-runs/*.json`、`lattice/state/learn-promotions/*.json`、`lattice/state/knowledge-reviews/*.json`、`lattice/config/failure-categories.yaml`、failure category lint、`lattice/context/drafts/escalation-*.md`、eval markdown summary/history、central eval sink/static dashboard/query、outcome link/report、AC/drift/compliance gate JSON、可配置 failure category、spec-state-lint、spec-status、plan-lint、context-lint、context-run、learn draft promotion/discard、knowledge review evidence 和 review/TDD process evidence；
+- `pipeline --json-out`、`lattice/state/eval-runs/*.json`、`lattice/state/loops/*.json`、`lattice/state/outcomes/*.json`、`lattice/state/eval-sink/`、`lattice/state/context-runs/*.json`、`lattice/state/learn-promotions/*.json`、`lattice/state/knowledge-reviews/*.json`、`lattice/config/failure-categories.yaml`、failure category lint、`lattice/context/drafts/escalation-*.md`、eval markdown summary/history、central eval sink/static dashboard/query、outcome link/report、AC/drift/compliance gate JSON、可配置 failure category、spec-state-lint、spec-status、plan-lint、task-evidence-lint、context-lint、context-run、learn draft promotion/discard、knowledge review evidence 和 review/TDD process evidence；
 - GitHub Actions eval artifact、Step Summary 与 best-effort PR comment workflow 模板；
 - Context map、knowledge backend、context-lint、context-run evidence、knowledge metadata lint、knowledge governance lint、中心知识 sync 和基础 `/learn` 约定；
 - Go/Gin/GORM 可运行示例与多 Agent adapter 文档。

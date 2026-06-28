@@ -121,6 +121,7 @@ if bash "$SANDBOX/.lattice/framework/init.sh" --non-interactive --lang=go --name
     && [[ -x "$SANDBOX/lattice/kernel/delivery/pr-comment.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/delivery/failure-category-lint.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/orchestrator/sdd/plan-lint.sh" ]] \
+    && [[ -x "$SANDBOX/lattice/kernel/orchestrator/sdd/task-evidence-lint.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/orchestrator/sdd/spec-state-lint.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/orchestrator/sdd/spec-status.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/context/context-lint.sh" ]] \
@@ -225,6 +226,7 @@ if bash "$SANDBOX/.lattice/framework/init.sh" --non-interactive --lang=go --name
   fi
 
   if [[ -x "$SANDBOX/lattice/kernel/orchestrator/sdd/task-brief.sh" ]] \
+    && [[ -x "$SANDBOX/lattice/kernel/orchestrator/sdd/task-evidence-lint.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/orchestrator/sdd/review-package.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/orchestrator/sdd/review-summary.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/orchestrator/sdd/tdd-evidence.sh" ]]; then
@@ -640,6 +642,58 @@ else
 fi
 
 perl -0pi -e 's/- \[ \] T1:/- [x] T1:/g; s/- \[ \] RED-1:/- [x] RED-1:/g' "$SANDBOX/lattice/specs/modern-feature/plan.md"
+SPEC_STATUS_NO_EVIDENCE_EXIT=0
+bash "$SANDBOX/lattice/kernel/orchestrator/sdd/spec-status.sh" modern-feature implemented --from=planned >/tmp/lattice-spec-status-no-evidence.log 2>&1 || SPEC_STATUS_NO_EVIDENCE_EXIT=$?
+if [[ $SPEC_STATUS_NO_EVIDENCE_EXIT -ne 0 ]] && grep -q "missing brief.md" /tmp/lattice-spec-status-no-evidence.log; then
+  pass "spec-status blocks completed tasks without evidence"
+else
+  fail "spec-status accepted completed tasks without evidence"
+  tail -20 /tmp/lattice-spec-status-no-evidence.log
+fi
+
+BRIEF_OUTPUT=$(bash "$SANDBOX/lattice/kernel/orchestrator/sdd/task-brief.sh" modern-feature T1 2>&1)
+if [[ -f "$SANDBOX/.lattice/sdd/modern-feature/T1/brief.md" ]] && grep -q "Global Constraints" "$SANDBOX/.lattice/sdd/modern-feature/T1/brief.md"; then
+  pass "task-brief generates task evidence"
+else
+  fail "task-brief did not generate expected evidence"
+  echo "$BRIEF_OUTPUT" | tail -10
+fi
+
+REVIEW_OUTPUT=$(bash "$SANDBOX/lattice/kernel/orchestrator/sdd/review-package.sh" modern-feature T1 2>&1)
+if [[ -f "$SANDBOX/.lattice/sdd/modern-feature/T1/review-package.md" ]] && grep -q "cannot-verify" "$SANDBOX/.lattice/sdd/modern-feature/T1/review-package.md"; then
+  pass "review-package generates read-only review package"
+else
+  fail "review-package did not generate expected package"
+  echo "$REVIEW_OUTPUT" | tail -10
+fi
+
+TDD_EVIDENCE_OUTPUT=$(bash "$SANDBOX/lattice/kernel/orchestrator/sdd/tdd-evidence.sh" modern-feature T1 \
+  --ac=AC-1 \
+  --test=TestAC1_CreateItem \
+  --test-file=internal/handler/item_test.go \
+  --red-command="go test ./internal/handler -run TestAC1_CreateItem" \
+  --red-exit=1 \
+  --red-summary="handler not implemented" \
+  --green-command="go test ./internal/handler -run TestAC1_CreateItem" \
+  --green-exit=0 \
+  --green-summary="focused AC test passes" \
+  --refactor=none 2>&1)
+if yq -e '.kind == "tdd-evidence" and .status == "pass" and .red.exit_code == 1 and .green.exit_code == 0 and (.ac_ids | length == 1)' "$SANDBOX/.lattice/sdd/modern-feature/T1/tdd-evidence.json" >/dev/null 2>&1; then
+  pass "tdd-evidence writes structured red/green JSON"
+else
+  fail "tdd-evidence JSON invalid"
+  echo "$TDD_EVIDENCE_OUTPUT" | tail -10
+fi
+
+TASK_EVIDENCE_LINT_EXIT=0
+TASK_EVIDENCE_LINT_OUTPUT=$(bash "$SANDBOX/lattice/kernel/orchestrator/sdd/task-evidence-lint.sh" modern-feature 2>&1) || TASK_EVIDENCE_LINT_EXIT=$?
+if [[ $TASK_EVIDENCE_LINT_EXIT -eq 0 ]]; then
+  pass "task-evidence-lint passes completed task evidence"
+else
+  fail "task-evidence-lint failed completed task evidence"
+  echo "$TASK_EVIDENCE_LINT_OUTPUT" | tail -20
+fi
+
 SPEC_STATUS_IMPLEMENTED_EXIT=0
 SPEC_STATUS_IMPLEMENTED_OUTPUT=$(bash "$SANDBOX/lattice/kernel/orchestrator/sdd/spec-status.sh" modern-feature implemented --from=planned 2>&1) || SPEC_STATUS_IMPLEMENTED_EXIT=$?
 if [[ $SPEC_STATUS_IMPLEMENTED_EXIT -eq 0 ]] && grep -q '^status: implemented$' "$SANDBOX/lattice/specs/modern-feature/spec.md"; then
@@ -723,22 +777,6 @@ else
   echo "$SPEC_STATUS_FINISHED_OUTPUT" | tail -20
 fi
 
-BRIEF_OUTPUT=$(bash "$SANDBOX/lattice/kernel/orchestrator/sdd/task-brief.sh" modern-feature T1 2>&1)
-if [[ -f "$SANDBOX/.lattice/sdd/modern-feature/T1/brief.md" ]] && grep -q "Global Constraints" "$SANDBOX/.lattice/sdd/modern-feature/T1/brief.md"; then
-  pass "task-brief generates task evidence"
-else
-  fail "task-brief did not generate expected evidence"
-  echo "$BRIEF_OUTPUT" | tail -10
-fi
-
-REVIEW_OUTPUT=$(bash "$SANDBOX/lattice/kernel/orchestrator/sdd/review-package.sh" modern-feature T1 2>&1)
-if [[ -f "$SANDBOX/.lattice/sdd/modern-feature/T1/review-package.md" ]] && grep -q "cannot-verify" "$SANDBOX/.lattice/sdd/modern-feature/T1/review-package.md"; then
-  pass "review-package generates read-only review package"
-else
-  fail "review-package did not generate expected package"
-  echo "$REVIEW_OUTPUT" | tail -10
-fi
-
 REVIEW_SUMMARY_OUTPUT=$(bash "$SANDBOX/lattice/kernel/orchestrator/sdd/review-summary.sh" modern-feature T1 \
   --spec-compliance=pass \
   --code-quality=pass \
@@ -753,23 +791,6 @@ else
   echo "$REVIEW_SUMMARY_OUTPUT" | tail -10
 fi
 
-TDD_EVIDENCE_OUTPUT=$(bash "$SANDBOX/lattice/kernel/orchestrator/sdd/tdd-evidence.sh" modern-feature T1 \
-  --ac=AC-1 \
-  --test=TestAC1_CreateItem \
-  --test-file=internal/handler/item_test.go \
-  --red-command="go test ./internal/handler -run TestAC1_CreateItem" \
-  --red-exit=1 \
-  --red-summary="handler not implemented" \
-  --green-command="go test ./internal/handler -run TestAC1_CreateItem" \
-  --green-exit=0 \
-  --green-summary="focused AC test passes" \
-  --refactor=none 2>&1)
-if yq -e '.kind == "tdd-evidence" and .status == "pass" and .red.exit_code == 1 and .green.exit_code == 0 and (.ac_ids | length == 1)' "$SANDBOX/.lattice/sdd/modern-feature/T1/tdd-evidence.json" >/dev/null 2>&1; then
-  pass "tdd-evidence writes structured red/green JSON"
-else
-  fail "tdd-evidence JSON invalid"
-  echo "$TDD_EVIDENCE_OUTPUT" | tail -10
-fi
 echo ""
 
 # ── 7. AC-coverage (no tests — should report uncovered) ──

@@ -31,6 +31,7 @@ All notable changes to this project will be documented in this file.
 - `spec-state-lint.sh` to validate spec front matter and status-to-artifact readiness.
 - `spec-status.sh` to advance spec lifecycle status with guarded transitions and stale-state protection.
 - `plan-lint.sh` to validate AC-traced implementation plans before task execution starts.
+- `task-evidence-lint.sh` to require brief, review package, and TDD evidence for completed implementation tasks.
 - `review-summary.sh` and `tdd-evidence.sh` to capture process evidence as structured JSON.
 - GitHub Actions eval artifact workflow template installed by `init.sh --ci=github`.
 - **PrismSpec** standalone spec-coding skill pack with guided `/sdd`, canonical `SKILL.md` files, templates, references, and workflow scripts.

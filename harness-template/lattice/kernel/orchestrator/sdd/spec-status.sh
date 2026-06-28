@@ -175,6 +175,12 @@ if [[ "$TARGET_STATUS" == "planned" || "$TARGET_STATUS" == "implemented" || "$TA
   fi
 fi
 
+if [[ "$TARGET_STATUS" == "implemented" || "$TARGET_STATUS" == "verified" || "$TARGET_STATUS" == "finished" ]]; then
+  if [[ -x "$KERNEL_DIR/orchestrator/sdd/task-evidence-lint.sh" ]]; then
+    bash "$KERNEL_DIR/orchestrator/sdd/task-evidence-lint.sh" "$SPEC_DIR/plan.md"
+  fi
+fi
+
 UPDATED_AT="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 update_frontmatter "$SPEC_FILE" "$TARGET_STATUS" "$UPDATED_AT"
 
