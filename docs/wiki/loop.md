@@ -32,12 +32,13 @@ Loop 的目标不是让 Agent 无限自修复，而是让失败可控：
 - 重试耗尽后 exit `2`；
 - 输出 escalation 诊断；
 - 在 `lattice/state/loops/<run-id>.json` 记录 loop state；
+- 基于失败步骤和常见环境错误生成 `failure_category` 与 `default_action`；
 - retry 耗尽时在 `lattice/context/drafts/escalation-<run-id>.md` 生成 learn draft；
 - 在 eval run 中嵌入 `loop_state`，并把 retry/escalation 指标汇总到 summary 和 history。
 
 当前缺失：
 
-- 失败分类不结构化；
+- 失败分类规则还没有外置成可配置 schema；
 - learn draft 的 promotion / discard 流程仍需人工执行。
 
 ## 状态模型
@@ -77,6 +78,8 @@ lattice/state/loops/<run-id>.json
   "retry_remaining": 1,
   "failed_step": "drift-check",
   "failed_exit_code": 1,
+  "failure_category": "drift",
+  "default_action": "align_code_or_spec",
   "failure_summary": "POST /coupons/redeem exists in spec but not in router",
   "next_action": "retry",
   "learn_draft": ""
@@ -112,6 +115,8 @@ draft 内容：
 
 **Source**: pipeline-escalation
 **Failed step**: drift-check
+**Failure category**: drift
+**Default action**: align_code_or_spec
 **Spec**: lattice/specs/coupon-redemption/spec.md
 **Lesson candidate**: New API specs must update router registration and route tests together.
 **Evidence**: lattice/state/eval-runs/<run-id>.json
@@ -132,12 +137,12 @@ Loop 不新增 SDD 阶段，它嵌入 Verification：
 
 | Gap | 影响 | 下一步 |
 |-----|------|--------|
-| 失败无分类 | 难自动处理 | failure category schema |
+| 失败分类规则未外置 | 团队难按自己的 gate 扩展分类 | configurable failure category schema |
 | learn draft promotion 未流程化 | 候选经验可能长期停留在 drafts | promotion / discard workflow |
 
 ## 演进顺序
 
-1. 基于 gate name + regex 做失败分类。
+1. 将 failure category rules 外置成可配置 schema。
 2. Finishing 引用 loop state 和 learn draft。
 3. 增加 learn draft promotion / discard workflow。
 4. 将 loop history 接入 central eval sink 或 dashboard。

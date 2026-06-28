@@ -52,6 +52,8 @@ process_tdd_files=()
 FAILED_STEP=""
 FAILED_EXIT_CODE=0
 FAILED_SUMMARY=""
+FAILED_CATEGORY=""
+FAILED_DEFAULT_ACTION=""
 METRIC_AC_TOTAL=0
 METRIC_AC_COVERED=0
 METRIC_AC_UNCOVERED=0
@@ -174,6 +176,38 @@ collect_process_evidence() {
   done < <(find "$evidence_dir" -type f -name 'tdd-evidence.json' -print 2>/dev/null | sort)
 }
 
+classify_failure_category() {
+  local step_name="$1" output="$2"
+  if printf '%s\n' "$output" | grep -qiE 'command not found|missing required tool|cannot find|no such file|permission denied|docker.*not.*running|connection refused'; then
+    echo "environment"
+    return 0
+  fi
+
+  case "$step_name" in
+    bootstrap) echo "environment" ;;
+    spec-lint|prismspec-lint) echo "spec_structure" ;;
+    ac-coverage) echo "ac_gap" ;;
+    drift-check) echo "drift" ;;
+    compliance) echo "compliance" ;;
+    build|lint|test|unit-test|integration-test) echo "implementation" ;;
+    deploy) echo "deployment" ;;
+    *) echo "unknown" ;;
+  esac
+}
+
+failure_default_action() {
+  case "$1" in
+    environment) echo "fix_environment" ;;
+    spec_structure) echo "fix_spec" ;;
+    ac_gap) echo "add_or_map_tests" ;;
+    drift) echo "align_code_or_spec" ;;
+    compliance) echo "add_context_or_clarification_evidence" ;;
+    implementation) echo "fix_code" ;;
+    deployment) echo "fix_deployment" ;;
+    *) echo "escalate" ;;
+  esac
+}
+
 echo "══════════════════════════════════"
 echo "Lattice — Delivery Pipeline"
 echo "Project: $(manifest_get '.project.name') ($(get_language))"
@@ -281,6 +315,8 @@ for i in $(seq 0 $((STEP_COUNT - 1))); do
     FAILED_STEP="$name"
     FAILED_EXIT_CODE="$step_exit"
     FAILED_SUMMARY="$(printf '%s\n' "$output" | tail -40)"
+    FAILED_CATEGORY="$(classify_failure_category "$name" "$output")"
+    FAILED_DEFAULT_ACTION="$(failure_default_action "$FAILED_CATEGORY")"
     [[ -n "$gate_json_file" ]] && collect_gate_json "$name" "$gate_json_file"
     echo "⛔ Pipeline stopped at step $STEP_NUM: $name"
     break
@@ -350,6 +386,8 @@ write_learn_draft() {
     printf 'created_at: "%s"\n' "$(json_escape "$RUN_ENDED_AT")"
     printf 'spec_file: "%s"\n' "$(json_escape "$spec_rel")"
     printf 'failed_step: "%s"\n' "$(json_escape "$FAILED_STEP")"
+    printf 'failure_category: "%s"\n' "$(json_escape "$FAILED_CATEGORY")"
+    printf 'default_action: "%s"\n' "$(json_escape "$FAILED_DEFAULT_ACTION")"
     printf -- '---\n\n'
     printf '# Learn Draft: Pipeline Escalation %s\n\n' "$RUN_ID"
     printf '## Why This Exists\n\n'
@@ -360,6 +398,8 @@ write_learn_draft() {
     printf '| Run ID | `%s` |\n' "$RUN_ID"
     printf '| Spec | `%s` |\n' "${spec_rel:-none}"
     printf '| Failed Step | `%s` |\n' "${FAILED_STEP:-unknown}"
+    printf '| Failure Category | `%s` |\n' "${FAILED_CATEGORY:-unknown}"
+    printf '| Default Action | `%s` |\n' "${FAILED_DEFAULT_ACTION:-unknown}"
     printf '| Failed Exit Code | `%s` |\n' "$FAILED_EXIT_CODE"
     printf '| Retries | `%s / %s` |\n' "$SH_RETRY_COUNT" "$SH_RETRY_MAX"
     printf '| Loop State | `%s` |\n' "${loop_rel:-none}"
@@ -411,6 +451,8 @@ write_loop_json() {
     printf '  "retry_remaining": %s,\n' "$retry_remaining"
     printf '  "failed_step": "%s",\n' "$(json_escape "$FAILED_STEP")"
     printf '  "failed_exit_code": %s,\n' "$FAILED_EXIT_CODE"
+    printf '  "failure_category": "%s",\n' "$(json_escape "$FAILED_CATEGORY")"
+    printf '  "default_action": "%s",\n' "$(json_escape "$FAILED_DEFAULT_ACTION")"
     printf '  "failure_summary": "%s",\n' "$(json_escape "$FAILED_SUMMARY")"
     printf '  "spec_file": "%s",\n' "$(json_escape "$spec_rel")"
     printf '  "learn_draft": "%s"\n' "$(json_escape "$learn_draft_rel")"

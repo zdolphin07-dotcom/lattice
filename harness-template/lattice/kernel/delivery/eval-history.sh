@@ -167,7 +167,7 @@ render_history() {
     start_index=$((RUN_TOTAL - LIMIT))
   fi
 
-  local i file run_id status spec git ac_total ac_covered drift review_total review_failed review_cannot_verify tdd_total tdd_invalid retry_count next_action learn_draft learn_flag
+  local i file run_id status spec git ac_total ac_covered drift review_total review_failed review_cannot_verify tdd_total tdd_invalid retry_count next_action failure_category learn_draft learn_flag
   for ((i = RUN_TOTAL - 1; i >= start_index; i--)); do
     file="${EVAL_FILES[$i]}"
     run_id="$(json_get "$file" '.run_id')"
@@ -184,10 +184,11 @@ render_history() {
     tdd_invalid="$(json_num "$file" '.metrics.tdd_invalid')"
     retry_count="$(json_num "$file" '.loop_state.retry_count')"
     next_action="$(json_get "$file" '.loop_state.next_action')"
+    failure_category="$(json_get "$file" '.loop_state.failure_category')"
     learn_draft="$(json_get "$file" '.loop_state.learn_draft')"
     learn_flag="no"
     [[ -n "$learn_draft" ]] && learn_flag="yes"
-    echo "| $(md_escape "${run_id:-unknown}") | $(md_escape "${status:-unknown}") | $(md_escape "${spec:-none}") | $(md_escape "${git:-unknown}") | $ac_covered/$ac_total | $drift | $review_failed fail / $review_cannot_verify cannot_verify / $review_total | $tdd_invalid invalid / $tdd_total | retry=$retry_count, next=$(md_escape "${next_action:-unknown}"), learn=$learn_flag |"
+    echo "| $(md_escape "${run_id:-unknown}") | $(md_escape "${status:-unknown}") | $(md_escape "${spec:-none}") | $(md_escape "${git:-unknown}") | $ac_covered/$ac_total | $drift | $review_failed fail / $review_cannot_verify cannot_verify / $review_total | $tdd_invalid invalid / $tdd_total | retry=$retry_count, next=$(md_escape "${next_action:-unknown}"), category=$(md_escape "${failure_category:-none}"), learn=$learn_flag |"
   done
 }
 

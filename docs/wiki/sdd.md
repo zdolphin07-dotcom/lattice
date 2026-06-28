@@ -233,12 +233,12 @@ PrismSpec 不再维护 flat Markdown wrapper。主入口只读取 canonical `SKI
 
 - spec state machine 强校验。
 - plan schema。
-- learn draft promotion workflow。
+- configurable failure category schema 与 learn draft promotion workflow。
 
 ## 演进优先级
 
 1. 强化 `spec-lint` 对 front matter、mode、status 的校验。
 2. 增加 plan schema 或 plan-lint。
-3. 增加 failure category schema 与 learn draft promotion workflow。
+3. 增加 configurable failure category schema 与 learn draft promotion workflow。
 4. 增加 dashboard 或 central eval sink。
 5. 用真实项目迭代模板和 mode 选择策略。

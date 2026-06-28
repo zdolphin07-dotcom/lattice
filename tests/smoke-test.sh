@@ -581,7 +581,7 @@ fi
 PIPELINE_GATE_JSON="$SANDBOX/lattice/state/pipeline-ac-smoke.json"
 PIPELINE_GATE_EXIT=0
 bash "$SANDBOX/lattice/kernel/delivery/pipeline.sh" --only=ac-coverage --spec="$SANDBOX/lattice/specs/modern-feature/spec.md" --json-out="$PIPELINE_GATE_JSON" >/tmp/lattice-pipeline-gate-json.log 2>&1 || PIPELINE_GATE_EXIT=$?
-if [[ $PIPELINE_GATE_EXIT -eq 1 ]] && yq -e '.metrics.ac_total == 2 and .metrics.ac_uncovered == 2 and (.gates | length == 1) and .gates[0].gate == "ac-coverage" and .metrics.review_total == 1 and .metrics.review_cannot_verify == 1 and .metrics.tdd_total == 1 and .metrics.tdd_complete == 1 and .process_evidence.review_summaries[0].kind == "review-summary" and .process_evidence.tdd_evidence[0].kind == "tdd-evidence" and .loop_state.kind == "loop-state" and .loop_state.next_action == "retry" and .loop_state.failed_step == "ac-coverage"' "$PIPELINE_GATE_JSON" >/dev/null 2>&1; then
+if [[ $PIPELINE_GATE_EXIT -eq 1 ]] && yq -e '.metrics.ac_total == 2 and .metrics.ac_uncovered == 2 and (.gates | length == 1) and .gates[0].gate == "ac-coverage" and .metrics.review_total == 1 and .metrics.review_cannot_verify == 1 and .metrics.tdd_total == 1 and .metrics.tdd_complete == 1 and .process_evidence.review_summaries[0].kind == "review-summary" and .process_evidence.tdd_evidence[0].kind == "tdd-evidence" and .loop_state.kind == "loop-state" and .loop_state.next_action == "retry" and .loop_state.failed_step == "ac-coverage" and .loop_state.failure_category == "ac_gap" and .loop_state.default_action == "add_or_map_tests"' "$PIPELINE_GATE_JSON" >/dev/null 2>&1; then
   pass "pipeline embeds structured gate JSON in eval run"
 else
   fail "pipeline gate JSON embedding invalid"
@@ -590,7 +590,7 @@ fi
 
 LOOP_RUN_ID=$(yq -r '.run_id' "$PIPELINE_GATE_JSON")
 LOOP_STATE_JSON="$SANDBOX/lattice/state/loops/${LOOP_RUN_ID}.json"
-if [[ -f "$LOOP_STATE_JSON" ]] && yq -e '.kind == "loop-state" and .next_action == "retry" and .failed_step == "ac-coverage" and .retry_count == 0' "$LOOP_STATE_JSON" >/dev/null 2>&1; then
+if [[ -f "$LOOP_STATE_JSON" ]] && yq -e '.kind == "loop-state" and .next_action == "retry" and .failed_step == "ac-coverage" and .failure_category == "ac_gap" and .default_action == "add_or_map_tests" and .retry_count == 0' "$LOOP_STATE_JSON" >/dev/null 2>&1; then
   pass "pipeline writes loop state JSON"
 else
   fail "pipeline loop state JSON invalid"
@@ -608,8 +608,9 @@ if [[ -f "$PIPELINE_ESCALATION_JSON" ]]; then
 fi
 if [[ $PIPELINE_ESCALATION_EXIT -eq 2 ]] \
   && [[ -f "$ESCALATION_LEARN_DRAFT" ]] \
-  && yq -e '.pipeline.status == "escalation" and .metrics.loop_escalated == true and .loop_state.next_action == "escalate" and .loop_state.learn_draft != ""' "$PIPELINE_ESCALATION_JSON" >/dev/null 2>&1 \
-  && grep -q "Learn Draft: Pipeline Escalation" "$ESCALATION_LEARN_DRAFT"; then
+  && yq -e '.pipeline.status == "escalation" and .metrics.loop_escalated == true and .loop_state.next_action == "escalate" and .loop_state.failure_category == "ac_gap" and .loop_state.default_action == "add_or_map_tests" and .loop_state.learn_draft != ""' "$PIPELINE_ESCALATION_JSON" >/dev/null 2>&1 \
+  && grep -q "Learn Draft: Pipeline Escalation" "$ESCALATION_LEARN_DRAFT" \
+  && grep -q "failure_category: \"ac_gap\"" "$ESCALATION_LEARN_DRAFT"; then
   pass "pipeline writes escalation learn draft"
 else
   fail "pipeline escalation learn draft invalid"

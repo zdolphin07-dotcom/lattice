@@ -100,14 +100,14 @@ Implemented:
 
 - install/init/upgrade and smoke tests;
 - standalone PrismSpec skill pack manifest and Lattice-hosted mode;
-- doctor, `pipeline --json-out` structured eval runs, loop state JSON, escalation learn drafts, Markdown summaries/history reports, AC/drift/compliance gate JSON, review/TDD process evidence, and GitHub Actions eval artifacts/Step Summary/best-effort PR comments;
+- doctor, `pipeline --json-out` structured eval runs, loop state JSON, failure categories, escalation learn drafts, Markdown summaries/history reports, AC/drift/compliance gate JSON, review/TDD process evidence, and GitHub Actions eval artifacts/Step Summary/best-effort PR comments;
 - spec lint, AC coverage, drift check, compliance, spec lock;
 - context map, knowledge backend, sync, and basic learn convention;
 - Go/Gin/GORM example and adapter docs.
 
 Planned:
 
-- failure category schema and learn draft promotion workflow;
+- configurable failure category schema and learn draft promotion workflow;
 - stronger context/knowledge metadata and stale/conflict checks;
 - more drift parsers for Node/Python and other stacks;
 - plugin manifest/schema/versioning;
