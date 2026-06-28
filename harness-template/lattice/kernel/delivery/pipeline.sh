@@ -54,6 +54,7 @@ FAILED_EXIT_CODE=0
 FAILED_SUMMARY=""
 FAILED_CATEGORY=""
 FAILED_DEFAULT_ACTION=""
+FAILURE_CATEGORIES_FILE=""
 METRIC_AC_TOTAL=0
 METRIC_AC_COVERED=0
 METRIC_AC_UNCOVERED=0
@@ -176,8 +177,61 @@ collect_process_evidence() {
   done < <(find "$evidence_dir" -type f -name 'tdd-evidence.json' -print 2>/dev/null | sort)
 }
 
+resolve_failure_categories_file() {
+  local configured
+  configured="$(manifest_get '.pipeline.failure_categories_file')"
+  [[ -n "$configured" ]] || configured="lattice/config/failure-categories.yaml"
+  if [[ "$configured" == /* ]]; then
+    FAILURE_CATEGORIES_FILE="$configured"
+  else
+    FAILURE_CATEGORIES_FILE="$PROJECT_ROOT/$configured"
+  fi
+}
+
+config_failure_category() {
+  local step_name="$1" output="$2" idx count step step_regex output_regex category action
+  [[ -f "$FAILURE_CATEGORIES_FILE" ]] || return 1
+  count="$(yq -r '(.rules // []) | length' "$FAILURE_CATEGORIES_FILE" 2>/dev/null || echo 0)"
+  [[ "$count" =~ ^[0-9]+$ ]] || count=0
+  [[ "$count" -gt 0 ]] || return 1
+
+  for idx in $(seq 0 $((count - 1))); do
+    step="$(yq -r ".rules[$idx].step // \"\"" "$FAILURE_CATEGORIES_FILE" 2>/dev/null || true)"
+    step_regex="$(yq -r ".rules[$idx].step_regex // \"\"" "$FAILURE_CATEGORIES_FILE" 2>/dev/null || true)"
+    output_regex="$(yq -r ".rules[$idx].output_regex // \"\"" "$FAILURE_CATEGORIES_FILE" 2>/dev/null || true)"
+
+    if [[ -n "$output_regex" ]] && ! printf '%s\n' "$output" | grep -qiE "$output_regex"; then
+      continue
+    fi
+    if [[ -n "$step" && "$step_name" != "$step" ]]; then
+      continue
+    fi
+    if [[ -n "$step_regex" && ! "$step_name" =~ $step_regex ]]; then
+      continue
+    fi
+    if [[ -z "$output_regex" && -z "$step" && -z "$step_regex" ]]; then
+      continue
+    fi
+
+    category="$(yq -r ".rules[$idx].category // \"unknown\"" "$FAILURE_CATEGORIES_FILE" 2>/dev/null || echo "unknown")"
+    action="$(yq -r ".rules[$idx].default_action // \"\"" "$FAILURE_CATEGORIES_FILE" 2>/dev/null || true)"
+    [[ -n "$action" ]] || action="$(failure_default_action "$category")"
+    printf '%s|%s\n' "$category" "$action"
+    return 0
+  done
+
+  return 1
+}
+
 classify_failure_category() {
   local step_name="$1" output="$2"
+  local configured
+  configured="$(config_failure_category "$step_name" "$output" 2>/dev/null || true)"
+  if [[ -n "$configured" ]]; then
+    echo "${configured%%|*}"
+    return 0
+  fi
+
   if printf '%s\n' "$output" | grep -qiE 'command not found|missing required tool|cannot find|no such file|permission denied|docker.*not.*running|connection refused'; then
     echo "environment"
     return 0
@@ -208,12 +262,25 @@ failure_default_action() {
   esac
 }
 
+classify_failure_default_action() {
+  local step_name="$1" output="$2" category="$3"
+  local configured
+  configured="$(config_failure_category "$step_name" "$output" 2>/dev/null || true)"
+  if [[ -n "$configured" ]]; then
+    echo "${configured#*|}"
+    return 0
+  fi
+  failure_default_action "$category"
+}
+
 echo "══════════════════════════════════"
 echo "Lattice — Delivery Pipeline"
 echo "Project: $(manifest_get '.project.name') ($(get_language))"
 [[ "$SH_RETRY_COUNT" -gt 0 ]] && echo "Retry: $SH_RETRY_COUNT / $SH_RETRY_MAX"
 echo "══════════════════════════════════"
 echo ""
+
+resolve_failure_categories_file
 
 HAS_SPEC=false
 SPEC_FILE="${USER_SPEC:-}"
@@ -316,7 +383,7 @@ for i in $(seq 0 $((STEP_COUNT - 1))); do
     FAILED_EXIT_CODE="$step_exit"
     FAILED_SUMMARY="$(printf '%s\n' "$output" | tail -40)"
     FAILED_CATEGORY="$(classify_failure_category "$name" "$output")"
-    FAILED_DEFAULT_ACTION="$(failure_default_action "$FAILED_CATEGORY")"
+    FAILED_DEFAULT_ACTION="$(classify_failure_default_action "$name" "$output" "$FAILED_CATEGORY")"
     [[ -n "$gate_json_file" ]] && collect_gate_json "$name" "$gate_json_file"
     echo "⛔ Pipeline stopped at step $STEP_NUM: $name"
     break

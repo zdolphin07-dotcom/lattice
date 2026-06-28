@@ -8,7 +8,7 @@ Eval 在 Lattice 中不是“多跑几个测试”，而是回答三个问题：
 2. Agent 的工作过程是否可靠？
 3. 团队的 AI Coding 质量是否在变好？
 
-当前实现已经有 eval 原材料：spec-lint、AC coverage、drift check、compliance、build/lint/test output、review summary、TDD red/green evidence、loop state、failure category、escalation learn draft 和 smoke test。`pipeline.sh --json-out` 会把一次运行写成结构化 eval run，并嵌入 AC coverage、drift check、compliance 的 gate JSON、当前 spec 对应的 process evidence 以及 loop state；失败时，loop state 会包含 `failure_category` 和 `default_action`；当 retry budget 耗尽时，它还会在 `lattice/context/drafts/` 生成待确认 learn draft。`eval-summary.sh` 会把 eval JSON 渲染成 Markdown summary，供本地阅读和 CI Step Summary 使用；`eval-history.sh` 会把多次 eval run 聚合为趋势报告。
+当前实现已经有 eval 原材料：spec-lint、AC coverage、drift check、compliance、build/lint/test output、review summary、TDD red/green evidence、loop state、可配置 failure category、escalation learn draft 和 smoke test。`pipeline.sh --json-out` 会把一次运行写成结构化 eval run，并嵌入 AC coverage、drift check、compliance 的 gate JSON、当前 spec 对应的 process evidence 以及 loop state；失败时，loop state 会包含 `failure_category` 和 `default_action`，分类规则来自 `lattice/config/failure-categories.yaml`；当 retry budget 耗尽时，它还会在 `lattice/context/drafts/` 生成待确认 learn draft。`eval-summary.sh` 会把 eval JSON 渲染成 Markdown summary，供本地阅读和 CI Step Summary 使用；`eval-history.sh` 会把多次 eval run 聚合为趋势报告。
 
 ## 当前形态
 
@@ -189,12 +189,12 @@ Lattice 在 `harness-template/.github/workflows/lattice-eval.yml` 提供 GitHub 
 | Gap | 影响 | 下一步 |
 |-----|------|--------|
 | learn draft promotion 仍靠人工流程 | 候选经验生成后缺少稳定晋升/废弃记录 | promotion workflow |
-| failure category rules 未外置 | 团队难按自己的 gate 扩展分类 | configurable schema |
+| failure category config 未 lint | 配置错误只能在运行时暴露 | config lint |
 | dashboard 未实现 | history report 仍是 repo-local 文件，不能跨项目横向比较 | dashboard / central eval sink |
 
 ## 演进顺序
 
-1. 将 failure category rules 外置成可配置 schema。
+1. 增加 failure category config lint。
 2. 增加 learn draft promotion workflow。
 3. 增加 dashboard 或 central eval sink。
 4. 扩展更多语言的 drift parser。

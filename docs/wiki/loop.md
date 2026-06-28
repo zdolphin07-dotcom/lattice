@@ -32,13 +32,13 @@ Loop 的目标不是让 Agent 无限自修复，而是让失败可控：
 - 重试耗尽后 exit `2`；
 - 输出 escalation 诊断；
 - 在 `lattice/state/loops/<run-id>.json` 记录 loop state；
-- 基于失败步骤和常见环境错误生成 `failure_category` 与 `default_action`；
+- 基于 `lattice/config/failure-categories.yaml` 生成 `failure_category` 与 `default_action`，缺失配置时回退到内置规则；
 - retry 耗尽时在 `lattice/context/drafts/escalation-<run-id>.md` 生成 learn draft；
 - 在 eval run 中嵌入 `loop_state`，并把 retry/escalation 指标汇总到 summary 和 history。
 
 当前缺失：
 
-- 失败分类规则还没有外置成可配置 schema；
+- failure category 配置还没有独立 lint；
 - learn draft 的 promotion / discard 流程仍需人工执行。
 
 ## 状态模型
@@ -100,6 +100,16 @@ lattice/state/loops/<run-id>.json
 
 分类可以先从 gate name + regex 做起，不需要一开始引入复杂模型。
 
+项目可通过 `lattice/config/failure-categories.yaml` 覆盖默认分类：
+
+```yaml
+rules:
+  - name: ac-coverage-custom
+    step: ac-coverage
+    category: custom_ac_gap
+    default_action: route_to_qa
+```
+
 ## Learn 回路
 
 当 retry 耗尽时，pipeline 会自动生成待确认 learn draft：
@@ -137,12 +147,12 @@ Loop 不新增 SDD 阶段，它嵌入 Verification：
 
 | Gap | 影响 | 下一步 |
 |-----|------|--------|
-| 失败分类规则未外置 | 团队难按自己的 gate 扩展分类 | configurable failure category schema |
+| failure category 配置未 lint | 配置写错时只能在运行时发现 | config lint |
 | learn draft promotion 未流程化 | 候选经验可能长期停留在 drafts | promotion / discard workflow |
 
 ## 演进顺序
 
-1. 将 failure category rules 外置成可配置 schema。
+1. 增加 failure category config lint。
 2. Finishing 引用 loop state 和 learn draft。
 3. 增加 learn draft promotion / discard workflow。
 4. 将 loop history 接入 central eval sink 或 dashboard。

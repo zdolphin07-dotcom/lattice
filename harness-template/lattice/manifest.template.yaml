@@ -85,6 +85,7 @@ drift:
     const_pattern: '{ERROR_CONST_PATTERN}'
 
 pipeline:
+  failure_categories_file: "lattice/config/failure-categories.yaml"
   steps:
     - { name: bootstrap,        run: "lattice/kernel/delivery/bootstrap.sh check",                   skip_when: never }
     - { name: spec-lint,        run: "lattice/kernel/delivery/gates/spec-lint.sh ${SPEC_FILE}",     skip_when: no_spec }

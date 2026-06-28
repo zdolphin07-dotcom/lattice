@@ -106,7 +106,8 @@ if bash "$SANDBOX/.lattice/framework/init.sh" --non-interactive --lang=go --name
   if [[ -f "$SANDBOX/lattice/kernel/_lib.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/delivery/eval-summary.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/delivery/eval-history.sh" ]] \
-    && [[ -x "$SANDBOX/lattice/kernel/delivery/pr-comment.sh" ]]; then
+    && [[ -x "$SANDBOX/lattice/kernel/delivery/pr-comment.sh" ]] \
+    && [[ -f "$SANDBOX/lattice/config/failure-categories.yaml" ]]; then
     pass "kernel files installed"
   else
     fail "kernel files not installed"
@@ -617,6 +618,29 @@ else
   cat /tmp/lattice-pipeline-escalation.log | tail -20
 fi
 
+cat > "$SANDBOX/lattice/config/failure-categories.yaml" <<'YAML'
+schema_version: lattice.failure-categories.v1
+default:
+  category: unknown
+  default_action: escalate
+rules:
+  - name: ac-coverage-custom
+    step: ac-coverage
+    category: custom_ac_gap
+    default_action: route_to_qa
+YAML
+
+PIPELINE_CUSTOM_CATEGORY_JSON="$SANDBOX/lattice/state/pipeline-custom-category-smoke.json"
+PIPELINE_CUSTOM_CATEGORY_EXIT=0
+bash "$SANDBOX/lattice/kernel/delivery/pipeline.sh" --only=ac-coverage --spec="$SANDBOX/lattice/specs/modern-feature/spec.md" --json-out="$PIPELINE_CUSTOM_CATEGORY_JSON" >/tmp/lattice-pipeline-custom-category.log 2>&1 || PIPELINE_CUSTOM_CATEGORY_EXIT=$?
+if [[ $PIPELINE_CUSTOM_CATEGORY_EXIT -eq 1 ]] \
+  && yq -e '.loop_state.failure_category == "custom_ac_gap" and .loop_state.default_action == "route_to_qa"' "$PIPELINE_CUSTOM_CATEGORY_JSON" >/dev/null 2>&1; then
+  pass "pipeline reads configurable failure categories"
+else
+  fail "pipeline configurable failure categories invalid"
+  cat /tmp/lattice-pipeline-custom-category.log | tail -20
+fi
+
 PIPELINE_SUMMARY_MD="$SANDBOX/lattice/state/eval-summary-smoke.md"
 SUMMARY_OUTPUT=$(bash "$SANDBOX/lattice/kernel/delivery/eval-summary.sh" "$PIPELINE_GATE_JSON" --out="$PIPELINE_SUMMARY_MD" 2>&1)
 if [[ -f "$PIPELINE_SUMMARY_MD" ]] && grep -q "Lattice Eval Summary" "$PIPELINE_SUMMARY_MD" && grep -q "AC Coverage" "$PIPELINE_SUMMARY_MD" && grep -q "ac-coverage" "$PIPELINE_SUMMARY_MD" && grep -q "Review Evidence" "$PIPELINE_SUMMARY_MD" && grep -q "TDD Evidence" "$PIPELINE_SUMMARY_MD" && grep -q "Loop" "$PIPELINE_SUMMARY_MD"; then
@@ -645,7 +669,7 @@ else
   fail "eval-history output invalid"
   echo "$HISTORY_OUTPUT" | tail -10
 fi
-rm -f /tmp/lattice-ac-json.log /tmp/lattice-drift-json.log /tmp/lattice-compliance-json.log /tmp/lattice-pipeline-gate-json.log /tmp/lattice-pipeline-escalation.log
+rm -f /tmp/lattice-ac-json.log /tmp/lattice-drift-json.log /tmp/lattice-compliance-json.log /tmp/lattice-pipeline-gate-json.log /tmp/lattice-pipeline-escalation.log /tmp/lattice-pipeline-custom-category.log
 echo ""
 
 # ── 8. Context knowledge backend ──

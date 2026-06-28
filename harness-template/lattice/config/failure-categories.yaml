@@ -1,0 +1,46 @@
+schema_version: lattice.failure-categories.v1
+
+default:
+  category: unknown
+  default_action: escalate
+
+rules:
+  - name: environment-errors
+    output_regex: "command not found|missing required tool|cannot find|no such file|permission denied|docker.*not.*running|connection refused"
+    category: environment
+    default_action: fix_environment
+
+  - name: bootstrap
+    step: bootstrap
+    category: environment
+    default_action: fix_environment
+
+  - name: spec-lint
+    step_regex: "^(spec-lint|prismspec-lint)$"
+    category: spec_structure
+    default_action: fix_spec
+
+  - name: ac-coverage
+    step: ac-coverage
+    category: ac_gap
+    default_action: add_or_map_tests
+
+  - name: drift-check
+    step: drift-check
+    category: drift
+    default_action: align_code_or_spec
+
+  - name: compliance
+    step: compliance
+    category: compliance
+    default_action: add_context_or_clarification_evidence
+
+  - name: implementation
+    step_regex: "^(build|lint|test|unit-test|integration-test)$"
+    category: implementation
+    default_action: fix_code
+
+  - name: deploy
+    step: deploy
+    category: deployment
+    default_action: fix_deployment

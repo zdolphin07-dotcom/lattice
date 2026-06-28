@@ -49,6 +49,7 @@ echo ""
 
 echo "── Lattice contract ──"
 check_file "lattice/manifest.yaml" "manifest"
+check_file "lattice/config/failure-categories.yaml" "failure category config"
 check_file "lattice/kernel/VERSION" "kernel version"
 check_file "lattice/kernel/_lib.sh" "kernel library"
 check_dir "lattice/specs" "spec root"

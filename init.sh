@@ -218,6 +218,8 @@ done
 
 copy_tree_files_if_not_exists "$HARNESS_TEMPLATE_DIR/lattice/kernel/context" "lattice/kernel/context"
 
+copy_tree_files_if_not_exists "$HARNESS_TEMPLATE_DIR/lattice/config" "lattice/config"
+
 for f in pipeline.sh bootstrap.sh deploy.sh eval-summary.sh eval-history.sh pr-comment.sh; do
   copy_if_not_exists "$HARNESS_TEMPLATE_DIR/lattice/kernel/delivery/$f" "lattice/kernel/delivery/$f"
 done
@@ -227,7 +229,7 @@ done
 
 copy_if_not_exists "$HARNESS_TEMPLATE_DIR/lattice/kernel/VERSION" "lattice/kernel/VERSION"
 
-for dir in specs state state/eval-runs state/loops skills context context/knowledge context/knowledge/decisions context/drafts state/context-runs; do
+for dir in specs state state/eval-runs state/loops skills config context context/knowledge context/knowledge/decisions context/drafts state/context-runs; do
   mkdir -p "lattice/$dir"
   [[ -f "lattice/$dir/.gitkeep" ]] || touch "lattice/$dir/.gitkeep"
 done
@@ -433,6 +435,7 @@ drift:
     const_pattern: '(Code|Err)[A-Za-z]+ *= *[0-9]+'
 
 pipeline:
+  failure_categories_file: "lattice/config/failure-categories.yaml"
   steps:
     - { name: bootstrap,        run: "lattice/kernel/delivery/bootstrap.sh check",              skip_when: never }
     - { name: spec-lint,        run: "lattice/kernel/delivery/gates/spec-lint.sh \${SPEC_FILE}",      skip_when: no_spec }
