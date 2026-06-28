@@ -1,0 +1,59 @@
+name: Lattice Eval
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  eval:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install yq
+        run: |
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+
+      - name: Ensure Lattice scripts are executable
+        run: |
+          chmod +x lattice/kernel/*.sh lattice/kernel/context/*.sh lattice/kernel/context/backends/*.sh lattice/kernel/delivery/*.sh lattice/kernel/delivery/gates/*.sh prismspec/bin/*.sh 2>/dev/null || true
+
+      - name: Lattice doctor
+        run: bash lattice/kernel/doctor.sh
+
+      - name: Run Lattice pipeline
+        id: lattice
+        shell: bash
+        run: |
+          set +e
+          mkdir -p lattice/state/eval-runs
+          eval_json="lattice/state/eval-runs/ci-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}.json"
+          bash lattice/kernel/delivery/pipeline.sh --json-out="$eval_json"
+          exit_code=$?
+          echo "exit_code=$exit_code" >> "$GITHUB_OUTPUT"
+          echo "eval_json=$eval_json" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Upload Lattice eval artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lattice-eval-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            lattice/state/eval-runs/*.json
+            lattice/state/eval-runs/*.gates/*.json
+          if-no-files-found: error
+
+      - name: Fail on Lattice pipeline failure
+        if: steps.lattice.outputs.exit_code != '0'
+        run: |
+          echo "Lattice pipeline failed with exit code ${{ steps.lattice.outputs.exit_code }}"
+          echo "Eval JSON: ${{ steps.lattice.outputs.eval_json }}"
+          exit "${{ steps.lattice.outputs.exit_code }}"

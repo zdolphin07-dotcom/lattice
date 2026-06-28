@@ -81,7 +81,7 @@ require github.com/gin-gonic/gin v1.9.1
 require gorm.io/gorm v1.25.0
 EOF
 
-if bash "$SANDBOX/.lattice/framework/init.sh" --non-interactive --lang=go --name=testapp 2>&1 | tail -5; then
+if bash "$SANDBOX/.lattice/framework/init.sh" --non-interactive --lang=go --name=testapp --ci=github 2>&1 | tail -5; then
   if [[ -f "$SANDBOX/lattice/manifest.yaml" ]]; then
     pass "manifest.yaml generated"
   else
@@ -90,10 +90,17 @@ if bash "$SANDBOX/.lattice/framework/init.sh" --non-interactive --lang=go --name
 
   DEFAULT_MODE=$(yq -r '.specs.default_execution_mode // ""' "$SANDBOX/lattice/manifest.yaml")
   ALLOW_MODE_OVERRIDE=$(yq -r '.specs.allow_execution_mode_override // ""' "$SANDBOX/lattice/manifest.yaml")
+  CI_PLATFORM=$(yq -r '.deploy.ci.platform // ""' "$SANDBOX/lattice/manifest.yaml")
   if [[ "$DEFAULT_MODE" == "auto" ]] && [[ "$ALLOW_MODE_OVERRIDE" == "true" ]]; then
     pass "execution mode policy configured"
   else
     fail "execution mode policy missing from manifest"
+  fi
+
+  if [[ "$CI_PLATFORM" == "github" ]]; then
+    pass "CI platform configured"
+  else
+    fail "CI platform not configured"
   fi
 
   if [[ -f "$SANDBOX/lattice/kernel/_lib.sh" ]]; then
@@ -127,6 +134,12 @@ if bash "$SANDBOX/.lattice/framework/init.sh" --non-interactive --lang=go --name
     pass "Lattice init skill installed"
   else
     fail "Lattice init skill missing"
+  fi
+
+  if [[ -f "$SANDBOX/.github/workflows/lattice-eval.yml" ]] && yq -e '.jobs.eval.steps' "$SANDBOX/.github/workflows/lattice-eval.yml" >/dev/null 2>&1; then
+    pass "GitHub Actions eval workflow installed"
+  else
+    fail "GitHub Actions eval workflow missing or invalid"
   fi
 
   for command in sdd brainstorm plan implement verify finish learn; do

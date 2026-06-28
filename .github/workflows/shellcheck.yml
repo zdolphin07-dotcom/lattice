@@ -39,5 +39,10 @@ jobs:
           sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
           sudo chmod +x /usr/local/bin/yq
 
+      - name: Validate packaged YAML contracts
+        run: |
+          yq eval '.' prismspec/skillpack.yaml >/dev/null
+          yq eval '.' harness-template/.github/workflows/lattice-eval.yml >/dev/null
+
       - name: Run smoke test
         run: bash tests/smoke-test.sh

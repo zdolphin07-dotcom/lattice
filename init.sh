@@ -275,6 +275,10 @@ for f in init.md sdd.md brainstorm.md plan.md implement.md verify.md finish.md l
   copy_if_not_exists "$HARNESS_TEMPLATE_DIR/.claude/commands/$f" ".claude/commands/$f"
 done
 
+if [[ "$CI" == "github" ]]; then
+  copy_if_not_exists "$HARNESS_TEMPLATE_DIR/.github/workflows/lattice-eval.yml" ".github/workflows/lattice-eval.yml"
+fi
+
 echo ""
 echo "📝 Generating manifest.yaml..."
 
@@ -453,6 +457,9 @@ deploy:
       manifests: "deploy/k8s/"
       rollback: auto
       smoke_after_deploy: true
+  ci:
+    platform: ${CI}
+    integration_timeout: "10m"
 
 kernel:
   layers:

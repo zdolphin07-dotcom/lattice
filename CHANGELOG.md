@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 - `lattice/kernel/doctor.sh` to verify installed Lattice/PrismSpec project health.
 - `pipeline.sh --json-out[=<file>]` to write structured eval run evidence under `lattice/state/eval-runs/`.
 - `--json-out[=<file>]` for AC coverage, drift check, and compliance gates, embedded into pipeline eval runs.
+- GitHub Actions eval artifact workflow template installed by `init.sh --ci=github`.
 - **PrismSpec** standalone spec-coding skill pack with guided `/sdd`, canonical `SKILL.md` files, templates, references, and workflow scripts.
 - Chinese-first project entrypoint via the root `README.md`; English documentation moved to `README.en.md`.
 - CI validation for PrismSpec skill frontmatter and PrismSpec shell scripts.
@@ -17,7 +18,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
-- README and wiki now describe pipeline/gate eval JSON as implemented, with review/TDD evidence JSON as the next step.
+- README and wiki now describe pipeline/gate eval JSON and GitHub Actions artifacts as implemented, with review/TDD evidence JSON as the next step.
 - PrismSpec README now documents `context.md` in both standalone and Lattice-hosted artifact layouts.
 
 ### Fixed

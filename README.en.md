@@ -82,6 +82,7 @@ bash lattice/kernel/delivery/pipeline.sh
 bash lattice/kernel/delivery/pipeline.sh --json-out
 bash lattice/kernel/delivery/pipeline.sh --only=spec-lint
 bash lattice/kernel/doctor.sh
+cat .github/workflows/lattice-eval.yml
 bash prismspec/bin/guide.sh --json
 bash prismspec/bin/lint.sh lattice/specs/<spec-id>
 cat lattice/context/README.md
@@ -94,14 +95,14 @@ Implemented:
 
 - install/init/upgrade and smoke tests;
 - standalone PrismSpec skill pack manifest and Lattice-hosted mode;
-- doctor, `pipeline --json-out` structured eval runs, and AC/drift/compliance gate JSON;
+- doctor, `pipeline --json-out` structured eval runs, AC/drift/compliance gate JSON, and GitHub Actions eval artifacts;
 - spec lint, AC coverage, drift check, compliance, spec lock;
 - context map, knowledge backend, sync, and basic learn convention;
 - Go/Gin/GORM example and adapter docs.
 
 Planned:
 
-- review/TDD evidence JSON, CI artifacts, and trend metrics;
+- review/TDD evidence JSON and trend metrics;
 - stronger context/knowledge metadata and stale/conflict checks;
 - more drift parsers for Node/Python and other stacks;
 - plugin manifest/schema/versioning;

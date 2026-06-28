@@ -102,7 +102,7 @@ sequenceDiagram
 | Context source | Agent-readable context map，必要时辅以 sync 脚本 | repo-local、central context、external docs |
 | Delivery gate | `pipeline.steps[]` command | build、lint、test、drift、compliance |
 | Drift parser | `drift.plugins[]` command | route/schema/error-code parser |
-| Eval sink | `pipeline --json-out` | local JSON、CI artifact、dashboard |
+| Eval sink | `pipeline --json-out` + GitHub Actions artifact | local JSON、CI artifact、dashboard |
 
 ## 为什么不是中心化平台
 

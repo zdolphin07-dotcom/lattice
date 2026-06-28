@@ -127,21 +127,22 @@ lattice/state/eval-runs/
 CI 是 eval 的天然执行环境：
 
 1. PR 触发 pipeline。
-2. pipeline 产生 `eval-runs/<run-id>.json`。
-3. CI 上传 artifact。
-4. PR comment 展示 pass/fail、AC coverage、drift findings。
-5. 后续 dashboard 读取 JSON 做趋势。
+2. pipeline 产生 `lattice/state/eval-runs/<run-id>.json` 和 gate JSON。
+3. CI 上传 `lattice-eval-<run-id>` artifact。
+4. PR comment 或 dashboard 读取 artifact 展示 pass/fail、AC coverage、drift findings。
+
+Lattice 在 `harness-template/.github/workflows/lattice-eval.yml` 提供 GitHub Actions 模板。`init.sh --ci=github` 会安装到目标项目的 `.github/workflows/lattice-eval.yml`。该 workflow 的约定是：先运行 `pipeline.sh --json-out`，始终上传 eval artifact，然后再按 pipeline exit code 决定 CI 是否失败。
 
 ## 当前 gap
 
 | Gap | 影响 | 下一步 |
 |-----|------|--------|
 | review/TDD 语义证据未结构化 | review、TDD、人工检查还不能统一入库 | `review-summary.json`、`tdd-evidence.json` |
-| CI artifact 约定较弱 | 数据不稳定沉淀 | GitHub Actions 上传 eval JSON |
 | review verdict 未结构化 | 语义质量无法进入指标 | `review-summary.json` |
+| dashboard/PR comment 未实现 | artifact 需要人工下载阅读 | 生成 eval markdown summary |
 
 ## 演进顺序
 
-1. 接入 CI artifact。
-2. 引入 review verdict 和 TDD red/green evidence。
+1. 引入 review verdict 和 TDD red/green evidence。
+2. 生成 eval markdown summary，用于 PR comment。
 3. 增加趋势报告。

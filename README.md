@@ -146,6 +146,9 @@ bash lattice/kernel/delivery/pipeline.sh
 # 写出结构化 evidence
 bash lattice/kernel/delivery/pipeline.sh --json-out
 
+# GitHub Actions artifact 模板
+cat .github/workflows/lattice-eval.yml
+
 # 只运行某个 gate
 bash lattice/kernel/delivery/pipeline.sh --only=spec-lint
 
@@ -165,12 +168,13 @@ bash lattice/kernel/context/backends/knowledge.sh "payment idempotency"
 - 目录化 spec、per-spec context、模板和 artifact lint；
 - doctor、spec lint、AC coverage、drift check、compliance、spec lock；
 - `pipeline --json-out`、`lattice/state/eval-runs/*.json` 和 AC/drift/compliance gate JSON；
+- GitHub Actions eval artifact workflow 模板；
 - Context map、knowledge backend、中心知识 sync 和基础 `/learn` 约定；
 - Go/Gin/GORM 可运行示例与多 Agent adapter 文档。
 
 仍在演进：
 
-- review/TDD evidence 的结构化记录、CI artifact 和趋势指标；
+- review/TDD evidence 的结构化记录和趋势指标；
 - context/knowledge metadata、过期检测和冲突治理；
 - Node/Python 等更多 drift parser；
 - 插件 manifest/schema/versioning 与多 Agent lease 模型。
