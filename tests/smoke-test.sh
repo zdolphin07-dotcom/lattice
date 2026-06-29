@@ -217,15 +217,15 @@ if bash "$SANDBOX/.lattice/framework/init.sh" --non-interactive --lang=go --name
     fi
   done
 
-  if [[ -f "$SANDBOX/prismspec/skills/sdd/SKILL.md" ]] \
+  if [[ -f "$SANDBOX/prismspec/skills/workflow/SKILL.md" ]] \
     && [[ -f "$SANDBOX/prismspec/skillpack.yaml" ]] \
-    && [[ -f "$SANDBOX/prismspec/skills/brainstorm/SKILL.md" ]] \
-    && [[ -f "$SANDBOX/prismspec/skills/plan/SKILL.md" ]] \
-    && [[ -f "$SANDBOX/prismspec/skills/implement/SKILL.md" ]] \
+    && [[ -f "$SANDBOX/prismspec/skills/specification/SKILL.md" ]] \
+    && [[ -f "$SANDBOX/prismspec/skills/planning/SKILL.md" ]] \
+    && [[ -f "$SANDBOX/prismspec/skills/implementation/SKILL.md" ]] \
     && [[ -f "$SANDBOX/prismspec/skills/review/SKILL.md" ]] \
-    && [[ -f "$SANDBOX/prismspec/skills/verify/SKILL.md" ]] \
-    && [[ -f "$SANDBOX/prismspec/skills/finish/SKILL.md" ]] \
-    && [[ -f "$SANDBOX/prismspec/skills/learn/SKILL.md" ]] \
+    && [[ -f "$SANDBOX/prismspec/skills/verification/SKILL.md" ]] \
+    && [[ -f "$SANDBOX/prismspec/skills/branch-closeout/SKILL.md" ]] \
+    && [[ -f "$SANDBOX/prismspec/skills/knowledge-capture/SKILL.md" ]] \
     && [[ -x "$SANDBOX/prismspec/bin/new.sh" ]] \
     && [[ -x "$SANDBOX/prismspec/bin/guide.sh" ]] \
     && [[ -x "$SANDBOX/prismspec/bin/lint.sh" ]] \
@@ -295,7 +295,7 @@ if bash "$SANDBOX/.lattice/framework/init.sh" --non-interactive --lang=go --name
   fi
 
   GUIDE_OUTPUT=$(bash "$SANDBOX/prismspec/bin/guide.sh" --json)
-  if echo "$GUIDE_OUTPUT" | grep -q '"stage": "specification"' && echo "$GUIDE_OUTPUT" | grep -q 'prismspec/skills/brainstorm/SKILL.md'; then
+  if echo "$GUIDE_OUTPUT" | grep -q '"stage": "specification"' && echo "$GUIDE_OUTPUT" | grep -q 'prismspec/skills/specification/SKILL.md'; then
     pass "PrismSpec guide detects initial specification stage"
   else
     fail "PrismSpec guide did not detect initial specification stage"

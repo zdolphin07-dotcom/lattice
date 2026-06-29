@@ -1,4 +1,4 @@
 interface:
   display_name: "PrismSpec Specification"
   short_description: "Draft context and spec from a requirement"
-  default_prompt: "Use $prismspec-brainstorm to turn this requirement into context.md and spec.md."
+  default_prompt: "Use $prismspec-specification to turn this requirement into context.md and spec.md."

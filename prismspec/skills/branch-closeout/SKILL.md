@@ -1,9 +1,9 @@
 ---
-name: prismspec-finish
+name: prismspec-branch-closeout
 description: Legacy branch-closeout helper for PrismSpec runs. Use when explicit branch or worktree closeout is needed after verification; otherwise use /verify as the workflow endpoint and /capture for durable knowledge.
 ---
 
-# PrismSpec Legacy Finish
+# PrismSpec Branch Closeout
 
 ## Overview
 
@@ -33,7 +33,7 @@ This skill aligns with Superpowers `finishing-a-development-branch` and review w
 7. Otherwise write `summary.md` next to `spec.md`.
 8. If a post-run review finding, rework, escaped defect, incident, or success signal is already known in Lattice-hosted mode, record it with `outcome-link.sh` and refresh `outcome-report.sh` when useful.
 9. Publish evidence with `eval-sink.sh publish` when the team uses a central eval sink, refresh `eval-dashboard.sh` when the team uses the static dashboard, and use `eval-query.sh` when a machine-readable central summary is needed.
-10. Capture reusable lessons through `prismspec-learn` only when durable.
+10. Capture reusable lessons through `prismspec-knowledge-capture` only when durable.
 11. In Lattice-hosted mode, advance status with `lattice/kernel/orchestrator/sdd/spec-status.sh <spec-id> finished --from=verified` after `summary.md` is written.
 
 ## Outputs

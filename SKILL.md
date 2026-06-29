@@ -34,7 +34,7 @@ Use current files and command output as the source of truth. Do not route from c
 | implement / tdd | Execute `plan` or `tdd` according to `spec.md` |
 | review | Write or inspect `review-summary.json` evidence |
 | verify / run pipeline | Run `bash lattice/kernel/delivery/pipeline.sh --json-out` when available |
-| capture | Follow `prismspec/skills/learn/SKILL.md` for durable knowledge capture |
+| capture | Follow `prismspec/skills/knowledge-capture/SKILL.md` for durable knowledge capture |
 
 ## Contracts
 

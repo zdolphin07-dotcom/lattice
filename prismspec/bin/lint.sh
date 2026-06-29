@@ -70,10 +70,10 @@ check_skill_file() {
   check_contains "$skill_file" "^## Stop Conditions$" "$stage Stop Conditions section"
   check_contains "$skill_file" "^## Verification$" "$stage Verification section"
 
-  if [[ "$stage" == "sdd" ]]; then
-    check_contains "$skill_file" "^## Start Here$" "sdd Start Here section"
-    check_contains "$skill_file" "^## Routing$" "sdd Routing section"
-    check_contains "$skill_file" "prismspec/bin/guide\\.sh --json" "sdd deterministic guide"
+  if [[ "$stage" == "workflow" ]]; then
+    check_contains "$skill_file" "^## Start Here$" "workflow Start Here section"
+    check_contains "$skill_file" "^## Routing$" "workflow Routing section"
+    check_contains "$skill_file" "prismspec/bin/guide\\.sh --json" "workflow deterministic guide"
   else
     check_contains "$skill_file" "^## Inputs$" "$stage Inputs section"
     check_contains "$skill_file" "^## Workflow$" "$stage Workflow section"
@@ -127,14 +127,14 @@ check_skillpack() {
   check_executable "$root/bin/doctor.sh" "doctor"
 
   local stage
-  for stage in sdd brainstorm plan implement review verify finish learn; do
+  for stage in workflow specification planning implementation review verification knowledge-capture branch-closeout; do
     check_skill_file "$root" "$stage"
     check_skill_interface "$root" "$stage"
     check_contains "$manifest" "path: prismspec/skills/$stage/SKILL\\.md" "$stage canonical skill catalog entry"
     check_contains "$manifest" "interface: prismspec/skills/$stage/agents/openai\\.yaml" "$stage interface catalog entry"
   done
 
-  for stage in brainstorm plan implement review verify; do
+  for stage in specification planning implementation review verification; do
     check_contains "$manifest" "skill: prismspec/skills/$stage/SKILL\\.md" "$stage workflow entry"
   done
 

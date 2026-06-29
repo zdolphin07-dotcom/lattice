@@ -3,7 +3,7 @@
 
 controller:
   command: "/prismspec"
-  skill: "prismspec/skills/sdd/SKILL.md"
+  skill: "prismspec/skills/workflow/SKILL.md"
   description: "Resolve spec, mode, and next stage; delegate to stage skills"
 
 stages:

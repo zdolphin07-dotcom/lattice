@@ -262,11 +262,11 @@ context_template_hint() {
 
 skill_for_stage() {
   case "$1" in
-    specification) echo "prismspec/skills/brainstorm/SKILL.md" ;;
-    planning) echo "prismspec/skills/plan/SKILL.md" ;;
-    implementation) echo "prismspec/skills/implement/SKILL.md" ;;
+    specification) echo "prismspec/skills/specification/SKILL.md" ;;
+    planning) echo "prismspec/skills/planning/SKILL.md" ;;
+    implementation) echo "prismspec/skills/implementation/SKILL.md" ;;
     review) echo "prismspec/skills/review/SKILL.md" ;;
-    verification) echo "prismspec/skills/verify/SKILL.md" ;;
+    verification) echo "prismspec/skills/verification/SKILL.md" ;;
     done) echo "" ;;
   esac
 }

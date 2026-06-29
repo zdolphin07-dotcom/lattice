@@ -240,13 +240,14 @@ canonical skills 位于：
 
 ```text
 prismspec/skills/
-├── sdd/SKILL.md
-├── brainstorm/SKILL.md
-├── plan/SKILL.md
-├── implement/SKILL.md
-├── verify/SKILL.md
-├── finish/SKILL.md
-└── learn/SKILL.md
+├── workflow/SKILL.md
+├── specification/SKILL.md
+├── planning/SKILL.md
+├── implementation/SKILL.md
+├── review/SKILL.md
+├── verification/SKILL.md
+├── knowledge-capture/SKILL.md
+└── branch-closeout/SKILL.md
 ```
 
 PrismSpec 不再维护 flat Markdown wrapper。主入口只读取 canonical `SKILL.md`，避免同一流程出现多个事实源。

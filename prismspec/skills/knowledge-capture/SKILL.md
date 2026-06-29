@@ -1,5 +1,5 @@
 ---
-name: prismspec-learn
+name: prismspec-knowledge-capture
 description: Captures durable project knowledge discovered during PrismSpec work. Use when a run reveals reusable domain rules, architecture decisions, pitfalls, verification lessons, context rules, or team conventions that should inform future specs; or when verify.md contains Knowledge Candidates.
 ---
 

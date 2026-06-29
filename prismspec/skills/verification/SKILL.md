@@ -1,5 +1,5 @@
 ---
-name: prismspec-verify
+name: prismspec-verification
 description: Runs independent command-backed verification for a PrismSpec run and records durable verify.md evidence. Use when implementation and review are complete, after fixing failures, when Lattice pipeline gates should run, or whenever /prismspec routes to verification.
 ---
 

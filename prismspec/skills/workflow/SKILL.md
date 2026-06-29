@@ -1,5 +1,5 @@
 ---
-name: prismspec-sdd
+name: prismspec-workflow
 description: Orchestrates the PrismSpec AI coding workflow from intent to verified evidence. Use when the user asks for PrismSpec, /prismspec, SDD, spec-driven development, guided spec workflow, resuming an existing spec, choosing plan vs TDD mode, or running an AI coding task through specification, planning, implementation, review, and verification.
 ---
 
@@ -37,11 +37,11 @@ Use the JSON fields as the routing source of truth: `host`, `spec_id`, `stage`, 
 
 | Stage | Delegate To | Durable Output |
 |-------|-------------|----------------|
-| `specification` | `prismspec-brainstorm` | `context.md`, `spec.md` |
-| `planning` | `prismspec-plan` | `plan.md` |
-| `implementation` | `prismspec-implement` | code, tests, task evidence |
+| `specification` | `prismspec-specification` | `context.md`, `spec.md` |
+| `planning` | `prismspec-planning` | `plan.md` |
+| `implementation` | `prismspec-implementation` | code, tests, task evidence |
 | `review` | `prismspec-review` | `review-summary.json` |
-| `verification` | `prismspec-verify` | `verify.md` |
+| `verification` | `prismspec-verification` | `verify.md` |
 
 After each completed stage, rerun `guide.sh --json` and continue when the next step is clear.
 

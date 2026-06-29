@@ -1,5 +1,5 @@
 ---
-name: prismspec-brainstorm
+name: prismspec-specification
 description: Turns vague or new requirements into durable PrismSpec context.md and spec.md artifacts. Use when starting a feature, bug fix, product change, refactor, or project without an approved spec; when acceptance criteria, scope, risk, context basis, or execution mode are unclear; or when /prismspec routes to specification.
 ---
 

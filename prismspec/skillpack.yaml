@@ -55,23 +55,23 @@ skills:
   canonical:
     - id: workflow
       type: controller
-      path: prismspec/skills/sdd/SKILL.md
-      interface: prismspec/skills/sdd/agents/openai.yaml
+      path: prismspec/skills/workflow/SKILL.md
+      interface: prismspec/skills/workflow/agents/openai.yaml
       legacy_id: sdd
     - id: specification
       type: stage
-      path: prismspec/skills/brainstorm/SKILL.md
-      interface: prismspec/skills/brainstorm/agents/openai.yaml
+      path: prismspec/skills/specification/SKILL.md
+      interface: prismspec/skills/specification/agents/openai.yaml
       legacy_id: brainstorm
     - id: planning
       type: stage
-      path: prismspec/skills/plan/SKILL.md
-      interface: prismspec/skills/plan/agents/openai.yaml
+      path: prismspec/skills/planning/SKILL.md
+      interface: prismspec/skills/planning/agents/openai.yaml
       legacy_id: plan
     - id: implementation
       type: stage
-      path: prismspec/skills/implement/SKILL.md
-      interface: prismspec/skills/implement/agents/openai.yaml
+      path: prismspec/skills/implementation/SKILL.md
+      interface: prismspec/skills/implementation/agents/openai.yaml
       legacy_id: implement
     - id: review
       type: stage
@@ -79,35 +79,35 @@ skills:
       interface: prismspec/skills/review/agents/openai.yaml
     - id: verification
       type: stage
-      path: prismspec/skills/verify/SKILL.md
-      interface: prismspec/skills/verify/agents/openai.yaml
+      path: prismspec/skills/verification/SKILL.md
+      interface: prismspec/skills/verification/agents/openai.yaml
       legacy_id: verify
     - id: knowledge-capture
       type: support
-      path: prismspec/skills/learn/SKILL.md
-      interface: prismspec/skills/learn/agents/openai.yaml
+      path: prismspec/skills/knowledge-capture/SKILL.md
+      interface: prismspec/skills/knowledge-capture/agents/openai.yaml
       legacy_id: learn
   legacy:
     - id: finish
       target: verification
-      path: prismspec/skills/finish/SKILL.md
-      interface: prismspec/skills/finish/agents/openai.yaml
+      path: prismspec/skills/branch-closeout/SKILL.md
+      interface: prismspec/skills/branch-closeout/agents/openai.yaml
 workflow:
   stages:
     - id: specification
-      skill: prismspec/skills/brainstorm/SKILL.md
+      skill: prismspec/skills/specification/SKILL.md
       outputs:
         - context.md
         - spec.md
     - id: planning
-      skill: prismspec/skills/plan/SKILL.md
+      skill: prismspec/skills/planning/SKILL.md
       inputs:
         - context.md
         - spec.md
       outputs:
         - plan.md
     - id: implementation
-      skill: prismspec/skills/implement/SKILL.md
+      skill: prismspec/skills/implementation/SKILL.md
       inputs:
         - spec.md
         - plan.md
@@ -124,7 +124,7 @@ workflow:
       outputs:
         - review-summary.json
     - id: verification
-      skill: prismspec/skills/verify/SKILL.md
+      skill: prismspec/skills/verification/SKILL.md
       inputs:
         - spec.md
         - plan.md

@@ -27,14 +27,14 @@ PrismSpec does not depend on Lattice. Lattice embeds PrismSpec as its default Sp
 prismspec/
 ├── skillpack.yaml              # machine-readable skill-pack contract
 ├── skills/
-│   ├── sdd/SKILL.md            # lifecycle controller
-│   ├── brainstorm/SKILL.md
-│   ├── plan/SKILL.md
-│   ├── implement/SKILL.md
+│   ├── workflow/SKILL.md       # lifecycle controller
+│   ├── specification/SKILL.md
+│   ├── planning/SKILL.md
+│   ├── implementation/SKILL.md
 │   ├── review/SKILL.md
-│   ├── verify/SKILL.md
-│   ├── learn/SKILL.md
-│   └── finish/SKILL.md       # legacy branch closeout helper
+│   ├── verification/SKILL.md
+│   ├── knowledge-capture/SKILL.md
+│   └── branch-closeout/SKILL.md # optional legacy branch closeout helper
 ├── templates/                  # spec/context templates
 ├── references/                 # loaded on demand
 ├── agents/                     # task reviewer persona
@@ -155,14 +155,14 @@ PrismSpec supports two implementation policies:
 
 | Skill | Trigger | Durable Output |
 |-------|---------|----------------|
-| `skills/sdd/SKILL.md` | `/prismspec`, `/sdd`, spec resume, end-to-end guidance | stage routing |
-| `skills/brainstorm/SKILL.md` | `/spec`, new requirement, unclear scope/AC/mode/context | `context.md`, `spec.md` |
-| `skills/plan/SKILL.md` | `/plan`, spec exists but tasks or verification paths are missing | `plan.md` |
-| `skills/implement/SKILL.md` | `/implement`, execute AC-traced tasks | code, tests, task evidence |
+| `skills/workflow/SKILL.md` | `/prismspec`, `/sdd`, spec resume, end-to-end guidance | stage routing |
+| `skills/specification/SKILL.md` | `/spec`, new requirement, unclear scope/AC/mode/context | `context.md`, `spec.md` |
+| `skills/planning/SKILL.md` | `/plan`, spec exists but tasks or verification paths are missing | `plan.md` |
+| `skills/implementation/SKILL.md` | `/implement`, execute AC-traced tasks | code, tests, task evidence |
 | `skills/review/SKILL.md` | `/review`, implementation evidence needs independent review | `review-summary.json` |
-| `skills/verify/SKILL.md` | `/verify`, run external verification after implementation and review | `verify.md` |
-| `skills/learn/SKILL.md` | `/capture`, capture reusable rules, decisions, pitfalls | knowledge draft / project knowledge |
-| `skills/finish/SKILL.md` | legacy `/finish`, only for explicit branch closeout | optional `summary.md` |
+| `skills/verification/SKILL.md` | `/verify`, run external verification after implementation and review | `verify.md` |
+| `skills/knowledge-capture/SKILL.md` | `/capture`, capture reusable rules, decisions, pitfalls | knowledge draft / project knowledge |
+| `skills/branch-closeout/SKILL.md` | legacy `/finish`, only for explicit branch closeout | optional `summary.md` |
 
 Every canonical skill follows the same quality bar: trigger-rich frontmatter, workflow, inputs/outputs, stop conditions, common rationalizations, red flags, and verification checklist.
 

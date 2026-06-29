@@ -1,4 +1,4 @@
 interface:
   display_name: "PrismSpec Implementation"
   short_description: "Execute one AC-traced coding slice"
-  default_prompt: "Use $prismspec-implement to execute the next planned coding slice with evidence."
+  default_prompt: "Use $prismspec-implementation to execute the next planned coding slice with evidence."

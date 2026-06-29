@@ -1,0 +1,4 @@
+interface:
+  display_name: "PrismSpec Branch Closeout"
+  short_description: "Legacy branch closeout helper after verification"
+  default_prompt: "Use $prismspec-branch-closeout only for explicit branch closeout after verification."

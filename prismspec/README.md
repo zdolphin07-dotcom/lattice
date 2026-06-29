@@ -27,14 +27,14 @@ PrismSpec 不依赖 Lattice。Lattice 内置 PrismSpec，并把它作为默认 S
 prismspec/
 ├── skillpack.yaml              # machine-readable skill-pack contract
 ├── skills/
-│   ├── sdd/SKILL.md            # lifecycle controller
-│   ├── brainstorm/SKILL.md
-│   ├── plan/SKILL.md
-│   ├── implement/SKILL.md
+│   ├── workflow/SKILL.md       # lifecycle controller
+│   ├── specification/SKILL.md
+│   ├── planning/SKILL.md
+│   ├── implementation/SKILL.md
 │   ├── review/SKILL.md
-│   ├── verify/SKILL.md
-│   ├── learn/SKILL.md
-│   └── finish/SKILL.md       # legacy branch closeout helper
+│   ├── verification/SKILL.md
+│   ├── knowledge-capture/SKILL.md
+│   └── branch-closeout/SKILL.md # optional legacy branch closeout helper
 ├── templates/                  # spec/context templates
 ├── references/                 # loaded on demand
 ├── agents/                     # task reviewer persona
@@ -155,14 +155,14 @@ PrismSpec 只支持两种 implementation policy：
 
 | Skill | 触发场景 | Durable output |
 |-------|----------|----------------|
-| `skills/sdd/SKILL.md` | `/prismspec`、`/sdd`、恢复 spec、端到端引导 | 阶段路由 |
-| `skills/brainstorm/SKILL.md` | `/spec`、新需求、范围/AC/mode/context 不清 | `context.md`、`spec.md` |
-| `skills/plan/SKILL.md` | `/plan`、spec 已有但任务和验证路径缺失 | `plan.md` |
-| `skills/implement/SKILL.md` | `/implement`、执行 AC-traced tasks | code、tests、task evidence |
+| `skills/workflow/SKILL.md` | `/prismspec`、`/sdd`、恢复 spec、端到端引导 | 阶段路由 |
+| `skills/specification/SKILL.md` | `/spec`、新需求、范围/AC/mode/context 不清 | `context.md`、`spec.md` |
+| `skills/planning/SKILL.md` | `/plan`、spec 已有但任务和验证路径缺失 | `plan.md` |
+| `skills/implementation/SKILL.md` | `/implement`、执行 AC-traced tasks | code、tests、task evidence |
 | `skills/review/SKILL.md` | `/review`、实现证据需要独立审查 | `review-summary.json` |
-| `skills/verify/SKILL.md` | `/verify`、实现和 review 后运行外部验证 | `verify.md` |
-| `skills/learn/SKILL.md` | `/capture`、捕获可复用规则、决策、踩坑 | knowledge draft / project knowledge |
-| `skills/finish/SKILL.md` | legacy `/finish`，仅显式 branch closeout 时使用 | optional `summary.md` |
+| `skills/verification/SKILL.md` | `/verify`、实现和 review 后运行外部验证 | `verify.md` |
+| `skills/knowledge-capture/SKILL.md` | `/capture`、捕获可复用规则、决策、踩坑 | knowledge draft / project knowledge |
+| `skills/branch-closeout/SKILL.md` | legacy `/finish`，仅显式 branch closeout 时使用 | optional `summary.md` |
 
 每个 canonical skill 都遵循高质量 skill 的基本结构：frontmatter 触发语义、工作流、输入输出、停机条件、常见跳步借口、红旗和验证清单。
 

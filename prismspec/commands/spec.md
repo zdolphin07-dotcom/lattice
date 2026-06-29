@@ -2,7 +2,7 @@
 description: Create or update PrismSpec context.md and spec.md from a requirement
 ---
 
-Use `prismspec/skills/brainstorm/SKILL.md`.
+Use `prismspec/skills/specification/SKILL.md`.
 
 Run the guide with the specification stage:
 

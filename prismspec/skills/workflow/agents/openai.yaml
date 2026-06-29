@@ -1,4 +1,4 @@
 interface:
   display_name: "PrismSpec Workflow"
   short_description: "Route PrismSpec work to the next stage"
-  default_prompt: "Use $prismspec-sdd to guide this coding task from intent to verified evidence."
+  default_prompt: "Use $prismspec-workflow to guide this coding task from intent to verified evidence."
