@@ -143,10 +143,12 @@ PrismSpec is not documentation ceremony. It moves the important AI coding decisi
 | Clarify | Resolve intent, context basis, assumptions, conflicts, and blocking questions. | `spec.md#Context Basis` |
 | Spec | Capture scope, non-goals, ACs, risks, mode, and verification plan. | `spec.md` |
 | Build | Plan and implement AC-traced slices with Plan/TDD/debugging evidence. | `plan.md`, task evidence, TDD/debug evidence |
-| Review | Independently inspect implementation evidence, diff, and quality risk. | `review.md`, review package |
-| Verify | Prove completion with fresh commands or the Lattice pipeline. | `verify.md`, eval run JSON |
+| Review | Independently inspect implementation evidence, diff, and quality risk. | `review.md` |
+| Verify | Prove completion with fresh commands or the Lattice pipeline. | `verify.md` |
 
-`/capture` is an optional post-run command. It promotes only durable, reusable, non-secret lessons from `verify.md` or review evidence.
+Machine-side evidence such as task briefs, review packages, `review-summary.json`, eval run JSON, and TDD/debug evidence feeds the pipeline and recovery flow. It is not the primary human-readable artifact contract.
+
+`/capture` is a post-run command. It promotes only durable, reusable, non-secret lessons from `verify.md` or review evidence and is not a required stage in the default delivery chain.
 
 Plan Mode and TDD Mode are implementation policies inside the same workflow:
 
@@ -239,6 +241,8 @@ See the [Design Wiki](docs/wiki/) and script `--help` output for the full comman
 ## Current Status
 
 Lattice currently provides a minimum trusted loop for repo-local AI Coding:
+
+> Lattice is still in an early iteration stage. The current version is best adopted gradually in non-critical repositories, team pilots, or new feature workflows; complex CI setups, multi-person collaboration, and long-term governance may still reveal rough edges. The project will continue to refine its contracts, strengthen verification, and expand language and team-collaboration coverage based on real-world feedback.
 
 | Capability | Status | Evidence |
 |------------|--------|----------|

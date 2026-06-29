@@ -22,6 +22,7 @@ PrismSpec keeps its own durable artifacts (`spec.md`, `plan.md`, review evidence
 Lattice adopts the useful 6.0 ideas without depending on the Superpowers runtime:
 
 - Mature Superpowers workflow discipline is preferred when available; PrismSpec should not invent parallel behavior for specification, planning, TDD, debugging, review, or verification.
+- Worktree isolation remains an adapter/host concern. PrismSpec records artifact locations and evidence contracts; Superpowers or the host may create isolated worktrees before planning or implementation.
 - File-backed context: `task-brief.sh` and `review-package.sh` write compact artifacts under `.lattice/sdd/`.
 - Read-only review: reviewers consume `review-package.md` and must not modify the working tree.
 - Dual verdicts: review output separates spec compliance from code quality.

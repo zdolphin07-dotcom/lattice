@@ -47,6 +47,8 @@ These are product surfaces, not necessarily one skill folder each. `skillpack.ya
 
 Host integrations should present the product blocks to users, then route through `prismspec/bin/guide.sh --json` and the canonical skill paths declared in `skillpack.yaml`.
 
+The product block artifacts are the human-readable contract. Machine/process sidecars such as `review-summary.json`, `review-package.md`, task briefs, TDD/debug evidence, and eval run JSON can be collected by hosts, but they should not be promoted into separate user-facing stages.
+
 ## Commercial Release Bar
 
 A PrismSpec skill is publishable only when:
@@ -57,6 +59,7 @@ A PrismSpec skill is publishable only when:
 4. It has evals for true positives, false positives, and behavior assertions.
 5. It produces or validates a durable artifact.
 6. It can fail closed without guessing, weakening tests, or skipping evidence.
+7. It can be discovered from metadata alone, then safely activated with only the selected `SKILL.md` and referenced resources.
 
 ## What PrismSpec Does Not Copy
 

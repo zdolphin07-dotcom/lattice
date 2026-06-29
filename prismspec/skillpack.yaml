@@ -60,6 +60,7 @@ product_blocks:
       - prismspec/skills/prismspec-review/SKILL.md
     artifacts:
       - review.md
+    evidence_sidecars:
       - review-summary.json
       - review-package.md
     gates:
@@ -159,6 +160,7 @@ workflow:
         - task evidence
       outputs:
         - review.md
+      evidence_sidecars:
         - review-summary.json
     - id: verification
       skill: prismspec/skills/prismspec-verification/SKILL.md

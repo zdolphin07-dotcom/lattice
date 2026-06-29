@@ -9,7 +9,7 @@ description: Reviews PrismSpec implementation evidence before verification. Use 
 
 Review is the independent quality gate between implementation and verification. Treat implementer reports as claims, inspect the diff and evidence, and record a verdict before the run claims verified completion.
 
-This skill aligns with Superpowers 6.x task review discipline: use one skeptical read-only reviewer per task or run, return spec-compliance and code-quality verdicts, and do not tell the reviewer what to ignore. PrismSpec adds AC traceability, Lattice evidence paths, a human-readable `review.md`, and an optional machine sidecar `review-summary.json`.
+This skill aligns with Superpowers task review discipline: use one skeptical read-only reviewer per task or run, return spec-compliance and code-quality verdicts, and do not tell the reviewer what to ignore. PrismSpec adds AC traceability, Lattice evidence paths, a human-readable `review.md`, and a machine sidecar `review-summary.json` for pipeline/eval ingestion.
 
 ## Inputs
 
@@ -51,8 +51,8 @@ bash lattice/kernel/orchestrator/sdd/review-summary.sh <spec-id> branch \
 ## Outputs
 
 - Branch review artifact: `lattice/specs/<spec-id>/review.md` or `prismspec/specs/<spec-id>/review.md`.
-- Optional task review artifact: `.lattice/sdd/<spec-id>/<task-id>/review.md`.
-- Optional machine sidecar: `review-summary.json`.
+- Task review artifact when reviewing a task slice: `.lattice/sdd/<spec-id>/<task-id>/review.md`.
+- Machine sidecar for pipeline/eval ingestion: `review-summary.json`.
 - Findings with file/line references where possible.
 - Disposition for received review feedback: accepted, rejected with reason, cannot_verify, or needs user decision.
 

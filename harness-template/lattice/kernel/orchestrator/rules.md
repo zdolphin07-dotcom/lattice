@@ -120,7 +120,7 @@ bash lattice/kernel/orchestrator/sdd/review-summary.sh <spec-id> branch \
   --risk=pass|fail|cannot_verify
 ```
 
-The canonical review artifact is `lattice/specs/<spec-id>/review.md`. The helper also writes `.lattice/sdd/<spec-id>/branch/review-summary.json` as machine-readable pipeline input.
+The canonical review artifact is `lattice/specs/<spec-id>/review.md`. The helper also writes `.lattice/sdd/<spec-id>/branch/review.md` for run-scoped review evidence and `.lattice/sdd/<spec-id>/branch/review-summary.json` as machine-readable pipeline input.
 
 ### Verification
 
@@ -204,5 +204,6 @@ prismspec/
 └── tdd-evidence.json
 
 .lattice/sdd/<spec-id>/branch/
+├── review.md
 └── review-summary.json
 ```

@@ -14,6 +14,7 @@ WARN=0
 pass() { ((PASS++)) || true; printf "  ✅ %s\n" "$*"; }
 fail() { ((FAIL++)) || true; printf "  ❌ %s\n" "$*"; }
 warn() { ((WARN++)) || true; printf "  ⚠️  %s\n" "$*"; }
+info() { printf "  ℹ️  %s\n" "$*"; }
 
 check_file() {
   local path="$1" label="$2"
@@ -101,9 +102,9 @@ echo ""
 echo "── Host artifacts ──"
 if [[ -f "$PROJECT_ROOT/lattice/manifest.yaml" ]]; then
   check_file "$PROJECT_ROOT/lattice/manifest.yaml" "Lattice manifest"
-  [[ -d "$PROJECT_ROOT/lattice/specs" ]] && pass "Lattice spec root" || warn "Lattice spec root not created yet"
+  [[ -d "$PROJECT_ROOT/lattice/specs" ]] && pass "Lattice spec root" || info "Lattice spec root not created yet; create the first spec with new.sh"
 else
-  [[ -d "$PRISMSPEC_ROOT/specs" ]] && pass "standalone spec root" || warn "standalone spec root not created yet"
+  [[ -d "$PRISMSPEC_ROOT/specs" ]] && pass "standalone spec root" || info "standalone spec root not created yet; create the first spec with new.sh"
 fi
 echo ""
 

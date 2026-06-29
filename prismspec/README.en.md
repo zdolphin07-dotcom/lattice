@@ -24,6 +24,8 @@ The AI can implement freely, but it must move through reviewable artifacts:
 
 The philosophy is simple: **fewer phases, stronger evidence. Reuse mature workflow discipline; put PrismSpec's value in artifacts, context, evidence, and resumability.**
 
+The primary human-readable artifact contract is only `spec.md`, `plan.md`, `review.md`, and `verify.md`. `review-summary.json`, `review-package.md`, task briefs, TDD/debug evidence, and eval run JSON are machine-side or task-side evidence, not extra user-facing stages.
+
 ## Positioning
 
 PrismSpec can run standalone or in Lattice-hosted mode.
@@ -146,7 +148,7 @@ bash prismspec/bin/guide.sh --spec=checkout-flow --from=verification --json
 | Review | Review implementation evidence, diff, and review package. | `review.md` | Evidence is missing, a blocking finding exists, or the spec must change. |
 | Verification | Run external commands and record final evidence. | `verify.md` | Credentials or services are missing, or the fix exceeds scope. |
 
-`/capture` is an optional post-run command. It promotes only durable, reusable, non-secret lessons from `verify.md` or review evidence.
+`/capture` is a post-run command. It promotes only durable, reusable, non-secret lessons from `verify.md` or review evidence and is not a required stage in the default delivery chain.
 
 ## Alignment
 

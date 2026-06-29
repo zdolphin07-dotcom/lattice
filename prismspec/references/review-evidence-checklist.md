@@ -27,7 +27,7 @@ PrismSpec review should write a human-readable artifact to:
 lattice/specs/<spec-id>/review.md
 ```
 
-`review.md` should include verdicts for all axes, concrete findings, disposition, and evidence checked. Task-scoped reviews may use `.lattice/sdd/<spec-id>/<task-id>/review.md`; Lattice-hosted projects may also generate `review-summary.json` as a machine sidecar for pipeline/eval collection.
+`review.md` should include verdicts for all axes, concrete findings, disposition, and evidence checked. Task-scoped reviews use `.lattice/sdd/<spec-id>/<task-id>/review.md` when reviewing a task slice. Lattice-hosted projects generate `review-summary.json` as a machine sidecar for pipeline/eval collection.
 
 Recommended helper:
 

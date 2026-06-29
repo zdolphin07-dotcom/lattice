@@ -54,6 +54,8 @@ flowchart LR
 
 PrismSpec 不依赖 Lattice。Lattice 内置 PrismSpec，并补充 manifest、项目 context、verification gates、AC coverage、drift check、Evidence / Eval、Loop / Learn。
 
+PrismSpec 的人读主产物只有 `spec.md`、`plan.md`、`review.md` 和 `verify.md`。`review-summary.json`、`review-package.md`、task brief、TDD/debug evidence 和 eval run JSON 是机器侧证据或任务侧证据，不应被包装成新的用户阶段。
+
 ## Skill Pack 结构
 
 ```text
