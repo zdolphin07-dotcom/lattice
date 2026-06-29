@@ -23,8 +23,8 @@ flowchart LR
     A --> CODE["Code / Tests"]
     CODE --> H["Verification Gates"]
     H --> EV["Evidence / Eval"]
-    EV --> F["summary.md"]
-    F --> L["Learn Draft"]
+    EV --> V["verify.md"]
+    V --> L["optional Learn Draft"]
     L --> P["Promote / Discard"]
     P -. durable lessons .-> K
 ```

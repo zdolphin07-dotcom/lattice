@@ -5,6 +5,7 @@ status: drafted
 template: default
 execution_mode: {auto|plan|tdd}
 mode_source: model-selected | project-default | user-override
+approval: explicit | inferred | skipped-with-reason
 owner: {owner}
 created_at: {timestamp}
 updated_at: {timestamp}
@@ -90,7 +91,15 @@ updated_at: {timestamp}
 | integration / e2e | conditional | |
 | drift / contract check | conditional | |
 
-## 10. Open Questions
+## 10. Approval
+
+| Item | Value |
+|------|-------|
+| Status | explicit / inferred / skipped-with-reason |
+| Source | user message / project default / reason |
+| Notes | |
+
+## 11. Open Questions
 
 > 只保留会阻塞 Scope、AC、Risk 或 Execution Policy 的问题。
 

@@ -21,7 +21,7 @@ Choose the lowest ceremony mode that still protects correctness.
 
 - Upgrade `plan -> tdd` when planning or implementation discovers TDD-level risk.
 - Do not silently downgrade `tdd -> plan`.
-- If the user downgrades a TDD-worthy task, record the risk and verification compromise in `spec.md` and `summary.md`.
+- If the user downgrades a TDD-worthy task, record the risk and verification compromise in `spec.md` and `verify.md`.
 
 ## Red Flags
 

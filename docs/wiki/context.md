@@ -345,11 +345,12 @@ PrismSpec 负责 SDD 工作流；Context 负责提供更准确的项目上下文
 
 | 阶段 | Context 作用 | 产物 |
 |------|--------------|------|
-| Brainstorming | Agent 按上下文地图发现、筛选、压缩本次需求相关事实 | `context.md`、`spec.md` |
+| Specification | Agent 按上下文地图发现、筛选、压缩本次需求相关事实 | `context.md`、`spec.md` |
 | Planning | 基于 `context.md` 和 `spec.md` 拆任务和验证证据 | `plan.md` |
 | Implementation | 遵守 `context.md` 中的事实、约束和排除项 | 代码、测试、task evidence |
+| Review | 检查实现证据是否覆盖 context 约束和 AC | `review-summary.json` |
 | Verification | 验证交付结果，不重新发明上下文 | gate output |
-| Finishing | 将可复用经验写入 drafts，待确认后进入项目知识 | `summary.md`、knowledge draft |
+| Knowledge Capture | 将可复用经验写入 drafts，待确认后进入项目知识 | `verify.md`、knowledge draft |
 
 ## 当前 Gap
 

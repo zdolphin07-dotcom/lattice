@@ -92,8 +92,9 @@ echo ""
 
 echo "── PrismSpec contract ──"
 check_file "prismspec/skillpack.yaml" "PrismSpec skill pack manifest"
-check_file "prismspec/skills/sdd/SKILL.md" "PrismSpec SDD skill"
-check_file "prismspec/skills/brainstorm/SKILL.md" "PrismSpec brainstorm skill"
+check_file "prismspec/skills/sdd/SKILL.md" "PrismSpec workflow skill"
+check_file "prismspec/skills/brainstorm/SKILL.md" "PrismSpec specification skill"
+check_file "prismspec/skills/review/SKILL.md" "PrismSpec review skill"
 check_file "prismspec/templates/context-template.md" "PrismSpec context template"
 check_file "prismspec/templates/spec-template.md" "PrismSpec default template"
 check_executable "prismspec/bin/new.sh" "PrismSpec new"
@@ -149,7 +150,7 @@ check_dir "lattice/state/knowledge-reviews" "knowledge review event root"
 echo ""
 
 echo "── Agent commands ──"
-for command in sdd brainstorm plan implement verify finish learn; do
+for command in prismspec spec plan implement review verify capture sdd brainstorm finish learn; do
   if [[ -f "$PROJECT_ROOT/.claude/commands/${command}.md" ]]; then
     pass ".claude command: $command"
   else

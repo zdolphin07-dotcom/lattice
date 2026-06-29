@@ -209,7 +209,7 @@ if bash "$SANDBOX/.lattice/framework/init.sh" --non-interactive --lang=go --name
     fail "GitHub Actions eval workflow missing or invalid"
   fi
 
-  for command in sdd brainstorm plan implement verify finish learn; do
+  for command in prismspec spec plan implement review verify capture sdd brainstorm finish learn; do
     if [[ -f "$SANDBOX/.claude/commands/${command}.md" ]]; then
       pass "$command slash command installed"
     else
@@ -222,6 +222,7 @@ if bash "$SANDBOX/.lattice/framework/init.sh" --non-interactive --lang=go --name
     && [[ -f "$SANDBOX/prismspec/skills/brainstorm/SKILL.md" ]] \
     && [[ -f "$SANDBOX/prismspec/skills/plan/SKILL.md" ]] \
     && [[ -f "$SANDBOX/prismspec/skills/implement/SKILL.md" ]] \
+    && [[ -f "$SANDBOX/prismspec/skills/review/SKILL.md" ]] \
     && [[ -f "$SANDBOX/prismspec/skills/verify/SKILL.md" ]] \
     && [[ -f "$SANDBOX/prismspec/skills/finish/SKILL.md" ]] \
     && [[ -f "$SANDBOX/prismspec/skills/learn/SKILL.md" ]] \
@@ -237,7 +238,8 @@ if bash "$SANDBOX/.lattice/framework/init.sh" --non-interactive --lang=go --name
     && [[ -f "$SANDBOX/prismspec/templates/context-template.md" ]] \
     && [[ -f "$SANDBOX/prismspec/references/mode-selection.md" ]] \
     && [[ -f "$SANDBOX/prismspec/references/definition-of-done.md" ]] \
-    && [[ -f "$SANDBOX/prismspec/agents/spec-compliance-reviewer.md" ]] \
+    && [[ -f "$SANDBOX/prismspec/agents/task-reviewer.md" ]] \
+    && [[ -f "$SANDBOX/prismspec/commands/prismspec.md" ]] \
     && [[ -f "$SANDBOX/prismspec/commands/sdd.md" ]]; then
     pass "PrismSpec deliverable module installed"
   else
@@ -258,8 +260,8 @@ if bash "$SANDBOX/.lattice/framework/init.sh" --non-interactive --lang=go --name
   fi
 
   PRISMSPEC_NEW_GUIDE_JSON=$(bash "$SANDBOX/prismspec/bin/guide.sh" --spec=smoke-new-spec --json)
-  if echo "$PRISMSPEC_NEW_GUIDE_JSON" | yq -e '.stage == "brainstorm" and .scaffolded == true' >/dev/null 2>&1; then
-    pass "PrismSpec guide keeps scaffolded specs in brainstorm"
+  if echo "$PRISMSPEC_NEW_GUIDE_JSON" | yq -e '.stage == "specification" and .scaffolded == true' >/dev/null 2>&1; then
+    pass "PrismSpec guide keeps scaffolded specs in specification"
   else
     fail "PrismSpec guide advanced a scaffolded spec"
     echo "$PRISMSPEC_NEW_GUIDE_JSON"
@@ -285,7 +287,7 @@ if bash "$SANDBOX/.lattice/framework/init.sh" --non-interactive --lang=go --name
   fi
 
   FLAT_SKILL_COUNT=$(find "$SANDBOX/prismspec/skills" -maxdepth 1 -type f -name '*.md' -not -name 'README.md' | wc -l | tr -d ' ')
-  LATTICE_SDD_SKILL_COUNT=$(find "$SANDBOX/lattice/skills" -maxdepth 1 -type f \( -name 'sdd.md' -o -name 'brainstorm.md' -o -name 'plan.md' -o -name 'implement.md' -o -name 'verify.md' -o -name 'finish.md' -o -name 'learn.md' \) | wc -l | tr -d ' ')
+  LATTICE_SDD_SKILL_COUNT=$(find "$SANDBOX/lattice/skills" -maxdepth 1 -type f \( -name 'sdd.md' -o -name 'brainstorm.md' -o -name 'plan.md' -o -name 'implement.md' -o -name 'review.md' -o -name 'verify.md' -o -name 'finish.md' -o -name 'learn.md' \) | wc -l | tr -d ' ')
   if [[ "$FLAT_SKILL_COUNT" == "0" ]] && [[ "$LATTICE_SDD_SKILL_COUNT" == "0" ]]; then
     pass "SDD workflow has a single canonical skill source"
   else
@@ -293,10 +295,10 @@ if bash "$SANDBOX/.lattice/framework/init.sh" --non-interactive --lang=go --name
   fi
 
   GUIDE_OUTPUT=$(bash "$SANDBOX/prismspec/bin/guide.sh" --json)
-  if echo "$GUIDE_OUTPUT" | grep -q '"stage": "brainstorm"' && echo "$GUIDE_OUTPUT" | grep -q 'prismspec/skills/brainstorm/SKILL.md'; then
-    pass "PrismSpec guide detects initial brainstorm stage"
+  if echo "$GUIDE_OUTPUT" | grep -q '"stage": "specification"' && echo "$GUIDE_OUTPUT" | grep -q 'prismspec/skills/brainstorm/SKILL.md'; then
+    pass "PrismSpec guide detects initial specification stage"
   else
-    fail "PrismSpec guide did not detect initial brainstorm stage"
+    fail "PrismSpec guide did not detect initial specification stage"
   fi
 
   GUIDE_ALIAS_OUTPUT=$(bash "$SANDBOX/prismspec/bin/guide.sh" spec=example mode=tdd --json)
@@ -460,6 +462,7 @@ id: modern-feature
 status: drafted
 execution_mode: tdd
 mode_source: model-selected
+approval: inferred
 owner: smoke
 created_at: 2026-06-26T00:00:00Z
 updated_at: 2026-06-26T00:00:00Z
@@ -555,6 +558,7 @@ id: bad-state
 status: planned
 execution_mode: auto
 mode_source: model-selected
+approval: inferred
 owner: smoke
 created_at: 2026-06-26T00:00:00Z
 updated_at: 2026-06-26T00:00:00Z
@@ -820,7 +824,7 @@ else
 fi
 
 REVIEW_OUTPUT=$(bash "$SANDBOX/lattice/kernel/orchestrator/sdd/review-package.sh" modern-feature T1 2>&1)
-if [[ -f "$SANDBOX/.lattice/sdd/modern-feature/T1/review-package.md" ]] && grep -q "cannot-verify" "$SANDBOX/.lattice/sdd/modern-feature/T1/review-package.md"; then
+if [[ -f "$SANDBOX/.lattice/sdd/modern-feature/T1/review-package.md" ]] && grep -q "cannot_verify" "$SANDBOX/.lattice/sdd/modern-feature/T1/review-package.md"; then
   pass "review-package generates read-only review package"
 else
   fail "review-package did not generate expected package"
@@ -854,7 +858,7 @@ else
 fi
 
 REVIEW_OUTPUT_T2=$(bash "$SANDBOX/lattice/kernel/orchestrator/sdd/review-package.sh" modern-feature T2 2>&1)
-if [[ -f "$SANDBOX/.lattice/sdd/modern-feature/T2/review-package.md" ]] && grep -q "cannot-verify" "$SANDBOX/.lattice/sdd/modern-feature/T2/review-package.md"; then
+if [[ -f "$SANDBOX/.lattice/sdd/modern-feature/T2/review-package.md" ]] && grep -q "cannot_verify" "$SANDBOX/.lattice/sdd/modern-feature/T2/review-package.md"; then
   pass "review-package generates second read-only review package"
 else
   fail "review-package did not generate second package"

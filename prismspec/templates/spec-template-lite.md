@@ -5,6 +5,7 @@ status: drafted
 template: lite
 execution_mode: plan
 mode_source: model-selected | project-default | user-override
+approval: explicit | inferred | skipped-with-reason
 owner: {owner}
 created_at: {timestamp}
 updated_at: {timestamp}
@@ -50,6 +51,12 @@ updated_at: {timestamp}
 | lint / type-check | yes / no | |
 | test | yes / no | |
 | manual review | yes / no | |
+
+## Approval
+
+- Status: explicit / inferred / skipped-with-reason
+- Source: user message / project default / reason
+- Notes: {为什么可以进入 plan；没有则写 N/A}
 
 ## Notes
 

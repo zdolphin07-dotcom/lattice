@@ -2,9 +2,9 @@
 name: lattice
 description: >
   Lattice — repo-local AI Coding harness for teams.
-  Use when Codex needs to initialize Lattice in a target project, route PrismSpec SDD work,
+  Use when Codex needs to initialize Lattice in a target project, route PrismSpec workflow work,
   load project context, run verification gates, record command-backed evidence, or capture learnings.
-  Triggers include "lattice init", "initialize harness", "sdd", "PrismSpec", "verify",
+  Triggers include "lattice init", "initialize harness", "prismspec", "sdd", "PrismSpec", "verify",
   "run pipeline", "eval", "context", and "learn".
 ---
 
@@ -28,13 +28,13 @@ Use current files and command output as the source of truth. Do not route from c
 | initialize Lattice from source checkout | Run `./install.sh <target-project> --init` |
 | initialize Lattice from remote installer | Run the documented `install.sh --init` command after confirming the target project path |
 | inspect installed harness | Run `bash lattice/kernel/doctor.sh` |
-| SDD / guided workflow | Run `bash prismspec/bin/guide.sh --json`, then follow the routed PrismSpec stage skill |
-| brainstorm / draft spec | Write `lattice/specs/<spec-id>/context.md` and `spec.md` |
+| PrismSpec / guided workflow | Run `bash prismspec/bin/guide.sh --json`, then follow the routed PrismSpec stage skill |
+| spec / draft specification | Write `lattice/specs/<spec-id>/context.md` and `spec.md` |
 | plan | Write AC-traced `plan.md` |
 | implement / tdd | Execute `plan` or `tdd` according to `spec.md` |
+| review | Write or inspect `review-summary.json` evidence |
 | verify / run pipeline | Run `bash lattice/kernel/delivery/pipeline.sh --json-out` when available |
-| finish | Write `verify.md` / `summary.md` and capture residual risk |
-| learn | Follow `prismspec/skills/learn/SKILL.md` |
+| capture | Follow `prismspec/skills/learn/SKILL.md` for durable knowledge capture |
 
 ## Contracts
 

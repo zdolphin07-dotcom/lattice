@@ -1,4 +1,4 @@
 interface:
-  display_name: "PrismSpec Finish"
-  short_description: "Close a run with summary and risks"
-  default_prompt: "Use $prismspec-finish to close this run with summary.md, evidence, and residual risks."
+  display_name: "PrismSpec Legacy Finish"
+  short_description: "Legacy branch closeout helper after verification"
+  default_prompt: "Use $prismspec-finish only for explicit branch closeout after verification."

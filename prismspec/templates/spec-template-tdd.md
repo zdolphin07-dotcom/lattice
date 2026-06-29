@@ -5,6 +5,7 @@ status: drafted
 template: tdd
 execution_mode: tdd
 mode_source: model-selected | project-default | user-override
+approval: explicit | inferred | skipped-with-reason
 owner: {owner}
 created_at: {timestamp}
 updated_at: {timestamp}
@@ -67,3 +68,9 @@ updated_at: {timestamp}
 | full relevant unit suite | yes | |
 | build / type-check | yes | |
 | integration / smoke | conditional | |
+
+## 10. Approval
+
+- Status: explicit / inferred / skipped-with-reason
+- Source: user message / project default / reason
+- Notes: {审批、推断或跳过原因；没有则写 N/A}

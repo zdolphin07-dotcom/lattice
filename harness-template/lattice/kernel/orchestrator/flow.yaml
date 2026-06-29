@@ -2,12 +2,12 @@
 # Engine-agnostic phase definitions. For engine-specific mappings, see docs/adapters/
 
 controller:
-  command: "/sdd"
+  command: "/prismspec"
   skill: "prismspec/skills/sdd/SKILL.md"
   description: "Resolve spec, mode, and next stage; delegate to stage skills"
 
 stages:
-  - name: brainstorming
+  - name: specification
     output: ["lattice/specs/{spec-id}/spec.md", "lattice/specs/{spec-id}/context.md"]
     template: "lattice/kernel/orchestrator/templates/spec-template.md"
     gate: spec-lint
@@ -26,6 +26,12 @@ stages:
     policy: [plan, tdd]
     description: "Execute plan or red-test-first TDD policy and produce task evidence"
 
+  - name: review
+    output: ".lattice/sdd/{spec-id}/branch/review-summary.json"
+    gate: [evidence]
+    layers: [orchestrator]
+    description: "Review implementation evidence with pass/fail/cannot_verify verdicts"
+
   - name: verification
     command: "lattice/kernel/delivery/pipeline.sh"
     gate: [bootstrap, spec-lint, build, lint, unit-test, ac-coverage, integration-test, drift-check, compliance]
@@ -34,11 +40,12 @@ stages:
     layers: [delivery]
     description: "Run independent verification gates; fix and re-run on failure"
 
-  - name: finishing
+  - name: legacy-finishing
     output: "lattice/specs/{spec-id}/summary.md"
     gate: [evidence]
     layers: [orchestrator, delivery]
-    description: "Confirm evidence, close delivery, extract durable knowledge"
+    optional: true
+    description: "Optional branch/worktree closeout for teams that still require summary.md"
 
   - name: deploy
     command: "lattice/kernel/delivery/deploy.sh"
@@ -47,16 +54,16 @@ stages:
     description: "Deploy per manifest config and run smoke tests"
 
 transitions:
-  brainstorming -> planning: "spec is reviewable and execution policy selected"
+  specification -> planning: "spec is reviewable and execution policy selected"
   planning -> implementation: "plan complete"
-  implementation -> verification: "build + lint + focused tests pass"
-  verification -> finishing: "pipeline passes"
+  implementation -> review: "task evidence exists"
+  review -> verification: "review passes or risk is explicitly accepted"
   verification -> implementation: "pipeline fails, fix and retry"
-  finishing -> deploy: "deploy config exists and deployment requested"
+  verification -> deploy: "pipeline passes and deployment requested"
 
 behavioral_rules:
   workflow: "PrismSpec"
-  hard_gate: brainstorming
+  hard_gate: specification
   retry_budget: 3
   default_execution_mode: "manifest:specs.default_execution_mode"
   allow_execution_mode_override: "manifest:specs.allow_execution_mode_override"

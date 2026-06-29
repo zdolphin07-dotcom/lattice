@@ -1,6 +1,6 @@
 # PrismSpec Definition of Done
 
-Use this reference during `verify` and `finish`.
+Use this reference during `verification` and optional `knowledge-capture`.
 
 A PrismSpec run is done only when all applicable evidence exists:
 
@@ -11,13 +11,13 @@ A PrismSpec run is done only when all applicable evidence exists:
 - Verification commands were actually run and recorded.
 - TDD mode includes red and green evidence.
 - Review findings are resolved, deferred with owner/reason, or marked `cannot_verify`.
-- `summary.md` records changed files, verification evidence, residual risks, and follow-ups.
+- `verify.md` records changed files, command evidence, skipped checks, residual risks, follow-ups, and knowledge candidates.
 - Reusable lessons are captured as draft knowledge only when they are durable and non-secret.
 
 ## Not Done
 
 - "Looks good" without command output.
 - Tests written only for the happy path when AC includes edge cases.
-- Summary claims completion while verification failed.
+- Completion is claimed while verification failed.
 - Spec drift is discovered but not written back.
 - Transient review notes are treated as durable team knowledge without review.

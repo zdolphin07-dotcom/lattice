@@ -20,7 +20,7 @@ Lattice is an AI Coding engineering framework installed into an application repo
 
 | Capability | Purpose |
 |------------|---------|
-| PrismSpec | Turns intent into `context.md`, `spec.md`, `plan.md`, `verify.md`, and `summary.md`. |
+| PrismSpec | Turns intent into `context.md`, `spec.md`, `plan.md`, review evidence, and `verify.md`. |
 | Context | Provides an agent-readable context map, project knowledge, external references, and per-spec context basis. |
 | Verification | Runs build, lint, test, AC coverage, drift checks, compliance, and other gates before delivery claims. |
 | Evidence / Eval | Records command output, gate results, `eval-runs/*.json`, history, and outcomes to support "done" claims. |
@@ -80,8 +80,7 @@ your-project/
 │           ├── context.md
 │           ├── spec.md
 │           ├── plan.md
-│           ├── verify.md
-│           └── summary.md
+│           └── verify.md
 └── prismspec/
     ├── skillpack.yaml
     ├── skills/
@@ -95,10 +94,10 @@ your-project/
 ## Core Workflow
 
 ```text
-Intent -> Brainstorming -> Planning -> Implementation(plan|tdd) -> Verification -> Finishing
+Intent -> Specification -> Planning -> Implementation(plan|tdd) -> Review -> Verification
 ```
 
-`/sdd` is the controller, not an extra phase. It routes from existing artifacts:
+`/prismspec` is the controller, not an extra phase. It routes from existing artifacts; `/sdd` remains as a compatibility alias:
 
 ```bash
 bash prismspec/bin/guide.sh --json
@@ -106,11 +105,13 @@ bash prismspec/bin/guide.sh --json
 
 | Stage | Goal | Artifacts |
 |-------|------|-----------|
-| Brainstorming | Capture context basis, scope, ACs, risks, and execution mode. | `context.md`, `spec.md` |
+| Specification | Capture context basis, scope, ACs, risks, and execution mode. | `context.md`, `spec.md` |
 | Planning | Decompose the spec into AC-traced tasks. | `plan.md` |
 | Implementation | Execute with Plan Mode or TDD Mode. | code, tests, task evidence |
+| Review | Review implementation evidence, diff, and review package. | `review-summary.json` |
 | Verification | Run independent commands or the Lattice pipeline. | `verify.md` |
-| Finishing | Summarize evidence, risk, and knowledge candidates. | `summary.md` |
+
+`/capture` is an optional post-run command. It promotes only durable, reusable, non-secret lessons from `verify.md` or review evidence. `/finish` remains only as a legacy branch/worktree closeout alias.
 
 Plan Mode and TDD Mode are implementation policies inside the same workflow:
 
@@ -138,7 +139,7 @@ Projects can set the default mode in `lattice/manifest.yaml`. Users can override
 | Check installation health | `bash lattice/kernel/doctor.sh` |
 | Check PrismSpec standalone health | `bash prismspec/bin/doctor.sh` |
 | Create an initial spec directory | `bash prismspec/bin/new.sh checkout-flow --template=service --mode=plan` |
-| Route the next SDD step | `bash prismspec/bin/guide.sh --json` |
+| Route the next PrismSpec step | `bash prismspec/bin/guide.sh --json` |
 | Lint the PrismSpec skill pack | `bash prismspec/bin/lint.sh prismspec skillpack` |
 | Lint spec / plan / evidence | `bash prismspec/bin/lint.sh lattice/specs/<spec-id>` |
 | Run the full verification pipeline | `bash lattice/kernel/delivery/pipeline.sh --json-out` |
@@ -147,8 +148,9 @@ Projects can set the default mode in `lattice/manifest.yaml`. Users can override
 | Complete a task with evidence | `bash lattice/kernel/orchestrator/sdd/task-complete.sh <spec-id> T1 --json` |
 | Check task evidence | `bash lattice/kernel/orchestrator/sdd/task-evidence-lint.sh <spec-id>` |
 | Advance spec status | `bash lattice/kernel/orchestrator/sdd/spec-status.sh <spec-id> planned --from=drafted` |
-| Draft closeout summary | `bash lattice/kernel/orchestrator/sdd/summary-draft.sh <spec-id>` |
-| Create learn draft from summary | `bash lattice/kernel/context/summary-learn-draft.sh <spec-id>` |
+| Write review verdict | `bash lattice/kernel/orchestrator/sdd/review-summary.sh <spec-id> branch --spec-compliance=pass --code-quality=pass --test-coverage=pass --risk=pass` |
+| Draft optional summary | `bash lattice/kernel/orchestrator/sdd/summary-draft.sh <spec-id>` |
+| Create learn draft from knowledge candidates | `bash lattice/kernel/context/summary-learn-draft.sh <spec-id>` |
 | Render eval summary | `bash lattice/kernel/delivery/eval-summary.sh lattice/state/eval-runs/<run-id>.json` |
 | Aggregate eval history | `bash lattice/kernel/delivery/eval-history.sh --out=lattice/state/eval-runs/history.md` |
 | Publish central eval sink | `bash lattice/kernel/delivery/eval-sink.sh publish --sink-dir=lattice/state/eval-sink` |
@@ -167,7 +169,7 @@ Lattice currently provides a minimum trusted loop for repo-local AI Coding:
 |------|------------------------|
 | Install and init | `install.sh`, `init.sh`, `doctor.sh` manifest/skillpack contract checks, smoke tests, GitHub Actions eval artifact template. |
 | PrismSpec | Canonical skills, `new.sh`, `doctor.sh`, `guide.sh`, skillpack/artifact `lint.sh`, multiple templates, Plan/TDD policy, standalone and Lattice-hosted modes. |
-| Spec lifecycle | `context.md`, `spec.md`, `plan.md`, `verify.md`, `summary.md`, status transitions, transition events/history. |
+| Spec lifecycle | `context.md`, `spec.md`, `plan.md`, review evidence, `verify.md`, status transitions, transition events/history. |
 | Implementation evidence | `task-next.sh`, `task-complete.sh`, task brief, review package, review summary, TDD evidence, task evidence lint. |
 | Verification / Evidence | Pipeline, spec lint, AC coverage, drift check, compliance, spec lock, structured eval JSON, Markdown summary/history. |
 | Loop and outcome | Loop state, failure category, escalation draft, outcome link/report, central eval sink, static dashboard, eval query, PR comment dry run. |

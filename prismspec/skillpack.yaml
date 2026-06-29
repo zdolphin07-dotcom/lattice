@@ -17,56 +17,96 @@ compatibility:
     - standalone
     - lattice-hosted
 entrypoints:
-  command: prismspec/commands/sdd.md
+  command: prismspec/commands/prismspec.md
   new: prismspec/bin/new.sh
   router: prismspec/bin/guide.sh
   lint: prismspec/bin/lint.sh
   doctor: prismspec/bin/doctor.sh
+commands:
+  canonical:
+    - id: prismspec
+      path: prismspec/commands/prismspec.md
+    - id: spec
+      path: prismspec/commands/spec.md
+    - id: plan
+      path: prismspec/commands/plan.md
+    - id: implement
+      path: prismspec/commands/implement.md
+    - id: review
+      path: prismspec/commands/review.md
+    - id: verify
+      path: prismspec/commands/verify.md
+    - id: capture
+      path: prismspec/commands/capture.md
+  aliases:
+    - id: sdd
+      target: prismspec
+      path: prismspec/commands/sdd.md
+    - id: brainstorm
+      target: spec
+      path: prismspec/commands/brainstorm.md
+    - id: finish
+      target: verify
+      path: prismspec/commands/finish.md
+    - id: learn
+      target: capture
+      path: prismspec/commands/learn.md
 skills:
   canonical:
-    - id: sdd
+    - id: workflow
       type: controller
       path: prismspec/skills/sdd/SKILL.md
       interface: prismspec/skills/sdd/agents/openai.yaml
-    - id: brainstorm
+      legacy_id: sdd
+    - id: specification
       type: stage
       path: prismspec/skills/brainstorm/SKILL.md
       interface: prismspec/skills/brainstorm/agents/openai.yaml
-    - id: plan
+      legacy_id: brainstorm
+    - id: planning
       type: stage
       path: prismspec/skills/plan/SKILL.md
       interface: prismspec/skills/plan/agents/openai.yaml
-    - id: implement
+      legacy_id: plan
+    - id: implementation
       type: stage
       path: prismspec/skills/implement/SKILL.md
       interface: prismspec/skills/implement/agents/openai.yaml
-    - id: verify
+      legacy_id: implement
+    - id: review
+      type: stage
+      path: prismspec/skills/review/SKILL.md
+      interface: prismspec/skills/review/agents/openai.yaml
+    - id: verification
       type: stage
       path: prismspec/skills/verify/SKILL.md
       interface: prismspec/skills/verify/agents/openai.yaml
-    - id: finish
-      type: stage
-      path: prismspec/skills/finish/SKILL.md
-      interface: prismspec/skills/finish/agents/openai.yaml
-    - id: learn
+      legacy_id: verify
+    - id: knowledge-capture
       type: support
       path: prismspec/skills/learn/SKILL.md
       interface: prismspec/skills/learn/agents/openai.yaml
+      legacy_id: learn
+  legacy:
+    - id: finish
+      target: verification
+      path: prismspec/skills/finish/SKILL.md
+      interface: prismspec/skills/finish/agents/openai.yaml
 workflow:
   stages:
-    - id: brainstorm
+    - id: specification
       skill: prismspec/skills/brainstorm/SKILL.md
       outputs:
         - context.md
         - spec.md
-    - id: plan
+    - id: planning
       skill: prismspec/skills/plan/SKILL.md
       inputs:
         - context.md
         - spec.md
       outputs:
         - plan.md
-    - id: implement
+    - id: implementation
       skill: prismspec/skills/implement/SKILL.md
       inputs:
         - spec.md
@@ -75,23 +115,24 @@ workflow:
         - code
         - tests
         - task evidence
-    - id: verify
+    - id: review
+      skill: prismspec/skills/review/SKILL.md
+      inputs:
+        - spec.md
+        - plan.md
+        - task evidence
+      outputs:
+        - review-summary.json
+    - id: verification
       skill: prismspec/skills/verify/SKILL.md
       inputs:
         - spec.md
         - plan.md
         - code
         - tests
+        - review-summary.json
       outputs:
         - verify.md
-    - id: finish
-      skill: prismspec/skills/finish/SKILL.md
-      inputs:
-        - spec.md
-        - plan.md
-        - verify.md
-      outputs:
-        - summary.md
 templates:
   context: prismspec/templates/context-template.md
   default: prismspec/templates/spec-template.md
@@ -105,6 +146,9 @@ references:
   spec_quality: prismspec/references/spec-quality-checklist.md
   tdd_evidence: prismspec/references/tdd-evidence-checklist.md
   review_evidence: prismspec/references/review-evidence-checklist.md
+  superpowers_alignment: prismspec/references/superpowers-alignment.md
+reviewers:
+  task: prismspec/agents/task-reviewer.md
 contracts:
   standalone_spec_root: prismspec/specs
   lattice_spec_root: lattice/specs
@@ -113,6 +157,7 @@ contracts:
     - spec.md
     - plan.md
     - verify.md
+  optional_artifacts:
     - summary.md
   execution_modes:
     - auto

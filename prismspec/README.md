@@ -5,10 +5,10 @@
 PrismSpec 是一套可独立使用的渐进式 Spec Coding skill pack。它把一次 AI Coding 任务收敛成可恢复、可审查、可验证的文件链路：
 
 ```text
-brainstorm -> plan -> implement(plan|tdd) -> verify -> finish
+specification -> planning -> implementation(plan|tdd) -> review -> verification
 ```
 
-`/sdd` 是 controller，不是额外阶段。它读取当前产物，判断下一步应该调用哪个 stage skill。
+`/prismspec` 是 controller，不是额外阶段。它读取当前产物，判断下一步应该调用哪个 stage skill。`/sdd` 作为兼容别名保留。
 
 ## 定位
 
@@ -16,7 +16,7 @@ PrismSpec 可以单独使用，也可以被 Lattice 托管增强。
 
 | 模式 | 适合谁 | 你会得到什么 | 是否依赖 Lattice |
 |------|--------|--------------|------------------|
-| Standalone | 只想要 Spec Coding skills 的用户 | 持久化 spec、plan、verify、summary，以及 Plan/TDD 两种执行纪律 | 否 |
+| Standalone | 只想要 Spec Coding skills 的用户 | 持久化 spec、plan、review、verify，以及 Plan/TDD 两种执行纪律 | 否 |
 | Lattice-hosted | 需要项目级 harness 的团队 | PrismSpec + manifest、项目 context、verification gates、AC coverage、drift check、Evidence / Eval、Loop / Learn | 是 |
 
 PrismSpec 不依赖 Lattice。Lattice 内置 PrismSpec，并把它作为默认 Spec Coding workflow。
@@ -31,19 +31,20 @@ prismspec/
 │   ├── brainstorm/SKILL.md
 │   ├── plan/SKILL.md
 │   ├── implement/SKILL.md
+│   ├── review/SKILL.md
 │   ├── verify/SKILL.md
-│   ├── finish/SKILL.md
-│   └── learn/SKILL.md
+│   ├── learn/SKILL.md
+│   └── finish/SKILL.md       # legacy branch closeout helper
 ├── templates/                  # spec/context templates
 ├── references/                 # loaded on demand
-├── agents/                     # lightweight reviewer personas
+├── agents/                     # task reviewer persona
 ├── commands/                   # slash-command entry points
 └── bin/                        # deterministic new/guide/lint/doctor helpers
 ```
 
 `skills/*/SKILL.md` 是唯一 canonical skill source。不要再维护 flat `skills/*.md` 入口，避免同一流程出现多个事实源。
 
-每个 canonical skill 都带有 `agents/openai.yaml`，用于 UI、安装器或 marketplace 展示时读取 `display_name`、`short_description` 和默认调用提示。根目录 `agents/` 仍用于轻量 reviewer persona，两者职责不同。
+每个 canonical skill 都带有 `agents/openai.yaml`，用于 UI、安装器或 marketplace 展示时读取 `display_name`、`short_description` 和默认调用提示。根目录 `agents/` 用于 task reviewer persona，两者职责不同。
 
 `skillpack.yaml` 是可分发契约，声明 workflow stages、skills、templates、references、host modes 和质量门禁。Agent、安装器或 wrapper 应该优先读它，而不是从 README 猜目录结构。
 
@@ -56,12 +57,13 @@ prismspec/specs/<spec-id>/
 ├── context.md
 ├── spec.md
 ├── plan.md
-├── verify.md
-└── summary.md
+└── verify.md
 
-.prismspec/runs/<spec-id>/<task-id>/
-├── brief.md
-└── review-package.md
+.prismspec/runs/<spec-id>/
+├── branch/review-summary.json
+└── <task-id>/
+    ├── brief.md
+    └── review-package.md
 ```
 
 Lattice-hosted 产物：
@@ -71,8 +73,7 @@ lattice/specs/<spec-id>/
 ├── context.md
 ├── spec.md
 ├── plan.md
-├── verify.md
-└── summary.md
+└── verify.md
 
 .lattice/sdd/<spec-id>/<task-id>/
 ```
@@ -96,7 +97,7 @@ bash prismspec/bin/new.sh checkout-flow --title="Checkout Flow" --template=servi
 ```bash
 bash prismspec/bin/guide.sh --json
 bash prismspec/bin/guide.sh --spec=checkout-flow --json
-bash prismspec/bin/guide.sh --spec=checkout-flow --from=verify --json
+bash prismspec/bin/guide.sh --spec=checkout-flow --from=verification --json
 ```
 
 `--json` 是 Agent wrapper 和 slash command 的推荐协议。关键字段包括：
@@ -106,7 +107,7 @@ bash prismspec/bin/guide.sh --spec=checkout-flow --from=verify --json
 | `host` | `standalone` 或 `lattice` |
 | `spec_id` | 当前 spec id |
 | `scaffolded` | 是否仍是 `new.sh` 生成的待填写骨架 |
-| `stage` | 下一阶段：`brainstorm`、`plan`、`implement`、`verify`、`finish`、`done` |
+| `stage` | 下一阶段：`specification`、`planning`、`implementation`、`review`、`verification`、`done` |
 | `mode` | `auto`、`plan` 或 `tdd` |
 | `skill` | 应读取并执行的 `SKILL.md` |
 | `spec_dir` | 当前 spec 目录 |
@@ -115,15 +116,17 @@ bash prismspec/bin/guide.sh --spec=checkout-flow --from=verify --json
 
 ## Workflow
 
-`new.sh` 只是初始化 helper，不是 workflow 阶段。它创建的 `spec.md` 会带有 `scaffolded: true`。在 Brainstorming 阶段填完真实 context、scope、AC、risk 和 mode 后，才将其改为 `scaffolded: false`；在此之前 `guide.sh` 会继续路由到 Brainstorming。
+`new.sh` 只是初始化 helper，不是 workflow 阶段。它创建的 `spec.md` 会带有 `scaffolded: true`。在 Specification 阶段填完真实 context、scope、AC、risk 和 mode 后，才将其改为 `scaffolded: false`；在此之前 `guide.sh` 会继续路由到 Specification。
 
 | Stage | 目标 | 产物 | 何时停止 |
 |-------|------|------|----------|
-| Brainstorm | 固化 context basis、scope、AC、risk、mode | `context.md`、`spec.md` | AC 不可测试、关键决策缺失、风险模式无法确认 |
-| Plan | 将 spec 拆成 AC-traced tasks | `plan.md` | AC 无法映射到任务或验证路径 |
-| Implement | 一次执行一个 planned slice | code、tests、task evidence | 范围漂移、红灯测试不可信、验证失败需产品决策 |
-| Verify | 运行外部命令并记录结果 | `verify.md` | 缺凭证、外部服务不可用、失败超出范围 |
-| Finish | 汇总证据、风险和知识候选 | `summary.md` | 缺 verification evidence 或 blocker 被伪装成 done |
+| Specification | 固化 context basis、scope、AC、risk、mode | `context.md`、`spec.md` | AC 不可测试、关键决策缺失、风险模式无法确认 |
+| Planning | 将 spec 拆成 AC-traced tasks | `plan.md` | AC 无法映射到任务或验证路径 |
+| Implementation | 一次执行一个 planned slice | code、tests、task evidence | 范围漂移、红灯测试不可信、验证失败需产品决策 |
+| Review | 审查实现证据、diff、review package | `review-summary.json` | 缺证据、发现 blocking issue、需要规格更新 |
+| Verification | 运行外部命令并记录最终证据 | `verify.md` | 缺凭证、外部服务不可用、失败超出范围 |
+
+`/capture` 是可选后处理命令，只把 `verify.md` 或 review evidence 中可复用、非敏感、可审计的经验沉淀到 knowledge。
 
 ## 模板
 
@@ -152,19 +155,20 @@ PrismSpec 只支持两种 implementation policy：
 
 | Skill | 触发场景 | Durable output |
 |-------|----------|----------------|
-| `skills/sdd/SKILL.md` | `/sdd`、恢复 spec、端到端引导 | 阶段路由 |
-| `skills/brainstorm/SKILL.md` | 新需求、范围/AC/mode/context 不清 | `context.md`、`spec.md` |
-| `skills/plan/SKILL.md` | spec 已有但任务和验证路径缺失 | `plan.md` |
-| `skills/implement/SKILL.md` | 执行 AC-traced tasks | code、tests、task evidence |
-| `skills/verify/SKILL.md` | 实现后运行外部验证 | `verify.md` |
-| `skills/finish/SKILL.md` | 验证后收尾、风险和 outcome | `summary.md` |
-| `skills/learn/SKILL.md` | 捕获可复用规则、决策、踩坑 | knowledge draft / project knowledge |
+| `skills/sdd/SKILL.md` | `/prismspec`、`/sdd`、恢复 spec、端到端引导 | 阶段路由 |
+| `skills/brainstorm/SKILL.md` | `/spec`、新需求、范围/AC/mode/context 不清 | `context.md`、`spec.md` |
+| `skills/plan/SKILL.md` | `/plan`、spec 已有但任务和验证路径缺失 | `plan.md` |
+| `skills/implement/SKILL.md` | `/implement`、执行 AC-traced tasks | code、tests、task evidence |
+| `skills/review/SKILL.md` | `/review`、实现证据需要独立审查 | `review-summary.json` |
+| `skills/verify/SKILL.md` | `/verify`、实现和 review 后运行外部验证 | `verify.md` |
+| `skills/learn/SKILL.md` | `/capture`、捕获可复用规则、决策、踩坑 | knowledge draft / project knowledge |
+| `skills/finish/SKILL.md` | legacy `/finish`，仅显式 branch closeout 时使用 | optional `summary.md` |
 
 每个 canonical skill 都遵循高质量 skill 的基本结构：frontmatter 触发语义、工作流、输入输出、停机条件、常见跳步借口、红旗和验证清单。
 
 ## Lint
 
-Closeout 前运行：
+完成前运行：
 
 ```bash
 bash prismspec/bin/doctor.sh
@@ -186,7 +190,7 @@ artifact lint 会检查：
 
 - `spec.md` 是否包含 AC、execution mode、risk、verification plan；
 - `plan.md` 是否引用 AC、包含稳定任务 ID 和验证步骤；
-- `verify.md` 或 `summary.md` 是否记录真实命令/结果证据；
+- `verify.md` 是否记录真实命令/结果证据；
 - TDD 模式是否包含 red-test task。
 
 ## References 与 Reviewers
@@ -199,13 +203,15 @@ artifact lint 会检查：
 | `spec-quality-checklist.md` | 检查 spec 是否可审、可执行、可验证 |
 | `tdd-evidence-checklist.md` | 约束 red/green evidence |
 | `review-evidence-checklist.md` | 统一 pass/fail/cannot_verify |
-| `definition-of-done.md` | closeout 完成标准 |
+| `definition-of-done.md` | verification 完成标准 |
+| `superpowers-alignment.md` | 规定 Superpowers 已验证的 workflow discipline 优先，PrismSpec 只补 artifact/context/evidence contract |
 
-`agents/` 提供轻量 reviewer persona：spec compliance、code quality、test coverage。它们不绑定某个 Agent runtime。
+`agents/` 提供单一 task-scoped reviewer persona：`task-reviewer.md`。它一次返回 spec compliance 与 code quality 两个 verdict，并允许 `cannot_verify`，避免多 reviewer 漂移和重复成本。
 
 ## 设计原则
 
 - Spec 是契约，不是长文档。
+- Superpowers 已经验证成熟的 workflow discipline 优先复用；PrismSpec 不为相同行为另造一套。
 - 流程只在能产生持久产物或避免真实风险时才存在。
 - Context 先给地图，再由 Agent 按需发现、筛选和压缩。
 - Verification 必须由真实命令和 evidence 支撑。

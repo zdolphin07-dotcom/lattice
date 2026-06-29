@@ -53,7 +53,7 @@ flowchart TB
 | `drift-check.sh` | drift diagnostics、gate JSON | Spec 与代码、schema、route 是否偏移。 |
 | `compliance.sh` | warnings、gate JSON | 是否引用知识、是否保留澄清和合规痕迹。 |
 | build/lint/test | terminal output | 工程基础质量。 |
-| `review-summary.sh` | review verdict JSON | spec compliance、code quality、test coverage、risk 是否被审查。 |
+| `review-summary.sh` | review verdict JSON | task reviewer 的 spec compliance、code quality、test coverage、risk 证据是否完整。 |
 | `tdd-evidence.sh` | TDD red/green JSON | TDD task 是否有红灯、绿灯和 AC trace。 |
 | `context-run.sh` | context-run JSON | 本次 spec 采用、排除和缺失了哪些 context。 |
 | `pipeline.sh --json-out` | eval run JSON | 汇总 gate、process、context 和 loop evidence。 |

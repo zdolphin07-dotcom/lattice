@@ -1,13 +1,15 @@
 ---
 name: prismspec-finish
-description: Closes a PrismSpec run with summary.md, review evidence, residual risks, outcome links, and reusable lesson candidates. Use after verification passes, when a run needs explicit closeout, when cannot_verify risks must be recorded, or when /sdd routes to finish.
+description: Legacy branch-closeout helper for PrismSpec runs. Use when explicit branch or worktree closeout is needed after verification; otherwise use /verify as the workflow endpoint and /capture for durable knowledge.
 ---
 
-# PrismSpec Finish
+# PrismSpec Legacy Finish
 
 ## Overview
 
-Close the loop. Preserve useful verification and eval evidence, and avoid turning transient details into permanent knowledge.
+Close branch/worktree-specific loose ends when explicitly needed. This is no longer a main PrismSpec workflow stage.
+
+This skill aligns with Superpowers `finishing-a-development-branch` and review workflows when branch closeout is in scope. PrismSpec adds `summary.md`, residual risk, eval evidence, and learn candidates.
 
 ## Inputs
 
@@ -16,6 +18,7 @@ Close the loop. Preserve useful verification and eval evidence, and avoid turnin
 - `verify.md`
 - Task evidence and review packages.
 - Current git status and changed files.
+- `prismspec/references/superpowers-alignment.md` when closeout discipline is unclear.
 - `prismspec/references/definition-of-done.md`
 - `prismspec/references/review-evidence-checklist.md` when review evidence exists or risk is non-trivial.
 

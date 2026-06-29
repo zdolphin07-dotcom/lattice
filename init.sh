@@ -273,7 +273,7 @@ copy_tree_files_if_not_exists "$HARNESS_TEMPLATE_DIR/lattice/context" "lattice/c
 
 copy_if_not_exists "$HARNESS_TEMPLATE_DIR/lattice/skills/init.md" "lattice/skills/init.md"
 
-for f in init.md sdd.md brainstorm.md plan.md implement.md verify.md finish.md learn.md; do
+for f in init.md prismspec.md spec.md plan.md implement.md review.md verify.md capture.md sdd.md brainstorm.md finish.md learn.md; do
   copy_if_not_exists "$HARNESS_TEMPLATE_DIR/.claude/commands/$f" ".claude/commands/$f"
 done
 
@@ -553,12 +553,13 @@ echo "  prismspec/                   — Standalone PrismSpec skills module"
 echo "  .claude/commands/                — Slash commands"
 echo ""
 echo "Usage:"
-echo "  /sdd \"requirement\" — Guided workflow with artifact-based resume"
-echo "  /brainstorm       — Draft persistent spec"
-echo "  /plan             — Create AC-traced plan"
-echo "  /implement        — Execute plan/tdd policy"
-echo "  /verify           — Run verification pipeline"
-echo "  /finish           — Close verification evidence and extract knowledge"
-echo "  /learn \"lesson\"   — Capture durable project knowledge"
+echo "  /prismspec \"requirement\" — Guided workflow with artifact-based resume"
+echo "  /spec                    — Draft persistent context and spec"
+echo "  /plan                    — Create AC-traced plan"
+echo "  /implement               — Execute plan/tdd policy"
+echo "  /review                  — Review implementation evidence"
+echo "  /verify                  — Run verification pipeline"
+echo "  /capture \"lesson\"        — Capture durable project knowledge"
+echo "  /sdd, /brainstorm, /finish, /learn remain legacy aliases"
 echo "  Describe a requirement — Full spec-driven workflow"
 echo "══════════════════════════════════"

@@ -1,19 +1,21 @@
 ---
 name: prismspec-sdd
-description: Orchestrates the PrismSpec spec-coding workflow from intent to verified closeout. Use when the user asks for SDD, PrismSpec, spec-driven development, /sdd, guided spec workflow, resuming an existing spec, choosing plan vs TDD mode, or running an AI coding task through brainstorm, plan, implement, verify, and finish.
+description: Orchestrates the PrismSpec AI coding workflow from intent to verified evidence. Use when the user asks for PrismSpec, /prismspec, SDD, spec-driven development, guided spec workflow, resuming an existing spec, choosing plan vs TDD mode, or running an AI coding task through specification, planning, implementation, review, and verification.
 ---
 
-# PrismSpec SDD
+# PrismSpec Workflow
 
 ## Overview
 
 Act as the lifecycle controller for PrismSpec. Route work through the smallest complete chain:
 
 ```text
-brainstorm -> plan -> implement(plan|tdd) -> verify -> finish
+specification -> planning -> implementation(plan|tdd) -> review -> verification
 ```
 
 This skill is a controller, not an extra phase. Delegate stage work to the stage skills.
+
+Read `prismspec/references/superpowers-alignment.md` when workflow behavior is unclear. PrismSpec should not invent a parallel workflow when a mature Superpowers skill already covers the discipline; preserve PrismSpec artifact locations and Lattice gates as the override.
 
 ## Start Here
 
@@ -35,13 +37,29 @@ Use the JSON fields as the routing source of truth: `host`, `spec_id`, `stage`, 
 
 | Stage | Delegate To | Durable Output |
 |-------|-------------|----------------|
-| `brainstorm` | `prismspec-brainstorm` | `context.md`, `spec.md` |
-| `plan` | `prismspec-plan` | `plan.md` |
-| `implement` | `prismspec-implement` | code, tests, task evidence |
-| `verify` | `prismspec-verify` | `verify.md` |
-| `finish` | `prismspec-finish` | `summary.md`, optional learn draft |
+| `specification` | `prismspec-brainstorm` | `context.md`, `spec.md` |
+| `planning` | `prismspec-plan` | `plan.md` |
+| `implementation` | `prismspec-implement` | code, tests, task evidence |
+| `review` | `prismspec-review` | `review-summary.json` |
+| `verification` | `prismspec-verify` | `verify.md` |
 
 After each completed stage, rerun `guide.sh --json` and continue when the next step is clear.
+
+## Superpowers Alignment
+
+When Superpowers is installed or explicitly requested, use its mature workflow skill as the behavioral reference for the stage, then write PrismSpec artifacts:
+
+| PrismSpec Stage | Prefer Superpowers Discipline |
+|---|---|
+| `specification` | `superpowers:brainstorming` |
+| `planning` | `superpowers:writing-plans` |
+| `implementation` | `superpowers:subagent-driven-development`, `superpowers:executing-plans`, `superpowers:test-driven-development` |
+| `review` | Superpowers SDD task reviewer discipline |
+| `verification` | `superpowers:verification-before-completion` |
+
+Use `superpowers:finishing-a-development-branch` only when branch/worktree closeout is explicitly in scope. PrismSpec's main workflow ends at command-backed verification; durable lessons move through `/capture`.
+
+Do not copy Superpowers output paths blindly. For PrismSpec/Lattice work, write `context.md`, `spec.md`, `plan.md`, task evidence, `review-summary.json`, and `verify.md` in the routed PrismSpec locations.
 
 ## Host Modes
 
@@ -70,9 +88,9 @@ Stop and ask the user when:
 ## Red Flags
 
 - Stage is chosen from conversation memory instead of artifacts.
-- `/sdd` skips directly from `spec.md` to implementation without `plan.md`.
+- `/prismspec` skips directly from `spec.md` to implementation without `plan.md`.
 - Verification is described but no command output is recorded.
-- `summary.md` exists while tasks or failures are unresolved.
+- Review evidence is missing but the run proceeds to verification.
 
 ## Verification
 
@@ -80,5 +98,6 @@ Before reporting completion:
 
 - [ ] `guide.sh --json` reports `stage: done`, or remaining blockers are explicit.
 - [ ] Required durable artifacts exist.
-- [ ] Verification evidence is linked from `summary.md`.
+- [ ] Review evidence exists or a missing-review risk is explicit.
+- [ ] Verification evidence is recorded in `verify.md`.
 - [ ] Follow-ups are scoped and not hidden inside "done".

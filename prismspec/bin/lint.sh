@@ -17,7 +17,7 @@ Usage:
 Checks:
   spec      context.md exists; spec.md has ACs, execution mode, risk, and verification plan
   plan      plan.md references AC ids and includes verification
-  evidence  verify.md or summary.md records commands/results
+  evidence  verify.md records commands/results
   skillpack canonical skills, templates, references, command, and routing contract exist
   all       run all available checks
 EOF
@@ -108,7 +108,7 @@ check_skillpack() {
   check_contains "$manifest" '^api_version: prismspec\.lattice\.dev/v1$' "skillpack api_version"
   check_contains "$manifest" '^kind: SkillPack$' "skillpack kind"
   check_contains "$manifest" '^[[:space:]]+name: prismspec$' "skillpack metadata.name"
-  check_contains "$manifest" '^[[:space:]]+command: prismspec/commands/sdd\.md$' "skillpack command entrypoint"
+  check_contains "$manifest" '^[[:space:]]+command: prismspec/commands/prismspec\.md$' "skillpack command entrypoint"
   check_contains "$manifest" '^[[:space:]]+new: prismspec/bin/new\.sh$' "skillpack new entrypoint"
   check_contains "$manifest" '^[[:space:]]+router: prismspec/bin/guide\.sh$' "skillpack router entrypoint"
   check_contains "$manifest" '^[[:space:]]+lint: prismspec/bin/lint\.sh$' "skillpack lint entrypoint"
@@ -117,21 +117,24 @@ check_skillpack() {
   check_contains "$manifest" 'bash prismspec/bin/new\.sh --help' "skillpack new gate"
   check_contains "$manifest" 'bash prismspec/bin/lint\.sh prismspec skillpack' "skillpack self lint gate"
 
-  check_file "$root/commands/sdd.md" "SDD command"
+  local command
+  for command in prismspec spec plan implement review verify capture sdd brainstorm finish learn; do
+    check_file "$root/commands/$command.md" "$command command"
+  done
   check_executable "$root/bin/new.sh" "new"
   check_executable "$root/bin/guide.sh" "guide"
   check_executable "$root/bin/lint.sh" "lint"
   check_executable "$root/bin/doctor.sh" "doctor"
 
   local stage
-  for stage in sdd brainstorm plan implement verify finish learn; do
+  for stage in sdd brainstorm plan implement review verify finish learn; do
     check_skill_file "$root" "$stage"
     check_skill_interface "$root" "$stage"
     check_contains "$manifest" "path: prismspec/skills/$stage/SKILL\\.md" "$stage canonical skill catalog entry"
     check_contains "$manifest" "interface: prismspec/skills/$stage/agents/openai\\.yaml" "$stage interface catalog entry"
   done
 
-  for stage in brainstorm plan implement verify finish; do
+  for stage in brainstorm plan implement review verify; do
     check_contains "$manifest" "skill: prismspec/skills/$stage/SKILL\\.md" "$stage workflow entry"
   done
 
@@ -141,9 +144,11 @@ check_skillpack() {
   done
 
   local reference
-  for reference in mode-selection.md definition-of-done.md spec-quality-checklist.md tdd-evidence-checklist.md review-evidence-checklist.md; do
+  for reference in mode-selection.md definition-of-done.md spec-quality-checklist.md tdd-evidence-checklist.md review-evidence-checklist.md superpowers-alignment.md; do
     check_file "$root/references/$reference" "reference"
   done
+  check_file "$root/agents/task-reviewer.md" "task reviewer"
+  check_contains "$manifest" '^[[:space:]]+task: prismspec/agents/task-reviewer\.md$' "task reviewer catalog entry"
 
   local flat_count
   flat_count=$(find "$root/skills" -maxdepth 1 -type f -name '*.md' -not -name 'README.md' 2>/dev/null | wc -l | tr -d ' ')
@@ -194,6 +199,7 @@ check_spec() {
   grep -qE 'AC-[0-9]+' "$SPEC_FILE" || bad "spec.md has no AC-{n} acceptance criteria"
   grep -qiE 'execution[_ -]?mode|Mode:[[:space:]]*`?(plan|tdd)|mode:[[:space:]]*`?(plan|tdd)' "$SPEC_FILE" || bad "spec.md has no execution mode"
   grep -qiE '\b(plan|tdd)\b' "$SPEC_FILE" || bad "spec.md execution mode must be plan or tdd"
+  grep -qiE '^approval:[[:space:]]*(explicit|inferred|skipped-with-reason)[[:space:]]*$|Status:[[:space:]]*(explicit|inferred|skipped-with-reason)' "$SPEC_FILE" || bad "spec.md has no approval status"
   contains_heading "$SPEC_FILE" 'Intent|Objective|Goal|Background' || bad "spec.md missing intent/objective section"
   contains_heading "$SPEC_FILE" 'Scope' || bad "spec.md missing scope section"
   contains_heading "$SPEC_FILE" 'Risk|风险' || bad "spec.md missing risk section"
@@ -228,7 +234,7 @@ check_evidence() {
   elif [[ -f "$SUMMARY_FILE" ]]; then
     grep -qiE 'verification|command|pass|fail|pipeline|test|build|lint|验证|通过|失败' "$SUMMARY_FILE" || bad "summary.md lacks verification evidence"
   else
-    bad "verification evidence missing: verify.md or summary.md"
+    bad "verification evidence missing: verify.md"
   fi
 
   if [[ $FAIL -eq 0 ]]; then ok "evidence contract"; fi

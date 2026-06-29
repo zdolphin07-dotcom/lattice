@@ -87,6 +87,7 @@ ID="$(frontmatter_value "id" "$SPEC_FILE")"
 STATUS="$(frontmatter_value "status" "$SPEC_FILE")"
 EXECUTION_MODE="$(frontmatter_value "execution_mode" "$SPEC_FILE")"
 MODE_SOURCE="$(frontmatter_value "mode_source" "$SPEC_FILE")"
+APPROVAL="$(frontmatter_value "approval" "$SPEC_FILE")"
 OWNER="$(frontmatter_value "owner" "$SPEC_FILE")"
 CREATED_AT="$(frontmatter_value "created_at" "$SPEC_FILE")"
 UPDATED_AT="$(frontmatter_value "updated_at" "$SPEC_FILE")"
@@ -96,6 +97,7 @@ for pair in \
   "status:$STATUS" \
   "execution_mode:$EXECUTION_MODE" \
   "mode_source:$MODE_SOURCE" \
+  "approval:$APPROVAL" \
   "owner:$OWNER" \
   "created_at:$CREATED_AT" \
   "updated_at:$UPDATED_AT"; do
@@ -124,6 +126,11 @@ esac
 case "$MODE_SOURCE" in
   model-selected|project-default|user-override) pass_msg "mode_source is valid: $MODE_SOURCE" ;;
   *) fail_msg "mode_source must be model-selected, project-default, or user-override" ;;
+esac
+
+case "$APPROVAL" in
+  explicit|inferred|skipped-with-reason) pass_msg "approval is valid: $APPROVAL" ;;
+  *) fail_msg "approval must be explicit, inferred, or skipped-with-reason" ;;
 esac
 
 if [[ "$CREATED_AT" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$ ]]; then

@@ -1,0 +1,4 @@
+interface:
+  display_name: "PrismSpec Review"
+  short_description: "Review implementation evidence before verification"
+  default_prompt: "Use $prismspec-review to review implementation evidence and record review-summary.json."

@@ -17,14 +17,15 @@ Use the returned `stage`, `mode`, `skill`, `spec_dir`, `run_dir`, and `verify_co
 
 | Trigger | Route | Output |
 |---------|-------|--------|
-| Requirement without spec | Brainstorm | `lattice/specs/<spec-id>/context.md`, `spec.md` |
-| `/sdd` | PrismSpec controller | Next stage from `guide.sh --json` |
-| `/brainstorm` | Brainstorm skill | context basis and spec |
-| `/plan` | Plan skill | AC-traced `plan.md` |
-| `/implement` | Implement skill | code, tests, task evidence |
-| `/verify` | Verify skill | `verify.md`, eval JSON when available |
-| `/finish` | Finish skill | `summary.md`, residual risk, outcome links |
-| `/learn` | Learn skill | knowledge draft or promoted project knowledge |
+| Requirement without spec | Specification | `lattice/specs/<spec-id>/context.md`, `spec.md` |
+| `/prismspec` | PrismSpec controller | Next stage from `guide.sh --json` |
+| `/sdd` | Legacy alias for `/prismspec` | Next stage from `guide.sh --json` |
+| `/spec` | Specification skill | context basis and spec |
+| `/plan` | Planning skill | AC-traced `plan.md` |
+| `/implement` | Implementation skill | code, tests, task evidence |
+| `/review` | Review skill | `review-summary.json` |
+| `/verify` | Verification skill | `verify.md`, eval JSON when available |
+| `/capture` | Knowledge capture skill | knowledge draft or promoted project knowledge |
 
 ### Source Of Truth
 
@@ -41,7 +42,7 @@ Use the returned `stage`, `mode`, `skill`, `spec_dir`, `run_dir`, and `verify_co
 
 Current code, tests, schemas, contracts, and command output override stale notes.
 
-### Brainstorm
+### Specification
 
 - Write both `context.md` and `spec.md`.
 - Read `lattice/context/README.md` first when present.
@@ -59,7 +60,7 @@ bash lattice/kernel/context/context-run.sh <spec-id> --strict
 bash lattice/kernel/orchestrator/sdd/spec-state-lint.sh <spec-id>
 ```
 
-### Plan
+### Planning
 
 - Write `lattice/specs/<spec-id>/plan.md`.
 - Every behavior task must reference at least one AC.
@@ -75,7 +76,7 @@ bash lattice/kernel/orchestrator/sdd/plan-lint.sh <spec-id>
 bash lattice/kernel/orchestrator/sdd/spec-status.sh <spec-id> planned --from=drafted
 ```
 
-### Implement
+### Implementation
 
 - Resolve the next task from artifacts:
 
@@ -103,7 +104,26 @@ bash lattice/kernel/orchestrator/sdd/task-evidence-lint.sh <spec-id>
 bash lattice/kernel/orchestrator/sdd/spec-status.sh <spec-id> implemented --from=planned
 ```
 
-### Verify
+### Review
+
+Review is read-only evidence checking before final verification.
+
+- Read `spec.md`, `plan.md`, task evidence, review packages, and changed files.
+- Use one skeptical reviewer that returns `pass`, `fail`, or `cannot_verify` across spec compliance, code quality, test coverage, and risk.
+- Treat missing evidence as `cannot_verify`.
+- Do not tell the reviewer what to ignore.
+
+Record review evidence when available:
+
+```bash
+bash lattice/kernel/orchestrator/sdd/review-summary.sh <spec-id> branch \
+  --spec-compliance=pass|fail|cannot_verify \
+  --code-quality=pass|fail|cannot_verify \
+  --test-coverage=pass|fail|cannot_verify \
+  --risk=pass|fail|cannot_verify
+```
+
+### Verification
 
 Verification is command-backed proof, not a prose assertion.
 
@@ -126,9 +146,11 @@ When verification passes:
 bash lattice/kernel/orchestrator/sdd/spec-status.sh <spec-id> verified --from=implemented
 ```
 
-### Finish
+### Legacy Finish
 
-- Write `lattice/specs/<spec-id>/summary.md`.
+PrismSpec no longer requires a main `finish` stage. Use this only for explicit branch/worktree closeout or teams that still require `summary.md`.
+
+- Optionally write `lattice/specs/<spec-id>/summary.md`.
 - Summarize AC coverage, changed files, verification commands, evidence links, residual risk, and deferred work.
 - Treat `cannot_verify` as residual risk, not pass.
 - Link known post-run review findings, rework, escaped defects, incidents, or success signals with `outcome-link.sh` when available.
@@ -140,11 +162,11 @@ When summary exists and verification evidence is real:
 bash lattice/kernel/orchestrator/sdd/spec-status.sh <spec-id> finished --from=verified
 ```
 
-### Learn
+### Knowledge Capture
 
 Promote only durable, reusable, non-secret lessons.
 
-- Prefer `lattice/kernel/context/summary-learn-draft.sh <spec-id>` when `summary.md` contains Knowledge Candidates.
+- Prefer `lattice/kernel/context/summary-learn-draft.sh <spec-id>` when `verify.md` or legacy `summary.md` contains Knowledge Candidates.
 - Store drafts under `lattice/context/drafts/`.
 - Promote to `lattice/context/knowledge/` only after checking duplicates and conflicts.
 - When governance is required, record reviewer evidence:
@@ -177,7 +199,7 @@ lattice/
 │       ├── spec.md
 │       ├── plan.md
 │       ├── verify.md
-│       └── summary.md
+│       └── summary.md   # optional legacy closeout
 └── state/
     ├── eval-runs/
     ├── loops/
@@ -198,4 +220,7 @@ prismspec/
 ├── review-package.md
 ├── review-summary.json
 └── tdd-evidence.json
+
+.lattice/sdd/<spec-id>/branch/
+└── review-summary.json
 ```

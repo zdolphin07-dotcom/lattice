@@ -1,4 +1,4 @@
 interface:
-  display_name: "PrismSpec Plan"
+  display_name: "PrismSpec Planning"
   short_description: "Create an AC-traced implementation plan"
   default_prompt: "Use $prismspec-plan to convert this spec into an AC-traced plan.md."

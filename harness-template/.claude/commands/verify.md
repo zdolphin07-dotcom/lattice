@@ -1,4 +1,4 @@
-Run the full verification pipeline and paste evidence.
+Run the full verification pipeline and record evidence.
 
 Execute `prismspec/skills/verify/SKILL.md`.
 
@@ -6,9 +6,9 @@ Execute `prismspec/skills/verify/SKILL.md`.
 
 1. Execute `lattice/kernel/delivery/pipeline.sh --json-out` (manifest.yaml driven)
 2. If harness not found, fallback to language defaults
-3. Paste actual terminal output for each step
-4. Summarize: ✅ PASS / ❌ FAIL
+3. Record exact commands, exit codes, output summaries, skipped checks, residual risks, and next actions in `verify.md`
+4. Summarize: PASS / FAIL
 
 ## Important
 
-- Actual terminal output required, no natural language assertions
+- Actual command output required, no natural language assertions

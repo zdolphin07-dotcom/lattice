@@ -1,4 +1,4 @@
 interface:
-  display_name: "PrismSpec Learn"
+  display_name: "PrismSpec Knowledge Capture"
   short_description: "Promote durable lessons into knowledge"
   default_prompt: "Use $prismspec-learn to capture durable project knowledge from this run."

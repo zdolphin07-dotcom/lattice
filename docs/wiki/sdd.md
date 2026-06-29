@@ -1,14 +1,14 @@
-# PrismSpec / SDD 设计
+# PrismSpec Workflow 设计
 
 ## 结论
 
-PrismSpec 是 Lattice 中独立出来的渐进式 Spec-Driven Development skill pack。它的目标不是增加流程仪式，而是给 AI Coding 提供一条可恢复、可审查、可验证的最小链路：
+PrismSpec 是 Lattice 中独立出来的渐进式 Spec Coding skill pack。它的目标不是增加流程仪式，而是给 AI Coding 提供一条可恢复、可审查、可验证的最小链路：
 
 ```text
-Intent -> Brainstorming -> Planning -> Implementation(plan|tdd) -> Verification -> Finishing
+Intent -> Specification -> Planning -> Implementation(plan|tdd) -> Review -> Verification
 ```
 
-`/sdd` 是 controller，不是第六个阶段。它读取现有产物，判断下一步应该执行哪个阶段 skill。
+`/prismspec` 是 controller，不是额外阶段。它读取现有产物，判断下一步应该执行哪个阶段 skill。`/sdd` 作为兼容别名保留。
 
 ```bash
 bash prismspec/bin/guide.sh --json
@@ -29,21 +29,22 @@ Lattice-hosted 模式会额外使用 manifest、项目 context 地图、verifica
 
 | 阶段 | 目标 | 持久产物 | 临时证据 |
 |------|------|----------|----------|
-| Brainstorming | 明确 intent、scope、context、AC、risk、mode | `context.md`、`spec.md` | 需求澄清记录可写入 spec |
+| Specification | 明确 intent、scope、context、AC、risk、mode | `context.md`、`spec.md` | 需求澄清记录可写入 spec |
 | Planning | 将 spec 拆成 AC-traced tasks | `plan.md` | 相关代码边界和任务验证说明 |
 | Implementation | 执行 plan 或 TDD | code / tests | `brief.md`、`review-package.md` |
+| Review | 审查实现证据、diff、review package | `review-summary.json` | `pass` / `fail` / `cannot_verify` |
 | Verification | 用外部命令证明结果 | `verify.md` | pipeline output、test output |
-| Finishing | 关闭本次交付并提炼知识候选 | `summary.md` | review verdict、learn draft |
 
 产物设计原则：
 
-- `spec.md`、`plan.md`、`verify.md`、`summary.md` 是可版本化资产。
+- `spec.md`、`plan.md`、`verify.md` 是可版本化资产。
 - `.lattice/sdd/` 与 `.prismspec/runs/` 是执行证据目录，默认不作为长期知识。
 - review package 是审查输入，不等于 verification evidence。
+- `summary.md` 只作为 legacy branch closeout 或团队需要的可选产物。
 
-## Brainstorming
+## Specification
 
-Brainstorming 是第一阶段，产物是 `context.md` 和 `spec.md`。它不是随意头脑风暴，而是先固化上下文依据，再把需求压缩成可执行契约。
+Specification 是第一阶段，产物是 `context.md` 和 `spec.md`。它对齐 Superpowers `brainstorming` 的协作设计纪律，但不是随意头脑风暴，而是先固化上下文依据，再把需求压缩成可执行契约。
 
 必须明确：
 
@@ -56,7 +57,7 @@ Brainstorming 是第一阶段，产物是 `context.md` 和 `spec.md`。它不是
 
 ### 为什么读取 `manifest.yaml`
 
-在 Lattice-hosted 模式下，Brainstorming 需要读取 `lattice/manifest.yaml`，但目的不是把 manifest 当业务上下文，而是获取项目路由：
+在 Lattice-hosted 模式下，Specification 需要读取 `lattice/manifest.yaml`，但目的不是把 manifest 当业务上下文，而是获取项目路由：
 
 - spec 放在哪里；
 - context 地图在哪里；
@@ -64,7 +65,7 @@ Brainstorming 是第一阶段，产物是 `context.md` 和 `spec.md`。它不是
 - verification command 是什么；
 - 项目启用了哪些 verification gates。
 
-Brainstorming 不应该全量复制 manifest、代码或知识库到 spec。Agent 应先读取项目 context 地图，再按需查找相关代码、测试、schema、历史 spec、项目知识和外部知识。`context.md` 只记录被采用的事实、引用、冲突和开放问题；`spec.md` 只保留影响 Scope、AC、Risk、Execution Policy 的结论。
+Specification 不应该全量复制 manifest、代码或知识库到 spec。Agent 应先读取项目 context 地图，再按需查找相关代码、测试、schema、历史 spec、项目知识和外部知识。`context.md` 只记录被采用的事实、引用、冲突和开放问题；`spec.md` 只保留影响 Scope、AC、Risk、Execution Policy 的结论。
 
 ## Spec 模板策略
 
