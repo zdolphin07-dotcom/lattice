@@ -12,7 +12,11 @@ section() {
 }
 
 section "Bash syntax"
-bash -n init.sh install.sh tests/smoke-test.sh tests/release-check.sh $(find harness-template prismspec/bin -name '*.sh')
+shell_scripts=()
+while IFS= read -r script; do
+  shell_scripts+=("$script")
+done < <(find harness-template prismspec/bin -name '*.sh')
+bash -n init.sh install.sh tests/smoke-test.sh tests/release-check.sh "${shell_scripts[@]}"
 
 section "PrismSpec skillpack"
 bash prismspec/bin/lint.sh prismspec skillpack

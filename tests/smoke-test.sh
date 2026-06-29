@@ -42,7 +42,7 @@ echo ""
 # ── 1. bash -n syntax check ──
 echo "── 1. Syntax check (bash -n) ──"
 SYNTAX_OK=true
-for f in "$REPO_DIR"/init.sh "$REPO_DIR"/install.sh $(find "$REPO_DIR/harness-template" "$REPO_DIR/prismspec/bin" -name '*.sh'); do
+for f in "$REPO_DIR"/init.sh "$REPO_DIR"/install.sh "$REPO_DIR"/tests/*.sh $(find "$REPO_DIR/harness-template" "$REPO_DIR/prismspec/bin" -name '*.sh'); do
   if ! bash -n "$f" 2>/dev/null; then
     fail "Syntax error: $(basename "$f")"
     SYNTAX_OK=false
@@ -66,6 +66,22 @@ if bash "$REPO_DIR/install.sh" "$SANDBOX" 2>&1 | tail -3; then
   fi
 else
   fail "install.sh exited non-zero"
+fi
+echo ""
+
+if bash "$REPO_DIR/install.sh" "$SANDBOX" --dry-run --init >/tmp/lattice-install-dry-run.out 2>&1 \
+  && grep -q "Lattice install dry run" /tmp/lattice-install-dry-run.out \
+  && grep -q "auto_init: true" /tmp/lattice-install-dry-run.out; then
+  pass "install.sh dry-run reports planned install"
+else
+  fail "install.sh dry-run failed"
+fi
+
+if bash "$REPO_DIR/install.sh" --version >/tmp/lattice-install-version.out 2>&1 \
+  && grep -q "kernel_version:" /tmp/lattice-install-version.out; then
+  pass "install.sh --version reports metadata"
+else
+  fail "install.sh --version failed"
 fi
 echo ""
 

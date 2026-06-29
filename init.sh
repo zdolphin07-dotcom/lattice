@@ -33,9 +33,18 @@ PRISMSPEC_SOURCE="$FRAMEWORK_ROOT/prismspec"
 
 PROJECT_ROOT="$(pwd)"
 
+tool_hint() {
+  case "$1" in
+    yq) echo "Install yq 4.x: https://github.com/mikefarah/yq#install" ;;
+    git) echo "Install git and make sure it is available on PATH." ;;
+    *) echo "Install $1 and make sure it is available on PATH." ;;
+  esac
+}
+
 for tool in yq git; do
   if ! command -v "$tool" &>/dev/null; then
     echo "Missing required tool: $tool"
+    echo "   $(tool_hint "$tool")"
     exit 1
   fi
 done

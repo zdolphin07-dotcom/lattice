@@ -60,12 +60,21 @@ check_command() {
   fi
 }
 
+tool_hint() {
+  case "$1" in
+    yq) echo "    Hint: install yq 4.x from https://github.com/mikefarah/yq#install" ;;
+    git) echo "    Hint: install git and make sure it is available on PATH." ;;
+    *) echo "    Hint: install $1 and make sure it is available on PATH." ;;
+  esac
+}
+
 echo "── Required tools ──"
 for tool in yq git; do
   if command -v "$tool" >/dev/null 2>&1; then
     pass "$tool"
   else
     fail "Missing required tool: $tool"
+    tool_hint "$tool"
   fi
 done
 echo ""

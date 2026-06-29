@@ -21,7 +21,7 @@ Do not include secrets, tokens, private customer data, or proprietary source cod
 |---------|-------|
 | Remote install returns 404 | Confirm the GitHub repository and raw install URL are public and accessible without local credentials. |
 | `yq` is missing | Install Mike Farah `yq` 4.x before running `init.sh`. |
-| macOS Bash is too old | Install Bash 4+ with Homebrew and run Lattice with that shell. |
+| Shell version behaves unexpectedly | Use the system Bash first; if compatibility issues appear, install a newer Bash and rerun the checks. |
 | Doctor fails after upgrade | Re-run `install.sh --upgrade --init` from the target repository and inspect `lattice/state/*-backups/`. |
 | Pipeline skips most steps | Confirm `lattice/manifest.yaml` has project commands and `lattice/specs/<spec-id>/spec.md` exists. |
 

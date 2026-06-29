@@ -8,13 +8,14 @@
     <a href="docs/wiki/">Design Wiki</a> ·
     <a href="docs/adapters/">Agent Adapters</a> ·
     <a href="examples/go-gin-gorm/">Runnable Example</a> ·
-    <a href="CHANGELOG.md">Changelog</a>
+    <a href="CHANGELOG.md">Changelog</a> ·
+    <a href="SUPPORT.md">Support</a>
   </p>
   <p align="center">
     <a href="https://github.com/zdolphin07-dotcom/lattice/actions/workflows/shellcheck.yml"><img alt="Shellcheck" src="https://github.com/zdolphin07-dotcom/lattice/actions/workflows/shellcheck.yml/badge.svg"></a>
     <img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue.svg">
     <img alt="Platform" src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux-lightgrey.svg">
-    <img alt="Runtime" src="https://img.shields.io/badge/runtime-Bash%204%2B-informational.svg">
+    <img alt="Runtime" src="https://img.shields.io/badge/runtime-Bash%203.2%2B-informational.svg">
   </p>
 </p>
 
@@ -104,9 +105,17 @@ git clone https://github.com/zdolphin07-dotcom/lattice.git /tmp/lattice
 /tmp/lattice/install.sh "$PWD" --init
 ```
 
-Prerequisites: Bash 4+, `yq` 4.x, and `git`.
+Prerequisites: Bash 3.2+, `yq` 4.x, and `git`.
 
 Installation adds `lattice/`, `prismspec/`, and agent entry files. On upgrade, framework code under `kernel/` and PrismSpec can be refreshed; project-owned assets such as `lattice/manifest.yaml`, `lattice/context/`, and `lattice/specs/` should not be overwritten.
+
+Before a public launch, confirm the remote install URL is anonymously accessible:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/zdolphin07-dotcom/lattice/main/install.sh >/tmp/lattice-install.sh
+```
+
+If this returns `404`, the repository or raw URL is not public yet. Switch the repository visibility or publish from a public release/tag URL first.
 
 ### Run The Example
 
@@ -117,6 +126,24 @@ bash examples/go-gin-gorm/try-it.sh
 ```
 
 The example demonstrates directory specs, embedded Context Basis in `spec.md`, spec lint, AC coverage, drift checks, eval JSON, and the context knowledge backend.
+
+### 10-Minute Trial Path
+
+```bash
+# 1. Run the official example first to confirm local dependencies and evidence output.
+bash examples/go-gin-gorm/try-it.sh
+
+# 2. After installing into a non-critical repository, run health checks.
+bash lattice/kernel/doctor.sh
+bash prismspec/bin/doctor.sh
+
+# 3. Create a small spec and inspect the next route.
+bash prismspec/bin/new.sh checkout-flow --template=service --mode=plan
+bash prismspec/bin/guide.sh --spec=checkout-flow --json
+
+# 4. After editing spec.md, run the minimal contract check.
+bash prismspec/bin/lint.sh lattice/specs/checkout-flow spec
+```
 
 ## Adoption Path
 
@@ -212,10 +239,32 @@ The capability layers above are the user-facing view; the component model below 
 | Verification | Reproducible pipeline and gates. | `lattice/kernel/delivery/` |
 | Evidence / Eval | Gate output, structured eval runs, Markdown summary/history, central sink, dashboard, queries, and outcomes. | `lattice/state/eval-runs/*.json`, `*.md`, `lattice/state/outcomes/` |
 
+## Support Matrix And Troubleshooting
+
+| Item | Current Status |
+|------|----------------|
+| Operating systems | macOS / Linux; use WSL first for Windows |
+| Shell | Bash 3.2+ |
+| Required tools | `git`, `yq` 4.x |
+| Validated example | Go / Gin / GORM |
+| CI coverage | Bash syntax, ShellCheck, smoke test, Go example, release check |
+
+| Symptom | Action |
+|---------|--------|
+| Remote install returns `404` | Confirm the GitHub repository and raw install URL are public; use local clone install for private repositories. |
+| `yq` is missing | Install Mike Farah `yq` 4.x, for example `brew install yq` on macOS. |
+| Shell version behaves unexpectedly | Use the system Bash first; if compatibility issues appear, install a newer Bash and rerun the checks. |
+| `doctor.sh` fails | Inspect the missing file/tool, then run `bash prismspec/bin/doctor.sh` to isolate PrismSpec contract issues. |
+| Pipeline skips most steps | Check project commands in `lattice/manifest.yaml` and whether an active spec exists. |
+
+See [SUPPORT.md](SUPPORT.md) for support scope and troubleshooting details, and [SECURITY.md](SECURITY.md) for security boundaries and vulnerability reporting.
+
 ## Common Commands
 
 | Scenario | Command |
 |----------|---------|
+| Preview install target before writing files | `bash install.sh /path/to/project --dry-run --init` |
+| Print installer version metadata | `bash install.sh --version` |
 | Check installation health | `bash lattice/kernel/doctor.sh` |
 | Check PrismSpec standalone health | `bash prismspec/bin/doctor.sh` |
 | Create an initial spec directory | `bash prismspec/bin/new.sh checkout-flow --template=service --mode=plan` |
@@ -275,6 +324,8 @@ Still evolving:
 | [Agent adapters](docs/adapters/) | Claude Code, Cursor, Aider, Superpowers, Agent Skills, and generic agents |
 | [Runnable example](examples/go-gin-gorm/) | End-to-end Go/Gin/GORM sample |
 | [Contributing](CONTRIBUTING.md) | Development, testing, and contribution guide |
+| [Support](SUPPORT.md) | Support scope, troubleshooting, and issue context |
+| [Security](SECURITY.md) | Security boundaries, vulnerability reporting, and release checks |
 
 ## Design Principles
 

@@ -12,6 +12,8 @@
 #   Options:
 #     --init       Auto-run init.sh after install (detect + harness-template + manifest)
 #     --upgrade    Refresh framework source and upgrade project kernel
+#     --dry-run    Print the planned install action without writing files
+#     --version    Print local installer version metadata
 #
 set -euo pipefail
 
@@ -19,11 +21,47 @@ REPO_URL="${LATTICE_REPO:-https://github.com/zdolphin07-dotcom/lattice.git}"
 TARGET=""
 AUTO_INIT=false
 FORCE_UPGRADE=false
+DRY_RUN=false
+
+usage() {
+  cat <<'EOF'
+Usage:
+  install.sh [target] [--init] [--upgrade] [--dry-run]
+  install.sh --version
+
+Options:
+  --init       Auto-run init.sh after install
+  --upgrade    Refresh framework source and upgrade project kernel
+  --dry-run    Print the planned install action without writing files
+  --version    Print local installer version metadata
+  --help       Show this help
+EOF
+}
+
+print_version() {
+  local script_dir version commit
+  script_dir="$(cd "$(dirname "$0")" && pwd)"
+  version="unknown"
+  if [ -f "$script_dir/harness-template/lattice/kernel/VERSION" ]; then
+    version="$(tr -d '[:space:]' < "$script_dir/harness-template/lattice/kernel/VERSION")"
+  fi
+  commit="unknown"
+  if command -v git >/dev/null 2>&1 && git -C "$script_dir" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    commit="$(git -C "$script_dir" rev-parse --short HEAD 2>/dev/null || echo unknown)"
+  fi
+  echo "Lattice installer"
+  echo "  kernel_version: $version"
+  echo "  source_commit: $commit"
+  echo "  repo_url: $REPO_URL"
+}
 
 for arg in "$@"; do
   case "$arg" in
     --init)    AUTO_INIT=true ;;
     --upgrade) FORCE_UPGRADE=true ;;
+    --dry-run) DRY_RUN=true ;;
+    --version) print_version; exit 0 ;;
+    --help|-h) usage; exit 0 ;;
     -*)        echo "Unknown option: $arg"; exit 1 ;;
     *)         TARGET="$arg" ;;
   esac
@@ -39,6 +77,25 @@ DEST="$TARGET/.lattice/framework"
 PROJECT_ALREADY_INITIALIZED=false
 if [ -f "$TARGET/lattice/manifest.yaml" ]; then
   PROJECT_ALREADY_INITIALIZED=true
+fi
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+if [ "$DRY_RUN" = true ]; then
+  if [ -d "$SCRIPT_DIR/harness-template" ]; then
+    INSTALL_MODE="local"
+  else
+    INSTALL_MODE="remote"
+  fi
+  echo "Lattice install dry run"
+  echo "  target: $TARGET"
+  echo "  framework_dest: $DEST"
+  echo "  mode: $INSTALL_MODE"
+  echo "  repo: $REPO_URL"
+  echo "  auto_init: $AUTO_INIT"
+  echo "  upgrade: $FORCE_UPGRADE"
+  echo "  project_initialized: $PROJECT_ALREADY_INITIALIZED"
+  exit 0
 fi
 
 upgrade_project_kernel() {
@@ -123,8 +180,6 @@ if [ -d "$DEST" ]; then
     exit 0
   fi
 fi
-
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 if [ -d "$SCRIPT_DIR/harness-template" ]; then
   echo "📦 Local install Lattice → $DEST"

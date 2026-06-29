@@ -20,7 +20,7 @@ Lattice 当前可以作为 **early preview / pilot** 对外发布，用于非关
 未覆盖：
 
 - Windows / WSL 环境。
-- 未安装 `yq`、`git`、Bash 4+ 的新手机器。
+- 未安装 `yq`、`git`、Bash 3.2+ 的新手机器。
 - 真实业务仓库中的多语言大型项目、复杂 CI、多人并发 spec 管理。
 - GitHub 仓库可见性切换后的匿名用户端到端复测。
 
@@ -31,8 +31,9 @@ Lattice 当前可以作为 **early preview / pilot** 对外发布，用于非关
 | Bash 语法 | `bash -n init.sh install.sh tests/smoke-test.sh $(find harness-template prismspec/bin -name '*.sh')` | PASS |
 | ShellCheck | `shellcheck --severity=warning init.sh install.sh tests/smoke-test.sh $(find harness-template prismspec/bin -name '*.sh')` | PASS |
 | PrismSpec contract | `bash prismspec/bin/lint.sh prismspec skillpack` | PASS |
-| Smoke test | `bash tests/smoke-test.sh` | PASS，105 / 105 |
+| Smoke test | `bash tests/smoke-test.sh` | PASS，107 / 107 |
 | Go 示例 | `bash examples/go-gin-gorm/try-it.sh` | PASS，完成 spec lint、AC coverage、drift check、review evidence、pipeline eval、eval summary/history |
+| Release check | `bash tests/release-check.sh` | PASS，remote install 默认跳过；发布前可设置 `LATTICE_CHECK_REMOTE_INSTALL=1` |
 | Whitespace | `git diff --check` | PASS |
 | 远端 clone 示例 | `git clone --depth=1 https://github.com/zdolphin07-dotcom/lattice.git` 后运行 `examples/go-gin-gorm/try-it.sh` | PASS，但依赖本机已有 GitHub 凭证 |
 | README remote install | `bash <(curl -fsSL https://raw.githubusercontent.com/zdolphin07-dotcom/lattice/main/install.sh) --init` | FAIL，匿名 raw URL 返回 404 |
@@ -77,36 +78,32 @@ bash <(curl -fsSL https://raw.githubusercontent.com/zdolphin07-dotcom/lattice/ma
 
 ## P1 商业化可信度 gap
 
-### 1. 缺少安全与支持入口
+### 1. 安全与支持入口已补齐，仍需建立私有披露渠道
 
-当前已有 `LICENSE`、`CONTRIBUTING.md`、`CHANGELOG.md`，但没有发现：
+本次已补齐：
 
 - `SECURITY.md`
 - `SUPPORT.md`
 - GitHub issue templates
 - PR template
-- 明确的漏洞披露、兼容性、支持范围和 known limitations
 
-建议：
+仍需发布前确认：
 
-- 发布前至少补 `SECURITY.md` 和 `SUPPORT.md`。
-- README 增加 “Known limitations / Support matrix” 的简短入口。
-- GitHub issue template 区分 bug report、install failure、feature request。
+- 是否有私有安全披露邮箱或 GitHub private vulnerability reporting。
+- 是否把 `SUPPORT.md` 和 `SECURITY.md` 中的公开 URL 指向最终公开仓库。
 
 ### 2. CI 还没有覆盖公开用户入口
 
-当前 GitHub Actions 已覆盖 Bash syntax、ShellCheck、PrismSpec skill frontmatter、YAML contract 和 smoke test，这是一个不错的底座。
+当前 GitHub Actions 已覆盖 Bash syntax、ShellCheck、PrismSpec skill frontmatter、YAML contract、smoke test、Go 示例和 release check，这是一个不错的底座。
 
-缺口：
+仍有缺口：
 
-- 未在 CI 跑 `examples/go-gin-gorm/try-it.sh`。
 - 未在 CI 验证 README remote install URL。
 - 未做 macOS / Linux matrix。
 - 未验证 tag/release 安装路径。
 
 建议：
 
-- 增加 example demo job。
 - 增加 install smoke job：从公开 raw URL 或 release tarball 安装到空目录并运行 doctor。
 - 增加 `ubuntu-latest` + `macos-latest` matrix。
 
@@ -124,20 +121,17 @@ bash <(curl -fsSL https://raw.githubusercontent.com/zdolphin07-dotcom/lattice/ma
 
 - 发布 `v0.1.0` 或 `v1.0.0-preview.1` tag。
 - README 默认使用 tag URL，保留 `main` 作为开发版入口。
-- `install.sh` 输出安装版本和 commit SHA。
-- 提供 `--version`、`--dry-run`、`--uninstall` 或至少文档化回滚方式。
+- `install.sh --version` 和 `install.sh --dry-run` 已补齐；后续可继续补 `--uninstall` 或正式回滚文档。
 
 ## P1 产品体验 gap
 
 ### 1. 首日体验仍偏工程内核，不够“一条路径跑通”
 
-现在 README 有 quick start、example 和命令表，工程师可以跑通；但新用户安装到自己仓库后，下一步仍需要理解多个概念：PrismSpec、spec、plan、review、verify、pipeline、context、eval。
+README 已补 10 分钟体验路径、支持矩阵和 troubleshooting。新用户仍需要理解多个概念：PrismSpec、spec、plan、review、verify、pipeline、context、eval。
 
 建议：
 
-- 提供 “10 分钟 happy path”：从安装、doctor、创建 sample spec、补最小 spec、运行 lint/pipeline，到看到 eval summary。
 - 增加 `lattice/kernel/quickstart.sh` 或 `prismspec/bin/demo.sh`，让用户不用手写 spec 也能在空仓库中看到完整闭环。
-- README 中把 “示例仓库 demo” 和 “安装到自己仓库后的第一条 spec” 分开。
 
 ### 2. 概念仍然偏多
 
@@ -151,12 +145,11 @@ README 的专业度已经提升，但对第一次接触的用户，`Evidence / E
 
 ### 3. 安装前置依赖缺少自动诊断提示
 
-README 写了 Bash 4+、`yq`、`git`，但 remote install 失败、新机器缺 `yq`、macOS Bash 3 默认环境等情况，还没有足够手把手提示。
+README 和 `SUPPORT.md` 已补 Bash 3.2+、`yq`、`git`、remote install 404、Shell 版本异常等提示。
 
 建议：
 
 - `install.sh --init` 在调用 init 前检查并提示 `yq` 安装方式。
-- README 增加 macOS 安装 `yq` 的例子。
 - doctor 输出 remediation hint，而不仅是缺失项。
 
 ## P2 工程与文档一致性 gap
@@ -193,6 +186,7 @@ shellcheck --severity=warning init.sh install.sh tests/smoke-test.sh $(find harn
 bash tests/smoke-test.sh
 bash examples/go-gin-gorm/try-it.sh
 bash prismspec/bin/lint.sh prismspec skillpack
+bash tests/release-check.sh
 git diff --check
 ```
 

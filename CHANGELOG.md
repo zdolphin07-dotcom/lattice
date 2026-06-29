@@ -27,6 +27,9 @@ All notable changes to this project will be documented in this file.
 - `summary-learn-draft.sh` to convert Knowledge Candidates into reviewable knowledge drafts.
 - `knowledge-lint.sh` to flag missing metadata, missing sources, placeholders, conflict markers, expired entries, and duplicate headings in project knowledge.
 - `pr-comment.sh` to create or update a stable GitHub PR comment from the eval Markdown summary.
+- `install.sh --dry-run` and `install.sh --version` for safer install diagnostics.
+- `tests/release-check.sh` as the maintainer release readiness command.
+- `SECURITY.md`, `SUPPORT.md`, GitHub issue templates, and a pull request template for public project operations.
 - `spec-state-lint.sh` to validate spec front matter and status-to-artifact readiness.
 - `spec-status.sh` to advance spec lifecycle status with guarded transitions, stale-state protection, and JSON transition events.
 - `spec-history.sh` to aggregate spec transition events into a Markdown lifecycle report.
@@ -54,6 +57,7 @@ All notable changes to this project will be documented in this file.
 
 - PrismSpec guide now requires actual verification evidence and no longer treats review packages as verification output.
 - Public contribution docs now use Lattice naming and current paths.
+- CI now runs the Go/Gin/GORM example and release readiness check in addition to smoke tests.
 
 ## [1.0.0] — 2026-06-23
 
