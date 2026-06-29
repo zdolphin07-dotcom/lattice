@@ -10,6 +10,12 @@
     <a href="examples/go-gin-gorm/">可运行示例</a> ·
     <a href="CHANGELOG.md">更新日志</a>
   </p>
+  <p align="center">
+    <a href="https://github.com/zdolphin07-dotcom/lattice/actions/workflows/shellcheck.yml"><img alt="Shellcheck" src="https://github.com/zdolphin07-dotcom/lattice/actions/workflows/shellcheck.yml/badge.svg"></a>
+    <img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue.svg">
+    <img alt="Platform" src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux-lightgrey.svg">
+    <img alt="Runtime" src="https://img.shields.io/badge/runtime-Bash%204%2B-informational.svg">
+  </p>
 </p>
 
 ---
@@ -38,6 +44,16 @@ Lattice 是面向团队的 repo-local AI Coding control plane。它把个人 AI 
 
 Lattice 的目标是把这些隐性的个人过程，变成仓库内可版本化、可审查、可验证的工程资产。
 
+## 为什么不是只用普通 AI Coding
+
+| 普通 AI Coding | Lattice |
+|---|---|
+| 需求和假设留在对话里 | 写入 `spec.md`，包含 Context Basis、AC 和风险边界 |
+| Agent 用总结声明完成 | `verify.md` 记录命令、退出码、结果和残留风险 |
+| 每次任务重新理解项目 | `lattice/context/` 沉淀项目地图、规则、踩坑和外部约束 |
+| Review 依赖临时提示词 | `review.md` 记录只读 verdict、发现项和风险处置 |
+| 经验难复用 | knowledge draft / promotion 把可复用经验沉淀回项目 |
+
 ## 你会得到什么
 
 一次 Lattice 驱动的 AI Coding 任务，会在仓库里留下清晰的交付链路：
@@ -49,6 +65,28 @@ Lattice 的目标是把这些隐性的个人过程，变成仓库内可版本化
 | `review.md` | 只读 review verdict、发现项和风险处置 |
 | `verify.md` | 命令、退出码、验证结果、残留风险和知识候选 |
 | `lattice/state/eval-runs/*.json` | 可查询、可汇总、可用于 CI/dashboard 的结构化交付证据 |
+
+示例验证摘要：
+
+```text
+Spec: lattice/specs/create-item-api/spec.md
+Review: pass
+AC Coverage: 4/4
+Drift: none
+Command: lattice/kernel/delivery/pipeline.sh --json-out
+Result: pass
+Evidence: lattice/state/eval-runs/example.json
+```
+
+## Reliability / Safety
+
+Lattice 设计为安装在业务仓库内的工程控制面，因此默认遵守这些边界：
+
+- 不接管 IDE、不替代 Coding Agent、不绑定模型供应商；
+- 不上传代码或项目知识，默认资产留在当前仓库；
+- 不覆盖项目资产：`manifest.yaml`、`context/`、`specs/` 由项目持有；
+- 不替代测试系统，只组织 build、lint、test、drift、compliance 等验证证据；
+- 框架代码和项目资产分离，`kernel/` 与 PrismSpec 可升级，业务规格和知识可审查。
 
 ## 快速开始
 
@@ -77,6 +115,14 @@ bash examples/go-gin-gorm/try-it.sh
 ```
 
 示例会演示目录化 spec、`spec.md` 内嵌 Context Basis、spec lint、AC coverage、drift check 和 context knowledge backend。
+
+## 推荐采用路径
+
+1. 先运行 `examples/go-gin-gorm/try-it.sh`，确认本地依赖和验证输出。
+2. 安装到一个非关键业务仓库，运行 `lattice/kernel/doctor.sh`。
+3. 用 PrismSpec 跑一个小功能或 bug fix，生成 `spec.md`、`plan.md`、`review.md`、`verify.md`。
+4. 在 CI 中接入 Lattice pipeline 或至少运行 `spec-lint` / `ac-coverage` / `drift-check`。
+5. 把重复出现的规则、踩坑和验证经验提升到 `lattice/context/knowledge/`。
 
 ## 核心工作流
 
@@ -195,13 +241,16 @@ your-project/
 
 Lattice 当前已经具备 **repo-local AI Coding control plane 的最小可信闭环**：
 
-| 已验证能力 | 证据 |
-|----------|------|
-| 安装与初始化 | `install.sh --init`、`lattice/kernel/doctor.sh`、smoke test |
-| PrismSpec 工作流 | `new.sh`、`guide.sh --json`、`lint.sh prismspec skillpack`、多模板与 Plan/TDD policy |
-| 交付验证 | Lattice pipeline、spec lint、AC coverage、drift check、compliance gates |
-| 证据闭环 | `eval-runs/*.json`、Markdown summary/history、loop state、outcome link/report |
-| 可运行示例 | `examples/go-gin-gorm/try-it.sh` 演示 spec、AC coverage、drift check、eval summary |
+| 能力 | 状态 | 证据 |
+|------|------|------|
+| Repo-local install/init | Available | `install.sh --init`、`lattice/kernel/doctor.sh`、smoke test |
+| Spec / Plan / Review / Verify artifacts | Available | `new.sh`、`guide.sh --json`、`lint.sh prismspec skillpack` |
+| Delivery pipeline | Available | spec lint、AC coverage、drift check、compliance gates |
+| Go/Gin/GORM drift parser | Available | `examples/go-gin-gorm/try-it.sh` |
+| Evidence summary/history/outcome | Available | `eval-runs/*.json`、Markdown summary/history、outcome link/report |
+| Dashboard trend analysis | Planned | static dashboard 已有，趋势分析仍在演进 |
+| Node / Python drift parser | Planned | 作为后续多语言扩展 |
+| Multi-agent owner / lease model | Planned | 作为团队协作扩展 |
 
 仍在演进：
 

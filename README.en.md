@@ -10,6 +10,12 @@
     <a href="examples/go-gin-gorm/">Runnable Example</a> ·
     <a href="CHANGELOG.md">Changelog</a>
   </p>
+  <p align="center">
+    <a href="https://github.com/zdolphin07-dotcom/lattice/actions/workflows/shellcheck.yml"><img alt="Shellcheck" src="https://github.com/zdolphin07-dotcom/lattice/actions/workflows/shellcheck.yml/badge.svg"></a>
+    <img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue.svg">
+    <img alt="Platform" src="https://img.shields.io/badge/platform-macOS%20%7C%20Linux-lightgrey.svg">
+    <img alt="Runtime" src="https://img.shields.io/badge/runtime-Bash%204%2B-informational.svg">
+  </p>
 </p>
 
 ---
@@ -38,6 +44,16 @@ Individual AI Coding can be fast, but team adoption often breaks down when:
 
 Lattice turns those implicit individual workflows into versioned, reviewable, and verifiable engineering assets inside the repository.
 
+## Why Not Plain AI Coding
+
+| Plain AI Coding | Lattice |
+|---|---|
+| Requirements and assumptions stay in chat | `spec.md` records Context Basis, ACs, and risk boundaries. |
+| The agent declares completion in prose | `verify.md` records commands, exit codes, results, and residual risks. |
+| Each task rediscovers the project | `lattice/context/` keeps project maps, rules, pitfalls, and external constraints. |
+| Review depends on one-off prompts | `review.md` records read-only verdicts, findings, and risk disposition. |
+| Lessons are hard to reuse | Knowledge drafts and promotion turn reusable lessons into project knowledge. |
+
 ## What You Get
 
 A Lattice-guided AI Coding task leaves a clear delivery chain in the repo:
@@ -49,6 +65,28 @@ A Lattice-guided AI Coding task leaves a clear delivery chain in the repo:
 | `review.md` | Read-only review verdicts, findings, and risk dispositions. |
 | `verify.md` | Commands, exit codes, results, residual risks, and knowledge candidates. |
 | `lattice/state/eval-runs/*.json` | Structured delivery evidence for queries, summaries, CI, and dashboards. |
+
+Example verification summary:
+
+```text
+Spec: lattice/specs/create-item-api/spec.md
+Review: pass
+AC Coverage: 4/4
+Drift: none
+Command: lattice/kernel/delivery/pipeline.sh --json-out
+Result: pass
+Evidence: lattice/state/eval-runs/example.json
+```
+
+## Reliability / Safety
+
+Lattice is designed as a repository-local engineering control plane, so it keeps these boundaries by default:
+
+- It does not take over the IDE, replace coding agents, or bind teams to a model provider.
+- It does not upload code or project knowledge; default assets stay in the current repository.
+- It does not overwrite project-owned assets such as `manifest.yaml`, `context/`, and `specs/`.
+- It does not replace test systems; it organizes evidence from build, lint, test, drift, and compliance checks.
+- Framework code and project assets are separated: `kernel/` and PrismSpec can be upgraded while specs and knowledge remain reviewable.
 
 ## Quick Start
 
@@ -77,6 +115,14 @@ bash examples/go-gin-gorm/try-it.sh
 ```
 
 The example demonstrates directory specs, embedded Context Basis in `spec.md`, spec lint, AC coverage, drift checks, eval JSON, and the context knowledge backend.
+
+## Adoption Path
+
+1. Run `examples/go-gin-gorm/try-it.sh` to confirm local dependencies and evidence output.
+2. Install Lattice into one non-critical repository and run `lattice/kernel/doctor.sh`.
+3. Use PrismSpec for one small feature or bug fix, producing `spec.md`, `plan.md`, `review.md`, and `verify.md`.
+4. Add the Lattice pipeline to CI, or start with `spec-lint`, `ac-coverage`, and `drift-check`.
+5. Promote repeated rules, pitfalls, and verification lessons into `lattice/context/knowledge/`.
 
 ## Core Workflow
 
@@ -194,13 +240,16 @@ See the [Design Wiki](docs/wiki/) and script `--help` output for the full comman
 
 Lattice currently provides a minimum trusted loop for repo-local AI Coding:
 
-| Verified Capability | Evidence |
-|---------------------|----------|
-| Install and init | `install.sh --init`, `lattice/kernel/doctor.sh`, smoke test. |
-| PrismSpec workflow | `new.sh`, `guide.sh --json`, `lint.sh prismspec skillpack`, templates, and Plan/TDD policy. |
-| Delivery verification | Lattice pipeline, spec lint, AC coverage, drift check, and compliance gates. |
-| Evidence loop | `eval-runs/*.json`, Markdown summary/history, loop state, and outcome link/report. |
-| Runnable example | `examples/go-gin-gorm/try-it.sh` demonstrates spec, AC coverage, drift check, and eval summary. |
+| Capability | Status | Evidence |
+|------------|--------|----------|
+| Repo-local install/init | Available | `install.sh --init`, `lattice/kernel/doctor.sh`, smoke test. |
+| Spec / Plan / Review / Verify artifacts | Available | `new.sh`, `guide.sh --json`, `lint.sh prismspec skillpack`. |
+| Delivery pipeline | Available | spec lint, AC coverage, drift check, and compliance gates. |
+| Go/Gin/GORM drift parser | Available | `examples/go-gin-gorm/try-it.sh`. |
+| Evidence summary/history/outcome | Available | `eval-runs/*.json`, Markdown summary/history, outcome link/report. |
+| Dashboard trend analysis | Planned | Static dashboard exists; trend analysis is still evolving. |
+| Node / Python drift parser | Planned | Future multi-language expansion. |
+| Multi-agent owner / lease model | Planned | Future team collaboration expansion. |
 
 Still evolving:
 
