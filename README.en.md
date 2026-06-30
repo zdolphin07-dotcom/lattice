@@ -95,6 +95,8 @@ Lattice is designed as a repository-local engineering control plane, so it keeps
 
 ### Install Into A Target Project
 
+> Release gate: the remote install command below is suitable for public launch material only after the GitHub repository and raw URL are anonymously accessible. For private repositories or preview work, use local clone installation.
+
 ```bash
 # Run inside your application repository
 cd /path/to/your-project
@@ -115,7 +117,7 @@ Before a public launch, confirm the remote install URL is anonymously accessible
 curl -fsSL https://raw.githubusercontent.com/zdolphin07-dotcom/lattice/main/install.sh >/tmp/lattice-install.sh
 ```
 
-If this returns `404`, the repository or raw URL is not public yet. Switch the repository visibility or publish from a public release/tag URL first.
+If this returns `404`, the repository or raw URL is not public yet. Switch the repository visibility or publish from a public release/tag URL first. For commercial distribution, prefer a tag URL as the default install path and keep `main` as the development install path.
 
 ### Run The Example
 
@@ -291,9 +293,9 @@ See the [Design Wiki](docs/wiki/) and script `--help` output for the full comman
 
 ## Current Status
 
-Lattice currently provides a minimum trusted loop for repo-local AI Coding:
+Lattice currently provides a minimum trusted loop for repo-local AI Coding. It is suitable for preview / pilot adoption in non-critical repositories, new feature workflows, and internal team process validation.
 
-> Lattice is still in an early iteration stage. The current version is best adopted gradually in non-critical repositories, team pilots, or new feature workflows; complex CI setups, multi-person collaboration, and long-term governance may still reveal rough edges. The project will continue to refine its contracts, strengthen verification, and expand language and team-collaboration coverage based on real-world feedback.
+> A commercial stable claim requires additional release gates: anonymous public install, tag/release versioning, reproducible fresh-clone examples, clear security disclosure, and CI coverage for the public install path. Until those gates pass, avoid stable or production-SLA language.
 
 | Capability | Status | Evidence |
 |------------|--------|----------|
@@ -313,6 +315,17 @@ Still evolving:
 - more drift parsers for Node, Python, and other stacks;
 - plugin manifest/schema/versioning;
 - multi-agent owner / lease model.
+
+## Release Validation
+
+Maintainers should run at least:
+
+```bash
+bash tests/release-check.sh
+LATTICE_CHECK_REMOTE_INSTALL=1 bash tests/release-check.sh
+```
+
+The first command validates the local repository loop. The second validates public raw install, initialization, doctor checks, and PrismSpec routing. See [Release Readiness Review](docs/wiki/release-readiness-review.md) for the full checklist.
 
 ## Docs
 

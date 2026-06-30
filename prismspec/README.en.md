@@ -124,6 +124,8 @@ bash prismspec/bin/guide.sh --spec=checkout-flow --json
 bash prismspec/bin/guide.sh --spec=checkout-flow --from=verification --json
 ```
 
+See [RESOURCES.md](RESOURCES.md) for the full resource pack. For quick mode selection, use [risk-routing-card.md](references/risk-routing-card.md).
+
 `--json` is the recommended protocol for agent wrappers and slash commands. Important fields:
 
 | Field | Meaning |
@@ -186,6 +188,12 @@ PrismSpec intentionally exposes two stable execution modes instead of a complex 
 
 `auto` means the model chooses `plan` or `tdd` based on risk. `plan -> tdd` escalation is allowed when risk is discovered. `tdd -> plan` downgrade requires explicit user override and recorded risk.
 
+Quick rule:
+
+- `plan` is the low-friction path for low-risk work that ordinary verification can prove.
+- `tdd` is the risk-protection path for regressions and critical invariants.
+- `auto` is not a third workflow; it routes to `plan` or `tdd`.
+
 ## Canonical Skills
 
 | Skill | Trigger | Durable Output |
@@ -236,6 +244,7 @@ Long-form guidance lives in `references/` and is loaded on demand:
 | Reference | Purpose |
 |-----------|---------|
 | `mode-selection.md` | Plan/TDD selection and escalation rules |
+| `risk-routing-card.md` | Quick routing card for `plan` / `tdd` selection |
 | `spec-quality-checklist.md` | Spec review and execution quality bar |
 | `tdd-evidence-checklist.md` | Red/green evidence requirements |
 | `review-evidence-checklist.md` | pass/fail/cannot_verify verdict rules |

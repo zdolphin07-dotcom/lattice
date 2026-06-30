@@ -181,6 +181,7 @@ templates:
   tdd: prismspec/templates/spec-template-tdd.md
 references:
   mode_selection: prismspec/references/mode-selection.md
+  risk_routing_card: prismspec/references/risk-routing-card.md
   definition_of_done: prismspec/references/definition-of-done.md
   spec_quality: prismspec/references/spec-quality-checklist.md
   tdd_evidence: prismspec/references/tdd-evidence-checklist.md
