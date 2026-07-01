@@ -61,6 +61,7 @@ flowchart LR
 - `prismspec/skills/*/SKILL.md` canonical skills。
 - `prismspec/bin/new.sh` 初始 spec 产物创建。
 - `prismspec/bin/doctor.sh` standalone / Lattice-hosted skill pack 健康检查。
+- `prismspec/bin/eval-skills.sh` skill anatomy、trigger fixtures 和相邻阶段碰撞回归。
 - `prismspec/bin/guide.sh` 阶段路由。
 - `prismspec/bin/lint.sh` skillpack / artifact contract 校验。
 - `lattice/context/` 项目上下文资产与基础 knowledge backend。

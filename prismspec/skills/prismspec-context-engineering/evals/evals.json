@@ -1,0 +1,37 @@
+{
+  "schema_version": "prismspec.skill-evals/v1",
+  "skill": "prismspec-context-engineering",
+  "should_trigger": [
+    {
+      "prompt": "Before drafting the spec, find the project knowledge and hidden domain constraints that affect this change.",
+      "reason": "Context Basis discovery."
+    },
+    {
+      "prompt": "This requirement depends on prior architecture decisions and historical specs; select the relevant facts.",
+      "reason": "Historical context selection."
+    },
+    {
+      "prompt": "The agent is about to read the whole repo; constrain context loading to facts that affect ACs and risk.",
+      "reason": "Prevent context bloat."
+    }
+  ],
+  "should_not_trigger": [
+    {
+      "prompt": "Run the final verification pipeline and record verify.md.",
+      "reason": "Verification stage."
+    },
+    {
+      "prompt": "The root cause is known; implement the planned fix.",
+      "reason": "Implementation stage."
+    },
+    {
+      "prompt": "Promote this verified lesson into project knowledge.",
+      "reason": "Knowledge capture stage."
+    }
+  ],
+  "assertions": [
+    "Selects context for a named decision target.",
+    "Records adopted facts, conflicts, assumptions, and open questions in Context Basis.",
+    "Avoids bulk-loading or pasting unrelated documentation."
+  ]
+}

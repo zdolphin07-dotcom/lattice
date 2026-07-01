@@ -1,0 +1,37 @@
+{
+  "schema_version": "prismspec.skill-evals/v1",
+  "skill": "prismspec-source-grounding",
+  "should_trigger": [
+    {
+      "prompt": "This spec depends on the latest Gemini API streaming behavior; verify the official source first.",
+      "reason": "Time-sensitive external API claim."
+    },
+    {
+      "prompt": "Before implementing with this SDK method, confirm it exists in current docs or installed dependency.",
+      "reason": "External SDK grounding."
+    },
+    {
+      "prompt": "The plan cites a cloud service limit and model capability that may have changed.",
+      "reason": "Potential stale external fact."
+    }
+  ],
+  "should_not_trigger": [
+    {
+      "prompt": "Read local plan.md and execute T1.",
+      "reason": "Implementation without external fact check."
+    },
+    {
+      "prompt": "Review the diff against local ACs and task evidence.",
+      "reason": "Review stage."
+    },
+    {
+      "prompt": "Capture this local project pitfall after verification.",
+      "reason": "Knowledge capture."
+    }
+  ],
+  "assertions": [
+    "Uses primary or local installed sources before making external claims.",
+    "Records observed facts separately from inference.",
+    "Blocks high-risk unverified external claims."
+  ]
+}

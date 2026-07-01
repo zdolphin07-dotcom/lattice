@@ -192,6 +192,8 @@ stage_from_artifacts() {
     echo "$FROM_STAGE"
   elif [[ -z "$SPEC_ID" || ! -f "$SPEC_FILE" ]]; then
     echo "specification"
+  elif [[ "$STATUS" == "clarifying" ]]; then
+    echo "specification"
   elif [[ "$SCAFFOLDED" == "true" ]]; then
     echo "specification"
   elif [[ ! -f "$PLAN_FILE" ]]; then
@@ -214,6 +216,8 @@ route_reason_from_artifacts() {
     echo "no_spec"
   elif [[ ! -f "$SPEC_FILE" ]]; then
     echo "missing_specification_artifacts"
+  elif [[ "$STATUS" == "clarifying" ]]; then
+    echo "clarifying_spec"
   elif [[ "$SCAFFOLDED" == "true" ]]; then
     echo "scaffolded_spec"
   elif [[ ! -f "$PLAN_FILE" ]]; then
@@ -261,7 +265,9 @@ skill_for_stage() {
 next_action() {
   case "$STAGE" in
     specification)
-      if [[ "$SCAFFOLDED" == "true" ]]; then
+      if [[ "$STATUS" == "clarifying" ]]; then
+        echo "Continue Clarify grilling or formalize spec.md to status: drafted"
+      elif [[ "$SCAFFOLDED" == "true" ]]; then
         echo "Fill scaffolded spec.md, including Context Basis, then set scaffolded: false"
       else
         echo "Run specification and write spec.md with Context Basis"
@@ -279,7 +285,9 @@ command_hint() {
   local id="${SPEC_ID:-<spec-id>}"
   case "$STAGE" in
     specification)
-      if [[ "$SCAFFOLDED" == "true" ]]; then
+      if [[ "$STATUS" == "clarifying" ]]; then
+        echo "read prismspec/skills/prismspec-grilling/SKILL.md or formalize $SPEC_FILE with prismspec-specification"
+      elif [[ "$SCAFFOLDED" == "true" ]]; then
         echo "edit $SPEC_FILE"
       elif [[ -n "$SPEC_ID" && ! -f "$SPEC_FILE" ]]; then
         echo "bash prismspec/bin/new.sh $id --template=default --mode=$MODE"
@@ -293,6 +301,80 @@ command_hint() {
     verification) echo "$VERIFY_CMD" ;;
     done) echo "bash prismspec/bin/guide.sh --spec=$id --json" ;;
   esac
+}
+
+automation_policy() {
+  case "$STAGE" in
+    specification)
+      echo "manual_checkpoint_required"
+      ;;
+    planning)
+      echo "write_plan_then_rerun_guide"
+      ;;
+    implementation)
+      echo "one_task_slice_by_default; use build auto only after approved plan and stop on risk or missing evidence"
+      ;;
+    review)
+      echo "read_only_review_gate; cannot_verify is not pass"
+      ;;
+    verification)
+      echo "fresh_command_evidence_required"
+      ;;
+    done)
+      echo "complete"
+      ;;
+  esac
+}
+
+stop_conditions_json() {
+  local first=true
+
+  add_item() {
+    local item="$1"
+    if [[ "$first" == "true" ]]; then
+      first=false
+    else
+      printf ', '
+    fi
+    printf '"%s"' "$item"
+  }
+
+  printf '['
+  case "$STAGE" in
+    specification)
+      add_item "clarifying_spec_requires_one_question_or_formal_spec"
+      add_item "missing_or_scaffolded_spec"
+      add_item "untestable_acceptance_criteria"
+      add_item "material_context_conflict_or_open_question"
+      add_item "approval_not_explicit_or_recorded"
+      ;;
+    planning)
+      add_item "spec_missing_or_unapproved"
+      add_item "context_or_risk_changes_mode"
+      add_item "tasks_cannot_reference_stable_ac_ids"
+      ;;
+    implementation)
+      add_item "dirty_unrelated_worktree_changes"
+      add_item "scope_drift_from_plan"
+      add_item "unexplained_failure_requires_debugging"
+      add_item "missing_task_or_tdd_evidence"
+      ;;
+    review)
+      add_item "missing_review_package_or_task_evidence"
+      add_item "fail_or_cannot_verify_verdict"
+      add_item "unplanned_scope_requires_spec_or_plan_update"
+      ;;
+    verification)
+      add_item "missing_review_evidence"
+      add_item "verification_requires_unavailable_external_service_or_credentials"
+      add_item "command_failure_without_root_cause"
+      add_item "fix_would_exceed_approved_scope"
+      ;;
+    done)
+      add_item "new_requirement_requires_new_spec"
+      ;;
+  esac
+  printf ']'
 }
 
 missing_artifacts_json() {
@@ -331,6 +413,8 @@ if [[ "$JSON" == "true" ]]; then
   printf '  "route_reason": "%s",\n' "$ROUTE_REASON"
   printf '  "next_action": "%s",\n' "$(next_action)"
   printf '  "command_hint": "%s",\n' "$(command_hint)"
+  printf '  "automation_policy": "%s",\n' "$(automation_policy)"
+  printf '  "stop_conditions": %s,\n' "$(stop_conditions_json)"
   printf '  "missing_artifacts": %s,\n' "$(missing_artifacts_json)"
   printf '  "mode": "%s",\n' "$MODE"
   printf '  "skill": "%s",\n' "$(skill_for_stage "$STAGE")"
@@ -356,3 +440,4 @@ echo "Evidence:    ${RUN_DIR:-$RUN_ROOT/<spec-id>}"
 echo "Template:    $(template_hint)"
 echo ""
 echo "Next action: $(next_action)"
+echo "Automation:  $(automation_policy)"

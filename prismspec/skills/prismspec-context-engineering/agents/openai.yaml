@@ -1,0 +1,4 @@
+interface:
+  display_name: "PrismSpec Context"
+  short_description: "Select task-relevant context facts"
+  default_prompt: "Use $prismspec-context-engineering to select Context Basis facts for this PrismSpec task."

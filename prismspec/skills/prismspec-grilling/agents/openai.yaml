@@ -1,0 +1,4 @@
+interface:
+  display_name: "PrismSpec Grilling"
+  short_description: "Clarify engineering boundaries one question at a time"
+  default_prompt: "Use $prismspec-grilling to clarify engineering boundaries before drafting the PrismSpec spec."

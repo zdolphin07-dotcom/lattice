@@ -52,7 +52,11 @@ prismspec/
 │   ├── prismspec-review/SKILL.md
 │   ├── prismspec-verification/SKILL.md
 │   ├── prismspec-knowledge-capture/SKILL.md
-│   └── prismspec-debugging/SKILL.md
+│   ├── prismspec-debugging/SKILL.md
+│   ├── prismspec-context-engineering/SKILL.md
+│   ├── prismspec-source-grounding/SKILL.md
+│   ├── prismspec-doubt-review/SKILL.md
+│   └── prismspec-interface-design/SKILL.md
 ├── templates/                  # spec templates
 ├── references/                 # loaded on demand
 ├── agents/                     # task reviewer persona
@@ -124,7 +128,25 @@ bash prismspec/bin/guide.sh --spec=checkout-flow --json
 bash prismspec/bin/guide.sh --spec=checkout-flow --from=verification --json
 ```
 
+Check skill trigger fixtures, adjacent-stage collisions, and skill anatomy:
+
+```bash
+bash prismspec/bin/eval-skills.sh --all
+```
+
 See [RESOURCES.md](RESOURCES.md) for the full resource pack. For quick mode selection, use [risk-routing-card.md](references/risk-routing-card.md).
+
+Commands have two layers:
+
+| Command | Mental Model | Behavior |
+|---------|--------------|----------|
+| `/prismspec` | Resume the lifecycle from current artifacts. | Run `guide.sh --json`, then read the returned stage skill. |
+| `/clarify` | Tighten engineering boundaries before formal spec. | Use grilling mode one question at a time, producing a `status: clarifying` `spec.md` draft. |
+| `/build` | Move from an approved spec or plan into implementation. | Write `plan.md` if needed, then execute one AC-traced slice. |
+| `/build auto` | Controlled multi-task execution after plan approval. | Continue across tasks, but keep evidence, TDD, review, and failure stops. |
+| `/spec`, `/plan`, `/review`, `/verify` | Explicit stage entries. | Useful for advanced users and debugging. |
+
+`/build auto` is not a bypass. It only removes manual stepping between tasks; it must stop on scope drift, unrelated dirty changes, missing evidence, unexplained failures, review blockers, or risky external actions.
 
 `--json` is the recommended protocol for agent wrappers and slash commands. Important fields:
 
@@ -136,6 +158,8 @@ See [RESOURCES.md](RESOURCES.md) for the full resource pack. For quick mode sele
 | `stage` | Next stage: `specification`, `planning`, `implementation`, `review`, `verification`, or `done` |
 | `mode` | `auto`, `plan`, or `tdd` |
 | `skill` | `SKILL.md` file to read and execute |
+| `automation_policy` | Automation boundary for the current stage |
+| `stop_conditions` | Conditions that require pausing or escalation |
 | `spec_dir` | Current spec directory |
 | `run_dir` | Current evidence directory |
 | `verify_command` | Recommended verification command |
@@ -199,6 +223,7 @@ Quick rule:
 | Skill | Trigger | Durable Output |
 |-------|---------|----------------|
 | `skills/prismspec-workflow/SKILL.md` | `/prismspec`, spec resume, end-to-end guidance | stage routing |
+| `skills/prismspec-grilling/SKILL.md` | `/clarify`, vague engineering boundaries before spec | `status: clarifying` `spec.md` draft |
 | `skills/prismspec-specification/SKILL.md` | `/spec`, new requirement, unclear scope/AC/mode/context | `spec.md` |
 | `skills/prismspec-planning/SKILL.md` | `/plan`, spec exists but tasks or verification paths are missing | `plan.md` |
 | `skills/prismspec-implementation/SKILL.md` | `/implement`, execute AC-traced tasks | code, tests, task evidence |
@@ -206,8 +231,14 @@ Quick rule:
 | `skills/prismspec-verification/SKILL.md` | `/verify`, run external verification after implementation and review | `verify.md` |
 | `skills/prismspec-knowledge-capture/SKILL.md` | `/capture`, capture reusable rules, decisions, pitfalls | knowledge draft / project knowledge |
 | `skills/prismspec-debugging/SKILL.md` | bugs, failing tests, build/pipeline failures, unexpected behavior | root cause, repro, fix evidence |
+| `skills/prismspec-context-engineering/SKILL.md` | project knowledge, hidden constraints, historical decisions | Context Basis facts |
+| `skills/prismspec-source-grounding/SKILL.md` | external APIs, SDKs, models, platforms, standards | sourced facts / unverified risk |
+| `skills/prismspec-doubt-review/SKILL.md` | high-risk assumptions, irreversible decisions, security/data risk | doubt review note |
+| `skills/prismspec-interface-design/SKILL.md` | API, schema, event, state, error, or module boundaries | interface contract |
 
 Every canonical skill follows the same quality bar: trigger-rich frontmatter, workflow, inputs/outputs, stop conditions, common rationalizations, red flags, and verification checklist.
+
+The last four are support skills, not workflow stages. They load only when the risk shape needs them, so low-risk work does not inherit extra ceremony.
 
 ## Lint
 
@@ -227,8 +258,15 @@ bash prismspec/bin/lint.sh lattice/specs/checkout-flow
 - `skillpack.yaml` entrypoints, workflow stages, and quality gates;
 - canonical `skills/*/SKILL.md` frontmatter, trigger descriptions, core sections, and `agents/openai.yaml`;
 - every skill's `evals/evals.json`;
-- templates, references, command, guide/lint scripts;
+- templates, references, command, guide/lint/eval scripts;
 - absence of flat skill wrappers.
+
+`eval-skills.sh` checks:
+
+- whether `SKILL.md` follows the Agent Skills anatomy;
+- whether trigger descriptions include clear `Use when` boundaries;
+- whether `evals/evals.json` has enough should-trigger, should-not-trigger, and assertion fixtures;
+- whether trigger prompts contain obvious duplicates or adjacent-stage collisions.
 
 Artifact lint checks:
 
@@ -252,7 +290,16 @@ Long-form guidance lives in `references/` and is loaded on demand:
 | `superpowers-alignment.md` | Prefer proven Superpowers workflow discipline; PrismSpec adds artifact/context/evidence contracts |
 | `agent-skills-alignment.md` | Agent Skills packaging, triggering, eval, and progressive disclosure standards |
 
-`agents/` provides one task-scoped reviewer persona: `task-reviewer.md`. It returns both spec compliance and code quality verdicts, supports `cannot_verify`, and avoids multi-reviewer drift and duplicate review cost.
+`agents/` provides focused reviewer personas:
+
+| Reviewer | Use When |
+|----------|----------|
+| `spec-reviewer.md` | Before planning, or when scope, ACs, context, risk, or mode changed. |
+| `task-reviewer.md` | Default task or branch implementation review. |
+| `test-reviewer.md` | TDD evidence, large test changes, or uncertain AC-to-test trace. |
+| `risk-reviewer.md` | Security, permissions, money, data, migrations, concurrency, idempotency, or irreversible operations. |
+
+Use the smallest reviewer set that covers the task. Personas do not call each other; the controller fan-outs selected reviews and merges verdicts into `review.md`.
 
 ## Design Principles
 

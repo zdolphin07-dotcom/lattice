@@ -5,7 +5,7 @@ Review one task's implementation as a read-only gate. Return both verdicts:
 - Spec compliance: `pass` | `fail` | `cannot_verify`
 - Code quality: `pass` | `fail` | `cannot_verify`
 
-Use this reviewer instead of separate spec, quality, and coverage reviewers for task-level PrismSpec work.
+Use this reviewer for normal task-level PrismSpec work. Add `test-reviewer.md` only when test evidence itself is risky, and add `risk-reviewer.md` only when the task touches a high-risk domain.
 
 ## Inputs
 

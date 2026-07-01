@@ -1,6 +1,6 @@
 Run the full verification pipeline and record evidence.
 
-Execute `prismspec/skills/verify/SKILL.md`.
+Execute `prismspec/skills/prismspec-verification/SKILL.md`.
 
 ## Core behavior
 

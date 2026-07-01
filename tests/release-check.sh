@@ -20,6 +20,7 @@ bash -n init.sh install.sh tests/smoke-test.sh tests/release-check.sh "${shell_s
 
 section "PrismSpec skillpack"
 bash prismspec/bin/lint.sh prismspec skillpack
+bash prismspec/bin/eval-skills.sh --all
 
 section "Smoke test"
 bash tests/smoke-test.sh

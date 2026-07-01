@@ -83,7 +83,9 @@ check_file "$PRISMSPEC_ROOT/commands/prismspec.md" "PrismSpec command"
 check_executable "$PRISMSPEC_ROOT/bin/new.sh" "new"
 check_executable "$PRISMSPEC_ROOT/bin/guide.sh" "guide"
 check_executable "$PRISMSPEC_ROOT/bin/lint.sh" "lint"
+check_executable "$PRISMSPEC_ROOT/bin/eval-skills.sh" "skill eval"
 check_command "skillpack contract lint" bash "$PRISMSPEC_ROOT/bin/lint.sh" "$PRISMSPEC_ROOT" skillpack
+check_command "skill eval" bash "$PRISMSPEC_ROOT/bin/eval-skills.sh" --root="$PRISMSPEC_ROOT" --all
 echo ""
 
 echo "── Guide protocol ──"

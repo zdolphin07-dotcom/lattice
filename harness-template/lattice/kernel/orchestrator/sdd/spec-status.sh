@@ -2,7 +2,7 @@
 # spec-status.sh — Advance spec lifecycle status with transition guards.
 source "$(dirname "$0")/../../_lib.sh"
 
-usage_line="spec-status.sh <spec-id|path/to/spec.md> <drafted|planned|implemented|verified> [--from=<status>] [--force]"
+usage_line="spec-status.sh <spec-id|path/to/spec.md> <clarifying|drafted|planned|implemented|verified> [--from=<status>] [--force]"
 for arg in "$@"; do
   [[ "$arg" == "--help" || "$arg" == "-h" ]] && cli_help "spec status" "Advance spec.md status and updated_at safely" \
     "$usage_line" \
@@ -66,7 +66,7 @@ has_frontmatter() {
 
 valid_status() {
   case "$1" in
-    drafted|planned|implemented|verified) return 0 ;;
+    clarifying|drafted|planned|implemented|verified) return 0 ;;
     *) return 1 ;;
   esac
 }
@@ -75,7 +75,7 @@ transition_allowed() {
   local from="$1" to="$2"
   [[ "$from" == "$to" ]] && return 0
   case "$from:$to" in
-    drafted:planned|planned:implemented|implemented:verified) return 0 ;;
+    clarifying:drafted|drafted:planned|planned:implemented|implemented:verified) return 0 ;;
     *) return 1 ;;
   esac
 }
@@ -199,7 +199,7 @@ fi
 
 if [[ "$FORCE" != "true" ]] && ! transition_allowed "$CURRENT_STATUS" "$TARGET_STATUS"; then
   echo "Illegal transition: $CURRENT_STATUS -> $TARGET_STATUS"
-  echo "Allowed path: drafted -> planned -> implemented -> verified"
+  echo "Allowed path: clarifying -> drafted -> planned -> implemented -> verified"
   echo "Use --force only when intentionally repairing spec metadata."
   exit 1
 fi

@@ -120,6 +120,31 @@ mkdir -p "$(dirname "$JSON_OUT")" "$(dirname "$MD_OUT")"
 
 CREATED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 REVIEW_PACKAGE=".lattice/sdd/$SPEC_ID/$TASK_ID/review-package.md"
+scope_label() {
+  if [[ "$TASK_ID" == "branch" ]]; then
+    printf '整体分支'
+  else
+    printf '任务 `%s`' "$TASK_ID"
+  fi
+}
+
+verdict_label() {
+  case "$1" in
+    pass) printf '通过' ;;
+    fail) printf '不通过' ;;
+    cannot_verify) printf '无法验证' ;;
+    *) printf '%s' "$1" ;;
+  esac
+}
+
+gate_decision() {
+  case "$VERDICT" in
+    pass) printf '允许进入 Verification Gate。' ;;
+    fail) printf '不允许进入 Verification Gate；必须先处理阻塞发现项。' ;;
+    cannot_verify) printf '不允许进入 Verification Gate；必须先补齐缺失证据或明确风险接受。' ;;
+    *) printf '决策未知；需要人工确认。' ;;
+  esac
+}
 
 {
   printf '{\n'
@@ -180,38 +205,57 @@ REVIEW_PACKAGE=".lattice/sdd/$SPEC_ID/$TASK_ID/review-package.md"
   printf 'test_coverage: "%s"\n' "$TEST_COVERAGE"
   printf 'risk: "%s"\n' "$RISK"
   printf -- '---\n\n'
-  printf '# Review: %s / %s\n\n' "$SPEC_ID" "$TASK_ID"
-  printf '## Verdict\n\n'
-  printf '| Axis | Verdict |\n'
-  printf '|------|---------|\n'
-  printf '| Overall | `%s` |\n' "$VERDICT"
-  printf '| Spec compliance | `%s` |\n' "$SPEC_COMPLIANCE"
-  printf '| Code quality | `%s` |\n' "$CODE_QUALITY"
-  printf '| Test coverage | `%s` |\n' "$TEST_COVERAGE"
-  printf '| Risk | `%s` |\n\n' "$RISK"
-  printf '## Findings\n\n'
+  printf '# 评审报告：%s\n\n' "$SPEC_ID"
+  printf '## 1. 评审结论\n\n'
+  printf '| 项 | 结论 |\n'
+  printf '|---|---|\n'
+  printf '| 评审范围 | %s |\n' "$(scope_label)"
+  printf '| 总体结论 | `%s`（%s） |\n' "$VERDICT" "$(verdict_label "$VERDICT")"
+  printf '| 是否允许进入验证 | %s |\n\n' "$(gate_decision)"
+  printf '## 2. 四轴评审\n\n'
+  printf '| 维度 | 结论 | 判断重点 |\n'
+  printf '|---|---|---|\n'
+  printf '| Spec 符合度 | `%s` | 是否满足相关 AC，且没有引入未批准范围。 |\n' "$SPEC_COMPLIANCE"
+  printf '| 代码质量 | `%s` | 是否简单、可维护、符合项目习惯，并具备可回滚性。 |\n' "$CODE_QUALITY"
+  printf '| 测试覆盖 | `%s` | 测试是否证明关键成功路径、失败路径和回归风险。 |\n' "$TEST_COVERAGE"
+  printf '| 风险控制 | `%s` | 权限、数据、状态、并发、迁移等风险是否被约束。 |\n\n' "$RISK"
+  printf '## 3. 检查范围\n\n'
+  printf -- '- 技术方案：`lattice/specs/%s/spec.md`\n' "$SPEC_ID"
+  printf -- '- 实施计划：`lattice/specs/%s/plan.md`\n' "$SPEC_ID"
+  printf -- '- Review package：`%s`\n' "$REVIEW_PACKAGE"
+  printf -- '- JSON sidecar：`%s`\n\n' "${JSON_OUT#$PROJECT_ROOT/}"
+  printf '## 4. 发现项\n\n'
   if [[ "${#FINDINGS[@]}" -gt 0 ]]; then
     for finding in "${FINDINGS[@]}"; do
       IFS='|' read -r severity reference issue <<< "$finding"
-      printf -- '- Severity: `%s`\n' "${severity:-unspecified}"
-      printf '  Reference: `%s`\n' "${reference:-N/A}"
-      printf '  Issue: %s\n' "${issue:-N/A}"
+      printf -- '- 严重度：`%s`\n' "${severity:-unspecified}"
+      printf '  位置：`%s`\n' "${reference:-N/A}"
+      printf '  问题：%s\n' "${issue:-N/A}"
     done
     printf '\n'
   else
-    printf 'No findings recorded by the structured helper.\n\n'
+    printf '本次结构化评审未记录阻塞发现项。\n\n'
   fi
-  printf '## Evidence Checked\n\n'
+  printf '## 5. 已检查证据\n\n'
   if [[ "${#EVIDENCE[@]}" -gt 0 ]]; then
     for item in "${EVIDENCE[@]}"; do
       printf -- '- `%s`\n' "$item"
     done
   else
-    printf 'No evidence entries were passed to the helper.\n'
+    printf '未向结构化 helper 传入证据条目；该项通常应评为 `cannot_verify` 或补充证据。\n'
   fi
-  printf '\n## Machine Summary\n\n'
-  printf -- '- JSON sidecar: `%s`\n' "${JSON_OUT#$PROJECT_ROOT/}"
-  printf -- '- Review package: `%s`\n' "$REVIEW_PACKAGE"
+  printf '\n## 6. 风险与处置\n\n'
+  if [[ "$VERDICT" == "pass" ]]; then
+    printf -- '- 当前评审未发现阻塞进入验证的质量风险。\n'
+    printf -- '- 后续仍需通过 Verification Gate 的真实命令输出证明仓库状态。\n'
+  elif [[ "$VERDICT" == "fail" ]]; then
+    printf -- '- 当前存在阻塞发现项，必须回到 Build/Implement 修复后重新评审。\n'
+  else
+    printf -- '- 当前证据不足，不能视为通过；必须补齐证据或记录明确的风险接受决策。\n'
+  fi
+  printf '\n## 7. 机器侧证据\n\n'
+  printf -- '- JSON sidecar：`%s`\n' "${JSON_OUT#$PROJECT_ROOT/}"
+  printf -- '- Review package：`%s`\n' "$REVIEW_PACKAGE"
 } > "$MD_OUT"
 
 echo "Review: ${MD_OUT#$PROJECT_ROOT/}"

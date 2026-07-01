@@ -119,16 +119,16 @@ echo "📋 Spec AC count: $SPEC_COUNT"
 
 case "$LANG" in
   node|javascript|typescript)
-    TEST_FILES=$(find "$TEST_DIR" \( -name "*.test.ts" -o -name "*.test.js" -o -name "*.spec.ts" -o -name "*.spec.js" \) -not -path '*/node_modules/*' 2>/dev/null || true)
+    TEST_FILES=$(find "$TEST_DIR" \( -path '*/node_modules/*' -o -path '*/.lattice/*' -o -path '*/lattice/*' -o -path '*/prismspec/*' \) -prune -o \( -name "*.test.ts" -o -name "*.test.js" -o -name "*.spec.ts" -o -name "*.spec.js" \) -type f -print 2>/dev/null || true)
     ;;
   go)
-    TEST_FILES=$(find "$TEST_DIR" -name "*_test.go" -not -path '*/vendor/*' 2>/dev/null || true)
+    TEST_FILES=$(find "$TEST_DIR" \( -path '*/vendor/*' -o -path '*/.lattice/*' -o -path '*/lattice/*' -o -path '*/prismspec/*' \) -prune -o -name "*_test.go" -type f -print 2>/dev/null || true)
     ;;
   python)
-    TEST_FILES=$(find "$TEST_DIR" -name "test_*.py" -not -path '*/.venv/*' 2>/dev/null || true)
+    TEST_FILES=$(find "$TEST_DIR" \( -path '*/.venv/*' -o -path '*/.lattice/*' -o -path '*/lattice/*' -o -path '*/prismspec/*' \) -prune -o -name "test_*.py" -type f -print 2>/dev/null || true)
     ;;
   *)
-    TEST_FILES=$(find "$TEST_DIR" -name "*_test.go" -not -path '*/vendor/*' 2>/dev/null || true)
+    TEST_FILES=$(find "$TEST_DIR" \( -path '*/vendor/*' -o -path '*/.lattice/*' -o -path '*/lattice/*' -o -path '*/prismspec/*' \) -prune -o -name "*_test.go" -type f -print 2>/dev/null || true)
     ;;
 esac
 

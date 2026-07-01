@@ -68,9 +68,9 @@ extract_task_title() {
 }
 
 field_value() {
-  local label="$1" body="$2"
-  grep -Eim1 "^[[:space:]]+-[[:space:]]+${label}:" <<< "$body" \
-    | sed -E "s/^[[:space:]]+-[[:space:]]+${label}:[[:space:]]*//; s/^[\`'\"]+|[\`'\"]+$//g" \
+  local labels="$1" body="$2"
+  grep -Eim1 "^[[:space:]]+-[[:space:]]+(${labels})[[:space:]]*[:：]" <<< "$body" \
+    | sed -E "s/^[[:space:]]+-[[:space:]]+(${labels})[[:space:]]*[:：][[:space:]]*//; s/^[\`\"]+|[\`\"]+$//g" \
     || true
 }
 
@@ -80,6 +80,7 @@ execution_mode() {
     value="$(grep -Eim1 '^execution_mode:[[:space:]]*(plan|tdd)' "$spec" 2>/dev/null | sed -E 's/.*execution_mode:[[:space:]]*//; s/[`"]//g' || true)"
   fi
   [[ -n "$value" ]] || value="$(grep -Eim1 'Execution mode:[[:space:]]*(plan|tdd)' "$plan" 2>/dev/null | sed -E 's/.*Execution mode:[[:space:]]*//; s/[`"]//g' || true)"
+  [[ -n "$value" ]] || value="$(grep -Eim1 '执行模式[[:space:]]*[:：][[:space:]]*(plan|tdd|`plan`|`tdd`)' "$plan" 2>/dev/null | sed -E 's/.*执行模式[[:space:]]*[:：][[:space:]]*//; s/[`"]//g' || true)"
   printf '%s' "${value:-unknown}"
 }
 
@@ -135,10 +136,10 @@ BODY="$(task_body "$TASK_ID" "$PLAN_FILE")"
 LINE_NUMBER="$(grep -nF -- "$NEXT_LINE" "$PLAN_FILE" | head -1 | cut -d: -f1)"
 TASK_KIND="implementation"
 [[ "$TASK_ID" == RED-* ]] && TASK_KIND="red-test"
-MODE="$(field_value "Mode" "$BODY")"
+MODE="$(field_value "Mode|模式" "$BODY")"
 [[ -n "$MODE" ]] || MODE="$(execution_mode "$SPEC_FILE" "$PLAN_FILE")"
-SCOPE="$(field_value "Scope" "$BODY")"
-VERIFICATION="$(field_value "Verification" "$BODY")"
+SCOPE="$(field_value "Scope|范围" "$BODY")"
+VERIFICATION="$(field_value "Verification|验证方式" "$BODY")"
 AC_REFS="$(grep -oE 'AC-[0-9]+' <<< "$BODY" | sort -u | tr '\n' ' ' || true)"
 EVIDENCE_ROOT=".lattice/sdd/$SPEC_ID/$TASK_ID"
 

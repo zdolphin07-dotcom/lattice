@@ -158,7 +158,7 @@ bash prismspec/bin/lint.sh lattice/specs/checkout-flow spec
 ## Core Workflow
 
 ```text
-Intent -> Clarify -> Spec -> Build -> Review -> Verify
+Intent -> Clarify -> Spec -> Build -> Quality Gate
 ```
 
 `/prismspec` is the controller, not an extra phase. It routes from existing artifacts:
@@ -167,15 +167,14 @@ Intent -> Clarify -> Spec -> Build -> Review -> Verify
 bash prismspec/bin/guide.sh --json
 ```
 
-PrismSpec is not documentation ceremony, and it is not one rigid workflow for every task. It moves important AI coding decisions out of chat and into a resumable contract chain and evidence chain, then selects `plan` or `tdd` execution strength based on risk. The user-facing product blocks are backed by Agent Skills-compatible skill folders, command gates, and evidence:
+PrismSpec is not documentation ceremony, and it is not one rigid workflow for every task. It moves important AI coding decisions out of chat and into a resumable contract chain and evidence chain, then selects `plan` or `tdd` execution strength based on risk. The four primary user-facing product blocks are backed by Agent Skills-compatible skill folders, command gates, and evidence:
 
 | Block | Goal | Primary Artifacts |
 |---|---|---|
-| Clarify | Resolve intent, context basis, assumptions, conflicts, and blocking questions. | `spec.md#Context Basis` |
+| Clarify | Use `/clarify` grilling mode to resolve engineering boundaries, context basis, assumptions, conflicts, and blocking questions. | `status: clarifying` `spec.md`, `spec.md#Context Basis` |
 | Spec | Capture scope, non-goals, ACs, risks, mode, and verification plan. | `spec.md` |
 | Build | Plan and implement AC-traced slices with Plan/TDD/debugging evidence. | `plan.md`, task evidence, TDD/debug evidence |
-| Review | Independently inspect implementation evidence, diff, and quality risk. | `review.md` |
-| Verify | Prove completion with fresh commands or the Lattice pipeline. | `verify.md` |
+| Quality Gate | Inspect implementation evidence, diff, and quality risk first, then prove completion with fresh commands or the Lattice pipeline. | `review.md`, `verify.md` |
 
 Machine-side evidence such as task briefs, review packages, `review-summary.json`, eval run JSON, and TDD/debug evidence feeds the pipeline and recovery flow. It is not the primary human-readable artifact contract.
 
@@ -271,7 +270,9 @@ See [SUPPORT.md](SUPPORT.md) for support scope and troubleshooting details, and 
 | Check PrismSpec standalone health | `bash prismspec/bin/doctor.sh` |
 | Create an initial spec directory | `bash prismspec/bin/new.sh checkout-flow --template=service --mode=plan` |
 | Route the next PrismSpec step | `bash prismspec/bin/guide.sh --json` |
+| Clarify engineering boundaries | `/clarify checkout-flow` |
 | Lint the PrismSpec skill pack | `bash prismspec/bin/lint.sh prismspec skillpack` |
+| Regress skill trigger quality | `bash prismspec/bin/eval-skills.sh --all` |
 | Lint spec / plan / evidence | `bash prismspec/bin/lint.sh lattice/specs/<spec-id>` |
 | Run the full verification pipeline | `bash lattice/kernel/delivery/pipeline.sh --json-out` |
 | Run one gate | `bash lattice/kernel/delivery/pipeline.sh --only=spec-lint` |

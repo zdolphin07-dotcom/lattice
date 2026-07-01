@@ -1,0 +1,4 @@
+interface:
+  display_name: "PrismSpec Doubt Review"
+  short_description: "Challenge high-risk assumptions"
+  default_prompt: "Use $prismspec-doubt-review to challenge high-risk PrismSpec assumptions before implementation."

@@ -31,23 +31,22 @@ Rules:
 
 ## Product Block Contract
 
-PrismSpec exposes five product blocks for host UIs and release planning:
+PrismSpec exposes four primary product blocks for host UIs and release planning:
 
 ```text
-Clarify -> Spec -> Build -> Review -> Verify
+Clarify -> Spec -> Build -> Quality Gate
 ```
 
 These are product surfaces, not necessarily one skill folder each. `skillpack.yaml` maps each block to the underlying Agent Skills-compatible folders and evidence gates:
 
-- Clarify and Spec both use `prismspec-specification`, but Clarify focuses on context facts, assumptions, conflicts, and blocking questions; Spec focuses on approved scope, ACs, risk, mode, and verification plan.
-- Clarify records its result in the `spec.md` Context Basis section rather than a separate required artifact, matching Agent Skills' preference for small, self-contained task outputs.
-- Build composes `prismspec-planning`, `prismspec-implementation`, and `prismspec-debugging`.
-- Review uses `prismspec-review` plus `prismspec/agents/task-reviewer.md`.
-- Verify uses `prismspec-verification` and Lattice delivery gates.
+- Clarify uses `prismspec-grilling` with `prismspec-specification`: Clarify focuses on engineering boundaries, context facts, assumptions, conflicts, and blocking questions; Spec focuses on approved scope, ACs, risk, mode, and verification plan.
+- Clarify records its result in a `status: clarifying` `spec.md` and Context Basis rather than a separate required artifact, matching Agent Skills' preference for small, self-contained task outputs.
+- Build composes `prismspec-planning`, `prismspec-implementation`, and `prismspec-debugging`; it risk-loads support skills such as context engineering, source grounding, doubt review, and interface design only when needed.
+- Quality Gate composes `prismspec-review` and `prismspec-verification`: review inspects intent, diff, evidence, and risk before verification; verification proves the current repository state with fresh commands and Lattice delivery gates.
 
 Host integrations should present the product blocks to users, then route through `prismspec/bin/guide.sh --json` and the canonical skill paths declared in `skillpack.yaml`.
 
-The product block artifacts are the human-readable contract. Machine/process sidecars such as `review-summary.json`, `review-package.md`, task briefs, TDD/debug evidence, and eval run JSON can be collected by hosts, but they should not be promoted into separate user-facing stages.
+The product block artifacts are the human-readable contract. Quality Gate still produces two artifacts, `review.md` and `verify.md`, because they answer different questions. Machine/process sidecars such as `review-summary.json`, `review-package.md`, task briefs, TDD/debug evidence, and eval run JSON can be collected by hosts, but they should not be promoted into separate user-facing stages.
 
 ## Commercial Release Bar
 
@@ -63,10 +62,16 @@ A PrismSpec skill is publishable only when:
 
 ## What PrismSpec Does Not Copy
 
-Agent Skills is not a full SDD workflow. PrismSpec does not copy arbitrary skill names from Agent Skills examples. It uses Agent Skills to make each workflow stage portable and inspectable, while the stage model remains:
+Agent Skills is not a full SDD workflow. PrismSpec does not copy arbitrary skill names from Agent Skills examples. It uses Agent Skills to make each workflow stage portable and inspectable. The user-facing model is:
 
 ```text
-specification -> planning -> implementation(plan|tdd) -> review -> verification
+specification -> planning -> implementation(plan|tdd) -> quality gate
 ```
 
-Support skills such as `prismspec-debugging` and `prismspec-knowledge-capture` are invoked only when the main flow needs root-cause discipline or durable learning.
+Internally, Quality Gate remains two stages so evidence stays auditable:
+
+```text
+review -> verification
+```
+
+Support skills such as `prismspec-debugging`, `prismspec-knowledge-capture`, `prismspec-context-engineering`, `prismspec-source-grounding`, `prismspec-doubt-review`, and `prismspec-interface-design` are invoked only when the main flow needs their specific discipline.

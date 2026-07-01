@@ -158,7 +158,7 @@ bash prismspec/bin/lint.sh lattice/specs/checkout-flow spec
 ## 核心工作流
 
 ```text
-Intent -> Clarify -> Spec -> Build -> Review -> Verify
+Intent -> Clarify -> Spec -> Build -> Quality Gate
 ```
 
 `/prismspec` 是引导入口，不是额外阶段。它根据已有产物自动路由：
@@ -167,15 +167,14 @@ Intent -> Clarify -> Spec -> Build -> Review -> Verify
 bash prismspec/bin/guide.sh --json
 ```
 
-PrismSpec 的设计重点不是多一层文档，也不是一套流程打天下。它把 AI Coding 的关键决策离开对话窗口，进入可恢复的契约链和证据链；再根据任务风险选择 `plan` 或 `tdd` 执行强度。对用户呈现为五个产品板块，底层仍由 Agent Skills-compatible skill folders、命令 gates 和 evidence 驱动：
+PrismSpec 的设计重点不是多一层文档，也不是一套流程打天下。它把 AI Coding 的关键决策离开对话窗口，进入可恢复的契约链和证据链；再根据任务风险选择 `plan` 或 `tdd` 执行强度。对用户呈现为四个主要产品板块，底层仍由 Agent Skills-compatible skill folders、命令 gates 和 evidence 驱动：
 
 | Block | 目标 | 主要产物 |
 |---|---|---|
-| Clarify | 明确 intent、上下文依据、假设、冲突和阻塞问题 | `spec.md#Context Basis` |
+| Clarify | 通过 `/clarify` 的 grilling mode 明确工程边界、上下文依据、假设、冲突和阻塞问题 | `status: clarifying` 的 `spec.md`、`spec.md#Context Basis` |
 | Spec | 固化 scope、non-goals、AC、risk、mode 和验证计划 | `spec.md` |
 | Build | 拆 plan、执行 plan/TDD 切片、处理调试和任务证据 | `plan.md`、task evidence、TDD/debug evidence |
-| Review | 独立审查实现证据、diff 和质量风险 | `review.md` |
-| Verify | 运行真实命令或 Lattice pipeline 证明完成状态 | `verify.md` |
+| Quality Gate | 先审查实现证据、diff 和质量风险，再运行真实命令或 Lattice pipeline 证明完成状态 | `review.md`、`verify.md` |
 
 机器侧证据，例如 task brief、review package、`review-summary.json`、eval run JSON 和 TDD/debug evidence，属于 pipeline 与恢复机制的输入输出，不是人读主产物。
 
@@ -272,7 +271,9 @@ your-project/
 | 检查 PrismSpec standalone 健康度 | `bash prismspec/bin/doctor.sh` |
 | 创建初始 spec 目录 | `bash prismspec/bin/new.sh checkout-flow --template=service --mode=plan` |
 | 查看 PrismSpec 下一步 | `bash prismspec/bin/guide.sh --json` |
+| 澄清工程边界 | `/clarify checkout-flow` |
 | 校验 PrismSpec skill pack | `bash prismspec/bin/lint.sh prismspec skillpack` |
+| 回归 skill 触发质量 | `bash prismspec/bin/eval-skills.sh --all` |
 | 校验 spec / plan / evidence | `bash prismspec/bin/lint.sh lattice/specs/<spec-id>` |
 | 运行完整验证 pipeline | `bash lattice/kernel/delivery/pipeline.sh --json-out` |
 | 只运行某个 gate | `bash lattice/kernel/delivery/pipeline.sh --only=spec-lint` |

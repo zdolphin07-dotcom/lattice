@@ -70,7 +70,7 @@ flowchart TB
 
 | 组件 | 专业定义 | 关键产物 | 当前实现 |
 |------|----------|----------|----------|
-| PrismSpec | Spec Coding skill pack，负责把 intent 推进到 durable artifacts | `spec.md`、`plan.md`、debugging/review evidence、`verify.md` | `prismspec/skills/`、`prismspec/bin/new.sh`、`prismspec/bin/doctor.sh`、`prismspec/bin/guide.sh`、`prismspec/bin/lint.sh`、`prismspec/templates/` |
+| PrismSpec | Spec Coding skill pack，负责把 intent 推进到 durable artifacts | `spec.md`、`plan.md`、debugging/review evidence、`verify.md` | `prismspec/skills/`、`prismspec/bin/new.sh`、`prismspec/bin/doctor.sh`、`prismspec/bin/guide.sh`、`prismspec/bin/lint.sh`、`prismspec/bin/eval-skills.sh`、`prismspec/templates/` |
 | Orchestrator | Agent 控制面，负责阶段路由、状态推进、任务选择和 evidence gating | spec status、transition events、task evidence | `lattice/kernel/orchestrator/`、`spec-status.sh`、`task-next.sh`、`task-complete.sh`、`plan-lint.sh` |
 | Context | 项目上下文供给层，负责让 Agent 精准找到本次决策依据，并写入 `spec.md` Context Basis | context map、project knowledge、external map、selected facts | `lattice/context/`、`lattice/kernel/context/` |
 | Verification | 可复现验证面，负责运行 build/lint/test/drift/compliance 等 gates | gate output、pipeline result | `lattice/kernel/delivery/pipeline.sh`、`gates/` |

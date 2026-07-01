@@ -22,7 +22,7 @@ This skill aligns with Superpowers `writing-plans`: global constraints, concrete
 
 1. Read `spec.md` and identify ACs, scope, risks, and execution mode.
 2. Inspect enough code to locate implementation boundaries.
-3. Write a `Global Constraints` block with the exact project-wide rules copied from the spec: version floors, dependency limits, naming/copy rules, data formats, platform requirements, and invariants.
+3. Write a Chinese `全局约束` block with the exact project-wide rules copied from the spec: version floors, dependency limits, naming/copy rules, data formats, platform requirements, and invariants.
 4. Build dependency order and prefer thin vertical slices.
 5. Right-size each task so it carries its own test cycle and reviewer gate.
 6. Upgrade `plan -> tdd` when discovered risk requires red-test evidence.
@@ -39,13 +39,19 @@ This skill aligns with Superpowers `writing-plans`: global constraints, concrete
 Every `plan.md` must start with:
 
 ```markdown
-# <Feature Name> Implementation Plan
+# 实施计划：<功能或技术主题>
 
-**Goal:** <one-sentence outcome>
-**Architecture:** <2-3 sentences about the approach>
-**Execution mode:** plan | tdd
+**技术目标：** <一句话说明本轮实现要达成的工程结果>
+**实现策略：** <2-3 句话说明架构路径、关键取舍和边界>
+**执行模式：** plan | tdd
 
-## Global Constraints
+## 1. 来源
+
+- 技术方案：`lattice/specs/<spec-id>/spec.md`
+- 工作项：`<ticket-or-spec-id>`
+- 执行模式：`plan|tdd`
+
+## 2. 全局约束
 
 - <binding requirement copied verbatim from spec/context>
 - <exact value, format, version, invariant, or dependency constraint>
@@ -53,7 +59,7 @@ Every `plan.md` must start with:
 ---
 ```
 
-`Global Constraints` is the shared attention lens for implementers and reviewers. Do not place generic process rules there; copy only this spec's binding facts.
+`全局约束` is the shared attention lens for implementers and reviewers. Do not place generic process rules there; copy only this spec's binding facts. User-facing headings and field labels in `plan.md` should be Chinese; keep stable IDs, commands, file paths, and code identifiers unchanged.
 
 ## Task Right-Sizing
 
@@ -67,30 +73,33 @@ A task is the smallest unit that can be implemented, tested, reviewed, and recov
 ## Task Shape
 
 Use checkbox task rows so Lattice can track execution state. Every AC in `spec.md` must be referenced by at least one task.
+Place task rows under `## 3. 任务拆解`.
 
 ```markdown
+## 3. 任务拆解
+
 - [ ] T1: <short implementation title>
-  - Ref: AC-1, AC-2
-  - Mode: plan | tdd
-  - Scope: <one sentence; one thin vertical slice>
-  - Interfaces:
-    - Inputs: <request/event/file/config>
-    - Outputs: <response/state/artifact>
-    - Touched files/contracts: <module/api/schema/ui/config>
-  - Files: `<path>`, `<path>`
-  - Verification: `<exact command, test name, or gate>`
-  - Steps:
-    - [ ] Write or update `<test path>` for `<specific behavior>`.
-    - [ ] Run `<focused command>` and expect `<pass/fail reason>`.
-    - [ ] Change `<implementation path>` to produce `<exact output/state>`.
-    - [ ] Rerun `<focused command>` and expect `<pass>`.
-    - [ ] Run `<regression command>` or record no-test rationale.
-  - Evidence:
-    - Brief: `.lattice/sdd/<spec-id>/T1/brief.md`
-    - Review package: `.lattice/sdd/<spec-id>/T1/review-package.md`
-    - Implementer report: `.lattice/sdd/<spec-id>/T1/report.md`
-    - review artifact: `.lattice/sdd/<spec-id>/T1/review.md`
-  - Done when:
+  - 覆盖验收：AC-1, AC-2
+  - 模式：plan | tdd
+  - 范围：<一句话描述一个可独立实现、测试、评审的纵向切片>
+  - 接口契约：
+    - 输入：<request/event/file/config>
+    - 输出：<response/state/artifact>
+    - 依赖边界：<module/api/schema/ui/config>
+  - 涉及文件：`<path>`, `<path>`
+  - 验证方式：`<exact command, test name, or gate>`
+  - 执行步骤：
+    - [ ] 编写或更新 `<test path>`，覆盖 `<specific behavior>`。
+    - [ ] 运行 `<focused command>`，预期 `<pass/fail reason>`。
+    - [ ] 修改 `<implementation path>`，产出 `<exact output/state>`。
+    - [ ] 重新运行 `<focused command>`，预期通过。
+    - [ ] 运行 `<regression command>`，或记录无测试理由。
+  - 证据：
+    - 任务简报：`.lattice/sdd/<spec-id>/T1/brief.md`
+    - 评审包：`.lattice/sdd/<spec-id>/T1/review-package.md`
+    - 实施报告：`.lattice/sdd/<spec-id>/T1/report.md`
+    - 评审记录：`.lattice/sdd/<spec-id>/T1/review.md`
+  - 完成条件：
     - [ ] <observable condition>
 ```
 
@@ -98,13 +107,13 @@ For TDD tasks, list explicit `RED-{n}` tasks before implementation tasks:
 
 ```markdown
 - [ ] RED-1: <short red-test title>
-  - Ref: AC-1
-  - Expected failure: <why this should fail before implementation>
-  - Test file: `<path>`
-  - Verification: `<exact command or test name>`
-  - Expected command result: fail because `<missing behavior>`, not setup or syntax.
-  - Done when:
-    - [ ] Expected failure is captured in the related task evidence.
+  - 覆盖验收：AC-1
+  - 预期失败：<why this should fail before implementation>
+  - 测试文件：`<path>`
+  - 验证方式：`<exact command or test name>`
+  - 预期命令结果：失败原因应为 `<missing behavior>`，不是环境、语法或导入错误。
+  - 完成条件：
+    - [ ] 预期失败已记录到对应任务证据。
 ```
 
 ## Interfaces
@@ -164,7 +173,7 @@ Before reporting the plan ready, review it once as if you were the future task r
 - Plan is organized horizontally by layer when a vertical slice is possible.
 - TDD mode has implementation tasks before red-test tasks.
 - Verification says "run tests" without exact commands.
-- Plan omits `Global Constraints` or per-task `Interfaces`.
+- Plan omits `全局约束` or per-task `接口契约`.
 - A task cannot be reviewed from its brief, report, review package, and evidence alone.
 - TDD red task lacks the expected failure reason.
 

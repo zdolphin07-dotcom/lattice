@@ -218,6 +218,7 @@ copy_tree_files_if_not_exists() {
 
 copy_if_not_exists "$HARNESS_TEMPLATE_DIR/lattice/kernel/_lib.sh" "lattice/kernel/_lib.sh"
 copy_if_not_exists "$HARNESS_TEMPLATE_DIR/lattice/kernel/doctor.sh" "lattice/kernel/doctor.sh"
+copy_if_not_exists "$HARNESS_TEMPLATE_DIR/lattice/kernel/capabilities.sh" "lattice/kernel/capabilities.sh"
 copy_if_not_exists "$HARNESS_TEMPLATE_DIR/lattice/kernel/orchestrator/templates/spec-template.md" "lattice/kernel/orchestrator/templates/spec-template.md"
 copy_if_not_exists "$HARNESS_TEMPLATE_DIR/lattice/kernel/orchestrator/rules.md" "lattice/kernel/orchestrator/rules.md"
 copy_if_not_exists "$HARNESS_TEMPLATE_DIR/lattice/kernel/orchestrator/flow.yaml" "lattice/kernel/orchestrator/flow.yaml"
@@ -282,7 +283,7 @@ copy_tree_files_if_not_exists "$HARNESS_TEMPLATE_DIR/lattice/context" "lattice/c
 
 copy_if_not_exists "$HARNESS_TEMPLATE_DIR/lattice/skills/init.md" "lattice/skills/init.md"
 
-for f in init.md prismspec.md spec.md plan.md implement.md review.md verify.md capture.md; do
+for f in init.md prismspec.md build.md clarify.md spec.md plan.md implement.md review.md verify.md capture.md; do
   copy_if_not_exists "$HARNESS_TEMPLATE_DIR/.claude/commands/$f" ".claude/commands/$f"
 done
 
@@ -430,13 +431,16 @@ specs:
   default_execution_mode: "auto"
   allow_execution_mode_override: true
   required_sections:
-    - "Intent"
-    - "Scope"
-    - "Context"
-    - "Acceptance Criteria"
-    - "Design Decisions"
-    - "Execution Policy"
-    - "Verification Plan"
+    - "技术目标"
+    - "设计范围"
+    - "上下文依据"
+    - "架构设计"
+    - "接口契约"
+    - "核心不变量"
+    - "关键设计决策"
+    - "验收标准"
+    - "风险"
+    - "验证计划"
 
 testing:
   strategies:
@@ -562,6 +566,7 @@ echo "  .claude/commands/                — Slash commands"
 echo ""
 echo "Usage:"
 echo "  /prismspec \"requirement\" — Guided workflow with artifact-based resume"
+echo "  /clarify                — Clarify engineering boundaries before spec"
 echo "  /spec                    — Draft persistent context and spec"
 echo "  /plan                    — Create AC-traced plan"
 echo "  /implement               — Execute plan/tdd policy"

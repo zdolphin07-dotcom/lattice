@@ -1,0 +1,37 @@
+{
+  "schema_version": "prismspec.skill-evals/v1",
+  "skill": "prismspec-doubt-review",
+  "should_trigger": [
+    {
+      "prompt": "This migration is irreversible; challenge the assumptions before planning implementation.",
+      "reason": "Irreversible high-risk decision."
+    },
+    {
+      "prompt": "The feature touches permissions and money; perform a doubt review before accepting plan mode.",
+      "reason": "Security and money risk."
+    },
+    {
+      "prompt": "The agent is very confident this concurrency fix is safe, but we need an adversarial check.",
+      "reason": "Confident high-risk claim."
+    }
+  ],
+  "should_not_trigger": [
+    {
+      "prompt": "Fix a typo in README and run markdown lint.",
+      "reason": "Low-risk documentation change."
+    },
+    {
+      "prompt": "Run the build and record verify.md.",
+      "reason": "Verification stage."
+    },
+    {
+      "prompt": "Promote reusable knowledge after verification.",
+      "reason": "Knowledge capture."
+    }
+  ],
+  "assertions": [
+    "Extracts the high-risk claim and assumptions.",
+    "Challenges assumptions with cheap disconfirming checks.",
+    "Records whether to proceed, revise, upgrade to TDD, or block."
+  ]
+}

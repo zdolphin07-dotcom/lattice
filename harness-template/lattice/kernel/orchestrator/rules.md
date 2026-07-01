@@ -19,6 +19,7 @@ Use the returned `stage`, `mode`, `skill`, `spec_dir`, `run_dir`, and `verify_co
 |---------|-------|--------|
 | Requirement without spec | Specification | `lattice/specs/<spec-id>/spec.md` with Context Basis |
 | `/prismspec` | PrismSpec controller | Next stage from `guide.sh --json` |
+| `/clarify` | Grilling mode inside Specification | `status: clarifying` spec draft with engineering boundaries and open questions |
 | `/spec` | Specification skill | context basis and spec |
 | `/plan` | Planning skill | AC-traced `plan.md` |
 | `/implement` | Implementation skill | code, tests, task evidence |
@@ -43,6 +44,8 @@ Current code, tests, schemas, contracts, and command output override stale notes
 
 ### Specification
 
+- Use `prismspec-grilling` when engineering boundaries, artifact contracts, workflow state, compatibility, or verification are unclear. Ask one material question at a time and provide a recommended answer.
+- `status: clarifying` is allowed only for an unfinished Clarify draft. Formal specs must advance to `status: drafted` before planning.
 - Write `spec.md` with a Context Basis section.
 - Read `lattice/context/README.md` first when present.
 - Load only context that changes scope, AC, risk, interface, compatibility, or verification.

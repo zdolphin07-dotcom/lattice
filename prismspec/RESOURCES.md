@@ -8,7 +8,7 @@ PrismSpec 的公开资源包只保留三类内容：可安装 skills、可执行
 |------|------|------|
 | Skill pack contract | `prismspec/skillpack.yaml` | 机器可读的分发、入口、workflow、模板和 gate 契约 |
 | Canonical skills | `prismspec/skills/*/SKILL.md` | Specification、Planning、Implementation、Review、Verification 等阶段行为 |
-| Slash commands | `prismspec/commands/` | `/prismspec`、`/spec`、`/plan`、`/implement`、`/review`、`/verify`、`/capture` 入口 |
+| Slash commands | `prismspec/commands/` | `/prismspec`、`/clarify`、`/spec`、`/plan`、`/implement`、`/review`、`/verify`、`/capture` 入口 |
 | Spec templates | `prismspec/templates/` | 通用、lite、service、frontend、tdd 五类规格模板 |
 | Risk routing card | `prismspec/references/risk-routing-card.md` | 判断 `plan` / `tdd` 执行强度和证据要求 |
 | Alignment references | `prismspec/references/` | Superpowers、Agent Skills、DoD、review、TDD evidence 等对齐规则 |
@@ -16,7 +16,7 @@ PrismSpec 的公开资源包只保留三类内容：可安装 skills、可执行
 ## 推荐使用路径
 
 1. 先运行 `bash prismspec/bin/doctor.sh`，确认 skill pack 可用。
-2. 用 `bash prismspec/bin/new.sh <spec-id> --template=<type> --mode=auto` 创建 spec。
+2. 用 `/clarify` 或 `bash prismspec/bin/new.sh <spec-id> --template=<type> --mode=auto` 创建/澄清 spec draft。
 3. 运行 `bash prismspec/bin/guide.sh --spec=<spec-id> --json`，按当前产物路由下一步。
 4. 需要判断执行强度时，读取 `prismspec/references/risk-routing-card.md`。
 5. 完成后运行 `bash prismspec/bin/lint.sh <spec-dir>`，确认 artifact contract 可恢复。

@@ -1,19 +1,25 @@
 ---
 name: prismspec-workflow
-description: Orchestrates the PrismSpec AI coding workflow from intent to verified evidence. Use when the user asks for PrismSpec, /prismspec, SDD, spec-driven development, guided spec workflow, resuming an existing spec, choosing plan vs TDD mode, or running an AI coding task through specification, planning, implementation, review, and verification.
+description: Orchestrates the PrismSpec AI coding workflow from intent to verified evidence. Use when the user asks for PrismSpec, /prismspec, SDD, spec-driven development, guided spec workflow, resuming an existing spec such as checkout-flow from current files, choosing plan vs TDD mode, or running an AI coding task through specification, planning, implementation, review, and verification.
 ---
 
 # PrismSpec Workflow
 
 ## Overview
 
-Act as the lifecycle controller for PrismSpec. Route work through the smallest complete chain:
+Act as the lifecycle controller for PrismSpec. Present the user-facing chain as:
 
 ```text
-specification -> planning -> implementation(plan|tdd) -> review -> verification
+specification -> planning -> implementation(plan|tdd) -> quality gate
 ```
 
-This skill is a controller, not an extra phase. Delegate stage work to the stage skills.
+The quality gate is one product action with two internal gates:
+
+```text
+review -> verification
+```
+
+This skill is a controller, not an extra phase. Delegate stage work to the stage skills. Do not merge review and verification evidence: review writes `review.md`; verification writes `verify.md`.
 
 Read `prismspec/references/superpowers-alignment.md` when workflow behavior is unclear. PrismSpec should not invent a parallel workflow when a mature Superpowers skill already covers the discipline; preserve PrismSpec artifact locations and Lattice gates as the override.
 
@@ -45,6 +51,8 @@ Use the JSON fields as the routing source of truth: `host`, `spec_id`, `stage`, 
 | `review` | `prismspec-review` | `review.md` |
 | `verification` | `prismspec-verification` | `verify.md` |
 
+User-facing `quality gate` means: run or repair `review.md` first; if review has `fail` or `cannot_verify`, stop; otherwise run command-backed verification and write `verify.md`.
+
 After each completed stage, rerun `guide.sh --json` and continue when the next step is clear.
 
 ## Superpowers Alignment
@@ -61,6 +69,15 @@ When Superpowers is installed or explicitly requested, use its mature workflow s
 | failure/debugging path | `superpowers:systematic-debugging` |
 
 PrismSpec's main workflow ends at command-backed verification; durable lessons move through `/capture`.
+
+Support skills are risk-loaded, not new stages:
+
+| Support Skill | Load When |
+|---|---|
+| `prismspec-context-engineering` | Project knowledge, hidden constraints, or history affect Context Basis |
+| `prismspec-source-grounding` | External APIs, SDKs, platforms, models, or standards may be stale |
+| `prismspec-doubt-review` | High-risk assumptions need adversarial checks |
+| `prismspec-interface-design` | API, schema, event, state, error, or module boundary contracts change |
 
 Do not copy Superpowers output paths blindly. For PrismSpec/Lattice work, write `spec.md`, `plan.md`, task evidence, `review.md`, and `verify.md` in the routed PrismSpec locations. Context Basis belongs inside `spec.md`.
 

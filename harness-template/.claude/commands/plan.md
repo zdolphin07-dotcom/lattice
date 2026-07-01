@@ -1,6 +1,6 @@
 Run Lattice Planning for an existing spec.
 
-Execute `prismspec/skills/plan/SKILL.md`.
+Execute `prismspec/skills/prismspec-planning/SKILL.md`.
 
 ## Core behavior
 

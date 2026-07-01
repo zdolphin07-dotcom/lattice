@@ -89,6 +89,7 @@ check_manifest_eq ".kernel.layers.delivery" "true" "verification capability"
 check_file "lattice/config/failure-categories.yaml" "failure category config"
 check_file "lattice/kernel/VERSION" "kernel version"
 check_file "lattice/kernel/_lib.sh" "kernel library"
+check_executable "lattice/kernel/capabilities.sh" "runtime capabilities"
 check_dir "lattice/specs" "spec root"
 check_file "lattice/context/README.md" "context map"
 check_file "lattice/context/external.md" "external context map"
@@ -109,8 +110,14 @@ check_executable "prismspec/bin/new.sh" "PrismSpec new"
 check_executable "prismspec/bin/guide.sh" "PrismSpec guide"
 check_executable "prismspec/bin/lint.sh" "PrismSpec lint"
 check_executable "prismspec/bin/doctor.sh" "PrismSpec doctor"
+check_executable "prismspec/bin/eval-skills.sh" "PrismSpec skill eval"
 check_command "PrismSpec skillpack contract lint" bash "$PROJECT_ROOT/prismspec/bin/lint.sh" "$PROJECT_ROOT/prismspec" skillpack
+check_command "PrismSpec skill eval" bash "$PROJECT_ROOT/prismspec/bin/eval-skills.sh" --root="$PROJECT_ROOT/prismspec" --all
 check_command "PrismSpec standalone doctor" bash "$PROJECT_ROOT/prismspec/bin/doctor.sh"
+echo ""
+
+echo "── Runtime capabilities ──"
+check_command "Lattice capability declaration" bash "$PROJECT_ROOT/lattice/kernel/capabilities.sh" --json
 echo ""
 
 echo "── Delivery contract ──"
@@ -156,7 +163,7 @@ check_dir "lattice/state/knowledge-reviews" "knowledge review event root"
 echo ""
 
 echo "── Agent commands ──"
-for command in prismspec spec plan implement review verify capture; do
+for command in prismspec build spec plan implement quality review verify capture; do
   if [[ -f "$PROJECT_ROOT/.claude/commands/${command}.md" ]]; then
     pass ".claude command: $command"
   else

@@ -44,6 +44,7 @@ extract_section() {
     /^##[[:space:]]+/ {
       title = $0
       sub(/^##+[[:space:]]+/, "", title)
+      sub(/^[0-9]+[.、][[:space:]]*/, "", title)
       title = trim(title)
       if (tolower(title) == tolower(heading)) { in_section = 1; next }
       if (in_section) exit
@@ -59,11 +60,23 @@ section_exists() {
     /^##[[:space:]]+/ {
       title = $0
       sub(/^##+[[:space:]]+/, "", title)
+      sub(/^[0-9]+[.、][[:space:]]*/, "", title)
       title = trim(title)
       if (tolower(title) == tolower(heading)) found = 1
     }
     END { exit found ? 0 : 1 }
   ' "$file"
+}
+
+section_exists_any() {
+  local headings="$1" file="$2" heading
+  IFS='|' read -r -a heading_list <<< "$headings"
+  for heading in "${heading_list[@]}"; do
+    if section_exists "$heading" "$file"; then
+      return 0
+    fi
+  done
+  return 1
 }
 
 task_lines() {
@@ -99,6 +112,7 @@ execution_mode() {
   local spec="$1" plan="$2" value
   value="$(grep -Eim1 '^execution_mode:[[:space:]]*(plan|tdd)' "$spec" 2>/dev/null | sed -E 's/.*execution_mode:[[:space:]]*//; s/[`"]//g' || true)"
   [[ -n "$value" ]] || value="$(grep -Eim1 'Execution mode:[[:space:]]*(plan|tdd)' "$plan" 2>/dev/null | sed -E 's/.*Execution mode:[[:space:]]*//; s/[`"]//g' || true)"
+  [[ -n "$value" ]] || value="$(grep -Eim1 '执行模式[[:space:]]*[:：][[:space:]]*(plan|tdd|`plan`|`tdd`)' "$plan" 2>/dev/null | sed -E 's/.*执行模式[[:space:]]*[:：][[:space:]]*//; s/[`"]//g' || true)"
   printf '%s' "${value:-unknown}"
 }
 
@@ -131,14 +145,14 @@ fi
 echo ""
 
 echo "── Section completeness ──"
-for section in "Source" "Global Constraints" "Tasks"; do
-  if section_exists "$section" "$PLAN_FILE"; then
+for section in "Source|来源" "Global Constraints|全局约束" "Tasks|任务拆解"; do
+  if section_exists_any "$section" "$PLAN_FILE"; then
     pass_msg "$section"
   else
     fail_msg "Missing section: $section"
   fi
 done
-if grep -qiE 'Verification|Evidence' "$PLAN_FILE"; then
+if grep -qiE 'Verification|Evidence|验证方式|证据' "$PLAN_FILE"; then
   pass_msg "Verification or evidence present"
 else
   fail_msg "Plan lacks verification/evidence language"
@@ -176,10 +190,10 @@ while IFS= read -r line; do
     EXPECTED_RED=$((EXPECTED_RED + 1))
     [[ "$FIRST_RED_LINE" -eq 0 ]] && FIRST_RED_LINE="$line_number"
     require_task_pattern "$task_id" "$body" 'AC-[0-9]+' "missing AC reference"
-    require_task_pattern "$task_id" "$body" 'Expected failure:' "missing Expected failure"
-    require_task_pattern "$task_id" "$body" 'Test file:' "missing Test file"
-    require_task_pattern "$task_id" "$body" 'Verification:' "missing Verification"
-    require_task_pattern "$task_id" "$body" 'Done when:' "missing Done when"
+    require_task_pattern "$task_id" "$body" '(Expected failure|预期失败)[[:space:]]*[:：]' "missing Expected failure"
+    require_task_pattern "$task_id" "$body" '(Test file|测试文件)[[:space:]]*[:：]' "missing Test file"
+    require_task_pattern "$task_id" "$body" '(Verification|验证方式)[[:space:]]*[:：]' "missing Verification"
+    require_task_pattern "$task_id" "$body" '(Done when|完成条件)[[:space:]]*[:：]' "missing Done when"
   elif [[ "$task_id" == T* ]]; then
     t_number="${task_id#T}"
     if [[ "$t_number" -ne "$EXPECTED_T" ]]; then
@@ -188,16 +202,16 @@ while IFS= read -r line; do
     EXPECTED_T=$((EXPECTED_T + 1))
     [[ "$FIRST_T_LINE" -eq 0 ]] && FIRST_T_LINE="$line_number"
     require_task_pattern "$task_id" "$body" 'AC-[0-9]+' "missing AC reference"
-    require_task_pattern "$task_id" "$body" 'Mode:[[:space:]]*(plan|tdd|`plan`|`tdd`)' "missing Mode"
-    require_task_pattern "$task_id" "$body" 'Scope:' "missing Scope"
-    require_task_pattern "$task_id" "$body" 'Verification:' "missing Verification"
-    require_task_pattern "$task_id" "$body" 'Files:|Touched files/contracts:' "missing files/contracts boundary"
-    require_task_pattern "$task_id" "$body" 'Evidence:' "missing Evidence"
-    require_task_pattern "$task_id" "$body" 'Brief:' "missing Evidence Brief"
-    require_task_pattern "$task_id" "$body" 'Review package:' "missing Evidence Review package"
-    require_task_pattern "$task_id" "$body" 'Done when:' "missing Done when"
+    require_task_pattern "$task_id" "$body" '(Mode|模式)[[:space:]]*[:：][[:space:]]*(plan|tdd|`plan`|`tdd`)' "missing Mode"
+    require_task_pattern "$task_id" "$body" '(Scope|范围)[[:space:]]*[:：]' "missing Scope"
+    require_task_pattern "$task_id" "$body" '(Verification|验证方式)[[:space:]]*[:：]' "missing Verification"
+    require_task_pattern "$task_id" "$body" '(Files|Touched files/contracts|涉及文件)[[:space:]]*[:：]' "missing files/contracts boundary"
+    require_task_pattern "$task_id" "$body" '(Evidence|证据)[[:space:]]*[:：]' "missing Evidence"
+    require_task_pattern "$task_id" "$body" '(Brief|任务简报)[[:space:]]*[:：]' "missing Evidence Brief"
+    require_task_pattern "$task_id" "$body" '(Review package|评审包)[[:space:]]*[:：]' "missing Evidence Review package"
+    require_task_pattern "$task_id" "$body" '(Done when|完成条件)[[:space:]]*[:：]' "missing Done when"
   fi
-  if grep -Eiq '\b(TODO|TBD|FIXME)\b|<[^>]+>|\{[^}]+\}' <<< "$body"; then
+  if grep -Eiq '\b(TODO|TBD|FIXME)\b|<[^>]+>|\{[A-Za-z_][A-Za-z0-9_-]*\}' <<< "$body"; then
     fail_msg "$task_id contains unresolved placeholder text"
   fi
 done < <(task_lines "$PLAN_FILE")

@@ -1,0 +1,37 @@
+{
+  "schema_version": "prismspec.skill-evals/v1",
+  "skill": "prismspec-interface-design",
+  "should_trigger": [
+    {
+      "prompt": "This feature changes an API response shape and error codes; define the contract before planning.",
+      "reason": "API boundary change."
+    },
+    {
+      "prompt": "The spec adds a database schema and state transition for orders.",
+      "reason": "Schema and state contract."
+    },
+    {
+      "prompt": "We need to change a module boundary used by multiple callers without breaking compatibility.",
+      "reason": "Module interface compatibility."
+    }
+  ],
+  "should_not_trigger": [
+    {
+      "prompt": "Run final verification and write verify.md.",
+      "reason": "Verification stage."
+    },
+    {
+      "prompt": "Capture a durable lesson from verify.md.",
+      "reason": "Knowledge capture."
+    },
+    {
+      "prompt": "Review task evidence after implementation.",
+      "reason": "Review stage."
+    }
+  ],
+  "assertions": [
+    "Defines boundary, consumers, inputs, outputs, errors, state, and invariants.",
+    "Separates behavior contract from implementation choices.",
+    "Maps interface rules to ACs and verification."
+  ]
+}

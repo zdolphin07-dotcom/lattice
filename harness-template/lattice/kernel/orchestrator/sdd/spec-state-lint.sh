@@ -90,15 +90,28 @@ OWNER="$(frontmatter_value "owner" "$SPEC_FILE")"
 CREATED_AT="$(frontmatter_value "created_at" "$SPEC_FILE")"
 UPDATED_AT="$(frontmatter_value "updated_at" "$SPEC_FILE")"
 
-for pair in \
-  "id:$ID" \
-  "status:$STATUS" \
-  "execution_mode:$EXECUTION_MODE" \
-  "mode_source:$MODE_SOURCE" \
-  "approval:$APPROVAL" \
-  "owner:$OWNER" \
-  "created_at:$CREATED_AT" \
-  "updated_at:$UPDATED_AT"; do
+if [[ "$STATUS" == "clarifying" ]]; then
+  REQUIRED_FRONTMATTER=(
+    "id:$ID"
+    "status:$STATUS"
+    "owner:$OWNER"
+    "created_at:$CREATED_AT"
+    "updated_at:$UPDATED_AT"
+  )
+else
+  REQUIRED_FRONTMATTER=(
+    "id:$ID"
+    "status:$STATUS"
+    "execution_mode:$EXECUTION_MODE"
+    "mode_source:$MODE_SOURCE"
+    "approval:$APPROVAL"
+    "owner:$OWNER"
+    "created_at:$CREATED_AT"
+    "updated_at:$UPDATED_AT"
+  )
+fi
+
+for pair in "${REQUIRED_FRONTMATTER[@]}"; do
   key="${pair%%:*}"
   value="${pair#*:}"
   if placeholder_like "$value"; then
@@ -107,29 +120,61 @@ for pair in \
     pass_msg "$key: $value"
   fi
 done
+if [[ "$STATUS" == "clarifying" ]]; then
+  for pair in \
+    "execution_mode:$EXECUTION_MODE" \
+    "mode_source:$MODE_SOURCE" \
+    "approval:$APPROVAL"; do
+    key="${pair%%:*}"
+    value="${pair#*:}"
+    if placeholder_like "$value"; then
+      warn_msg "front matter $key unresolved for status=clarifying"
+    else
+      pass_msg "$key: $value"
+    fi
+  done
+fi
 echo ""
 
 echo "── State contract ──"
 case "$STATUS" in
-  drafted|planned|implemented|verified) pass_msg "status is valid: $STATUS" ;;
-  *) fail_msg "status must be drafted, planned, implemented, or verified" ;;
+  clarifying|drafted|planned|implemented|verified) pass_msg "status is valid: $STATUS" ;;
+  *) fail_msg "status must be clarifying, drafted, planned, implemented, or verified" ;;
 esac
 
-case "$EXECUTION_MODE" in
-  plan|tdd) pass_msg "execution_mode is concrete: $EXECUTION_MODE" ;;
-  auto) fail_msg "execution_mode must be resolved to plan or tdd before implementation" ;;
-  *) fail_msg "execution_mode must be plan or tdd" ;;
-esac
+if [[ "$STATUS" == "clarifying" ]]; then
+  case "$EXECUTION_MODE" in
+    ""|auto|TBD|tbd) warn_msg "execution_mode may remain unresolved while clarifying" ;;
+    plan|tdd) pass_msg "execution_mode is concrete: $EXECUTION_MODE" ;;
+    *) fail_msg "execution_mode must be empty, auto, TBD, plan, or tdd while clarifying" ;;
+  esac
+  case "$MODE_SOURCE" in
+    ""|TBD|tbd) warn_msg "mode_source may remain unresolved while clarifying" ;;
+    model-selected|project-default|user-override) pass_msg "mode_source is valid: $MODE_SOURCE" ;;
+    *) fail_msg "mode_source must be unresolved or model-selected, project-default, or user-override" ;;
+  esac
+  case "$APPROVAL" in
+    ""|TBD|tbd) warn_msg "approval may remain unresolved while clarifying" ;;
+    explicit|inferred|skipped-with-reason) pass_msg "approval is valid: $APPROVAL" ;;
+    *) fail_msg "approval must be unresolved or explicit, inferred, or skipped-with-reason" ;;
+  esac
+else
+  case "$EXECUTION_MODE" in
+    plan|tdd) pass_msg "execution_mode is concrete: $EXECUTION_MODE" ;;
+    auto) fail_msg "execution_mode must be resolved to plan or tdd before implementation" ;;
+    *) fail_msg "execution_mode must be plan or tdd" ;;
+  esac
 
-case "$MODE_SOURCE" in
-  model-selected|project-default|user-override) pass_msg "mode_source is valid: $MODE_SOURCE" ;;
-  *) fail_msg "mode_source must be model-selected, project-default, or user-override" ;;
-esac
+  case "$MODE_SOURCE" in
+    model-selected|project-default|user-override) pass_msg "mode_source is valid: $MODE_SOURCE" ;;
+    *) fail_msg "mode_source must be model-selected, project-default, or user-override" ;;
+  esac
 
-case "$APPROVAL" in
-  explicit|inferred|skipped-with-reason) pass_msg "approval is valid: $APPROVAL" ;;
-  *) fail_msg "approval must be explicit, inferred, or skipped-with-reason" ;;
-esac
+  case "$APPROVAL" in
+    explicit|inferred|skipped-with-reason) pass_msg "approval is valid: $APPROVAL" ;;
+    *) fail_msg "approval must be explicit, inferred, or skipped-with-reason" ;;
+  esac
+fi
 
 if [[ "$CREATED_AT" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$ ]]; then
   pass_msg "created_at format"
@@ -176,6 +221,9 @@ fi
 
 if [[ "$STATUS" == "drafted" && -f "$PLAN_FILE" ]]; then
   warn_msg "plan.md exists but status is still drafted"
+fi
+if [[ "$STATUS" == "clarifying" && -f "$PLAN_FILE" ]]; then
+  warn_msg "plan.md exists but status is still clarifying"
 fi
 if [[ "$STATUS" == "planned" && -f "$VERIFY_FILE" ]]; then
   warn_msg "verify.md exists but status is still planned"

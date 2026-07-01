@@ -24,11 +24,12 @@ product_blocks:
     display_name: Clarify
     purpose: Resolve intent, context, assumptions, conflicts, and blocking questions before writing the spec.
     skills:
+      - prismspec/skills/prismspec-grilling/SKILL.md
       - prismspec/skills/prismspec-specification/SKILL.md
     artifacts:
       - spec.md#context-basis
     gates:
-      - prismspec/bin/lint.sh <spec-dir> spec
+      - lattice/kernel/orchestrator/sdd/spec-state-lint.sh <spec-id>
   - id: spec
     display_name: Spec
     purpose: Turn clarified intent into scoped, approved, AC-traced, risk-aware specification.
@@ -53,27 +54,21 @@ product_blocks:
     gates:
       - lattice/kernel/orchestrator/sdd/plan-lint.sh
       - lattice/kernel/orchestrator/sdd/task-evidence-lint.sh
-  - id: review
-    display_name: Review
-    purpose: Independently inspect implementation evidence and diff before verification.
+  - id: quality
+    display_name: Quality Gate
+    purpose: Run review and verification as one user-facing gate while preserving separate review and command-backed evidence.
     skills:
       - prismspec/skills/prismspec-review/SKILL.md
+      - prismspec/skills/prismspec-verification/SKILL.md
     artifacts:
       - review.md
+      - verify.md
     evidence_sidecars:
       - review-summary.json
       - review-package.md
-    gates:
-      - lattice/kernel/orchestrator/sdd/review-summary.sh
-  - id: verify
-    display_name: Verify
-    purpose: Prove completion with fresh command output, pipeline gates, eval evidence, and residual-risk recording.
-    skills:
-      - prismspec/skills/prismspec-verification/SKILL.md
-    artifacts:
-      - verify.md
       - eval run JSON
     gates:
+      - lattice/kernel/orchestrator/sdd/review-summary.sh
       - lattice/kernel/delivery/pipeline.sh
 entrypoints:
   command: prismspec/commands/prismspec.md
@@ -81,16 +76,23 @@ entrypoints:
   router: prismspec/bin/guide.sh
   lint: prismspec/bin/lint.sh
   doctor: prismspec/bin/doctor.sh
+  skill_eval: prismspec/bin/eval-skills.sh
 commands:
   canonical:
     - id: prismspec
       path: prismspec/commands/prismspec.md
+    - id: build
+      path: prismspec/commands/build.md
+    - id: clarify
+      path: prismspec/commands/clarify.md
     - id: spec
       path: prismspec/commands/spec.md
     - id: plan
       path: prismspec/commands/plan.md
     - id: implement
       path: prismspec/commands/implement.md
+    - id: quality
+      path: prismspec/commands/quality.md
     - id: review
       path: prismspec/commands/review.md
     - id: verify
@@ -131,6 +133,26 @@ skills:
       type: support
       path: prismspec/skills/prismspec-debugging/SKILL.md
       interface: prismspec/skills/prismspec-debugging/agents/openai.yaml
+    - id: context-engineering
+      type: support
+      path: prismspec/skills/prismspec-context-engineering/SKILL.md
+      interface: prismspec/skills/prismspec-context-engineering/agents/openai.yaml
+    - id: grilling
+      type: support
+      path: prismspec/skills/prismspec-grilling/SKILL.md
+      interface: prismspec/skills/prismspec-grilling/agents/openai.yaml
+    - id: source-grounding
+      type: support
+      path: prismspec/skills/prismspec-source-grounding/SKILL.md
+      interface: prismspec/skills/prismspec-source-grounding/agents/openai.yaml
+    - id: doubt-review
+      type: support
+      path: prismspec/skills/prismspec-doubt-review/SKILL.md
+      interface: prismspec/skills/prismspec-doubt-review/agents/openai.yaml
+    - id: interface-design
+      type: support
+      path: prismspec/skills/prismspec-interface-design/SKILL.md
+      interface: prismspec/skills/prismspec-interface-design/agents/openai.yaml
 workflow:
   stages:
     - id: specification
@@ -189,7 +211,10 @@ references:
   superpowers_alignment: prismspec/references/superpowers-alignment.md
   agent_skills_alignment: prismspec/references/agent-skills-alignment.md
 reviewers:
+  spec: prismspec/agents/spec-reviewer.md
   task: prismspec/agents/task-reviewer.md
+  test: prismspec/agents/test-reviewer.md
+  risk: prismspec/agents/risk-reviewer.md
 contracts:
   standalone_spec_root: prismspec/specs
   lattice_spec_root: lattice/specs
@@ -206,5 +231,6 @@ quality_gates:
   - bash prismspec/bin/doctor.sh
   - bash prismspec/bin/new.sh --help
   - bash prismspec/bin/guide.sh --json
+  - bash prismspec/bin/eval-skills.sh --all
   - bash prismspec/bin/lint.sh prismspec skillpack
   - bash prismspec/bin/lint.sh <spec-dir>

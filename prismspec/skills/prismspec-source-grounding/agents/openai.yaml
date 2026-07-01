@@ -1,0 +1,4 @@
+interface:
+  display_name: "PrismSpec Source Grounding"
+  short_description: "Ground external facts in sources"
+  default_prompt: "Use $prismspec-source-grounding to verify external API and platform facts for this PrismSpec task."

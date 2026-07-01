@@ -146,27 +146,30 @@ check_skillpack() {
   check_contains "$manifest" '^[[:space:]]+router: prismspec/bin/guide\.sh$' "skillpack router entrypoint"
   check_contains "$manifest" '^[[:space:]]+lint: prismspec/bin/lint\.sh$' "skillpack lint entrypoint"
   check_contains "$manifest" '^[[:space:]]+doctor: prismspec/bin/doctor\.sh$' "skillpack doctor entrypoint"
+  check_contains "$manifest" '^[[:space:]]+skill_eval: prismspec/bin/eval-skills\.sh$' "skillpack skill eval entrypoint"
   check_contains "$manifest" 'bash prismspec/bin/doctor\.sh' "skillpack doctor gate"
   check_contains "$manifest" 'bash prismspec/bin/new\.sh --help' "skillpack new gate"
+  check_contains "$manifest" 'bash prismspec/bin/eval-skills\.sh --all' "skillpack skill eval gate"
   check_contains "$manifest" 'bash prismspec/bin/lint\.sh prismspec skillpack' "skillpack self lint gate"
 
   local command
-  for command in prismspec spec plan implement review verify capture; do
+  for command in prismspec build clarify spec plan implement quality review verify capture; do
     check_file "$root/commands/$command.md" "$command command"
   done
   local block
-  for block in clarify spec build review verify; do
+  for block in clarify spec build quality; do
     check_contains "$manifest" "^[[:space:]]+- id: $block$" "$block product block"
   done
   check_contains "$manifest" 'display_name: Clarify' "Clarify display name"
-  check_contains "$manifest" 'display_name: Verify' "Verify display name"
+  check_contains "$manifest" 'display_name: Quality Gate' "Quality Gate display name"
   check_executable "$root/bin/new.sh" "new"
   check_executable "$root/bin/guide.sh" "guide"
   check_executable "$root/bin/lint.sh" "lint"
   check_executable "$root/bin/doctor.sh" "doctor"
+  check_executable "$root/bin/eval-skills.sh" "skill eval"
 
   local stage
-  for stage in workflow specification planning implementation review verification knowledge-capture debugging; do
+  for stage in workflow specification planning implementation review verification knowledge-capture debugging context-engineering grilling source-grounding doubt-review interface-design; do
     local skill_dir
     skill_dir="$(skill_dir_for_stage "$stage")"
     check_skill_file "$root" "$stage"
@@ -191,8 +194,14 @@ check_skillpack() {
   for reference in mode-selection.md definition-of-done.md spec-quality-checklist.md tdd-evidence-checklist.md review-evidence-checklist.md superpowers-alignment.md agent-skills-alignment.md; do
     check_file "$root/references/$reference" "reference"
   done
+  check_file "$root/agents/spec-reviewer.md" "spec reviewer"
   check_file "$root/agents/task-reviewer.md" "task reviewer"
+  check_file "$root/agents/test-reviewer.md" "test reviewer"
+  check_file "$root/agents/risk-reviewer.md" "risk reviewer"
+  check_contains "$manifest" '^[[:space:]]+spec: prismspec/agents/spec-reviewer\.md$' "spec reviewer catalog entry"
   check_contains "$manifest" '^[[:space:]]+task: prismspec/agents/task-reviewer\.md$' "task reviewer catalog entry"
+  check_contains "$manifest" '^[[:space:]]+test: prismspec/agents/test-reviewer\.md$' "test reviewer catalog entry"
+  check_contains "$manifest" '^[[:space:]]+risk: prismspec/agents/risk-reviewer\.md$' "risk reviewer catalog entry"
 
   local flat_count
   flat_count=$(find "$root/skills" -maxdepth 1 -type f -name '*.md' -not -name 'README.md' 2>/dev/null | wc -l | tr -d ' ')
@@ -241,8 +250,8 @@ check_spec() {
   grep -qiE 'execution[_ -]?mode|Mode:[[:space:]]*`?(plan|tdd)|mode:[[:space:]]*`?(plan|tdd)' "$SPEC_FILE" || bad "spec.md has no execution mode"
   grep -qiE '\b(plan|tdd)\b' "$SPEC_FILE" || bad "spec.md execution mode must be plan or tdd"
   grep -qiE '^approval:[[:space:]]*(explicit|inferred|skipped-with-reason)[[:space:]]*$|Status:[[:space:]]*(explicit|inferred|skipped-with-reason)' "$SPEC_FILE" || bad "spec.md has no approval status"
-  contains_heading "$SPEC_FILE" 'Intent|Objective|Goal|Background' || bad "spec.md missing intent/objective section"
-  contains_heading "$SPEC_FILE" 'Scope' || bad "spec.md missing scope section"
+  contains_heading "$SPEC_FILE" 'Intent|Objective|Goal|Background|技术目标|目标|背景' || bad "spec.md missing intent/objective section"
+  contains_heading "$SPEC_FILE" 'Scope|设计范围|范围|边界' || bad "spec.md missing scope section"
   contains_heading "$SPEC_FILE" 'Context|Context Basis|上下文依据' || bad "spec.md missing Context Basis section"
   contains_heading "$SPEC_FILE" 'Risk|风险' || bad "spec.md missing risk section"
   contains_heading "$SPEC_FILE" 'Verification|Test Strategy|验证|测试' || bad "spec.md missing verification/test section"
@@ -256,14 +265,14 @@ check_plan() {
   grep -qE 'AC-[0-9]+' "$PLAN_FILE" || bad "plan.md has no AC references"
   grep -qiE 'verify|verification|test|lint|build|验证|测试' "$PLAN_FILE" || bad "plan.md has no verification steps"
   grep -qE '(^|[[:space:]])(T[0-9]+|RED-[0-9]+)[:.) -]' "$PLAN_FILE" || bad "plan.md has no stable task ids"
-  grep -qiE 'Mode:[[:space:]]*`?(plan|tdd)' "$PLAN_FILE" || bad "plan.md tasks have no Mode"
-  grep -qiE 'Scope:' "$PLAN_FILE" || bad "plan.md tasks have no Scope"
-  grep -qiE 'Evidence:' "$PLAN_FILE" || bad "plan.md tasks have no Evidence block"
-  grep -qiE 'Brief:' "$PLAN_FILE" || bad "plan.md tasks have no Brief evidence path"
-  grep -qiE 'Review package:' "$PLAN_FILE" || bad "plan.md tasks have no Review package evidence path"
-  grep -qiE 'Done when:' "$PLAN_FILE" || bad "plan.md tasks have no Done when condition"
+  grep -qiE '(Mode|模式)[[:space:]]*[:：][[:space:]]*`?(plan|tdd)' "$PLAN_FILE" || bad "plan.md tasks have no Mode"
+  grep -qiE '(Scope|范围)[[:space:]]*[:：]' "$PLAN_FILE" || bad "plan.md tasks have no Scope"
+  grep -qiE '(Evidence|证据)[[:space:]]*[:：]' "$PLAN_FILE" || bad "plan.md tasks have no Evidence block"
+  grep -qiE '(Brief|任务简报)[[:space:]]*[:：]' "$PLAN_FILE" || bad "plan.md tasks have no Brief evidence path"
+  grep -qiE '(Review package|评审包)[[:space:]]*[:：]' "$PLAN_FILE" || bad "plan.md tasks have no Review package evidence path"
+  grep -qiE '(Done when|完成条件)[[:space:]]*[:：]' "$PLAN_FILE" || bad "plan.md tasks have no Done when condition"
 
-  if grep -qiE 'execution[_ -]?mode:[[:space:]]*tdd|Mode:[[:space:]]*`?tdd' "$SPEC_FILE" 2>/dev/null; then
+  if grep -qiE 'execution[_ -]?mode:[[:space:]]*tdd|Mode:[[:space:]]*`?tdd|执行模式[[:space:]]*[:：][[:space:]]*`?tdd' "$SPEC_FILE" "$PLAN_FILE" 2>/dev/null; then
     grep -qE 'RED-[0-9]+|red test|failing test|红灯|失败测试' "$PLAN_FILE" || bad "tdd spec requires red-test tasks in plan.md"
   fi
 

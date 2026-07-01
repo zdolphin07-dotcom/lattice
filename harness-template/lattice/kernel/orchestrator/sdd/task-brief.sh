@@ -24,10 +24,26 @@ mkdir -p "$TASK_DIR"
 OUT="${OUT:-$TASK_DIR/brief.md}"
 
 extract_section() {
-  local heading="$1" file="$2"
-  awk -v heading="$heading" '
-    $0 ~ "^## " heading "$" { in_section=1; print; next }
-    in_section && /^## / { exit }
+  local headings="$1" file="$2"
+  awk -v headings="$headings" '
+    function trim(s) { gsub(/^[[:space:]]+|[[:space:]]+$/, "", s); return s }
+    function normalize(s) {
+      sub(/^##+[[:space:]]+/, "", s)
+      sub(/^[0-9]+[.、][[:space:]]*/, "", s)
+      return trim(s)
+    }
+    BEGIN { split(headings, wanted, "|") }
+    /^##[[:space:]]+/ {
+      title = normalize($0)
+      for (i in wanted) {
+        if (tolower(title) == tolower(wanted[i])) {
+          in_section=1
+          print
+          next
+        }
+      }
+      if (in_section) exit
+    }
     in_section { print }
   ' "$file"
 }
@@ -36,46 +52,46 @@ extract_task() {
   local task_id="$1" file="$2"
   awk -v task_id="$task_id" '
     $0 ~ "^- \\[[ xX]\\] " task_id ":" { in_task=1; print; next }
-    in_task && /^- \[[ xX]\] [A-Z]+-[0-9]+:/ { exit }
-    in_task && /^## / { exit }
+    in_task && /^- \[[ xX]\] (T[0-9]+|RED-[0-9]+):/ { exit }
+    in_task && /^##[[:space:]]+/ { exit }
     in_task { print }
   ' "$file"
 }
 
 {
-  echo "# Task Brief: $SPEC_ID / $TASK_ID"
+  echo "# 任务简报：$SPEC_ID / $TASK_ID"
   echo ""
-  echo "## Source"
+  echo "## 来源"
   echo ""
-  echo "- Spec: \`lattice/specs/$SPEC_ID/spec.md\`"
-  echo "- Plan: \`lattice/specs/$SPEC_ID/plan.md\`"
-  echo "- Task: \`$TASK_ID\`"
+  echo "- 技术方案：\`lattice/specs/$SPEC_ID/spec.md\`"
+  echo "- 实施计划：\`lattice/specs/$SPEC_ID/plan.md\`"
+  echo "- 当前任务：\`$TASK_ID\`"
   echo ""
-  echo "## Intent"
+  echo "## 技术目标"
   echo ""
-  extract_section "Intent" "$SPEC_FILE" | sed '1d'
+  extract_section "技术目标|Intent|Objective|Goal" "$SPEC_FILE" | sed '1d'
   echo ""
-  echo "## Execution Policy"
+  echo "## 执行策略"
   echo ""
-  extract_section "Execution Policy" "$SPEC_FILE" | sed '1d'
+  extract_section "执行策略|Execution Policy" "$SPEC_FILE" | sed '1d'
   echo ""
-  echo "## Global Constraints"
+  echo "## 全局约束"
   echo ""
-  extract_section "Global Constraints" "$PLAN_FILE" | sed '1d'
+  extract_section "全局约束|Global Constraints" "$PLAN_FILE" | sed '1d'
   echo ""
-  echo "## Task"
+  echo "## 当前任务"
   echo ""
   extract_task "$TASK_ID" "$PLAN_FILE"
   echo ""
-  echo "## Acceptance Criteria"
+  echo "## 验收标准"
   echo ""
-  extract_section "Acceptance Criteria" "$SPEC_FILE" | sed '1d'
+  extract_section "验收标准|Acceptance Criteria" "$SPEC_FILE" | sed '1d'
   echo ""
-  echo "## Review Contract"
+  echo "## 评审契约"
   echo ""
-  echo "- Keep changes scoped to this task and its referenced ACs."
-  echo "- If the task cannot be verified from local files or tests, say so explicitly."
-  echo "- Do not weaken tests, scope, or acceptance criteria to get green."
+  echo "- 改动必须限制在当前任务及其引用的 AC 范围内。"
+  echo "- 如果无法通过本地文件或测试验证，必须明确说明原因。"
+  echo "- 不得为了通过验证而削弱测试、范围或验收标准。"
 } > "$OUT"
 
 echo "$OUT"

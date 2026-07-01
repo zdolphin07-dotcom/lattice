@@ -30,6 +30,57 @@ echo ""
 # ── 1. Required sections check ──
 echo "── Section completeness ──"
 
+section_pattern() {
+  local section="$1"
+  case "$section" in
+    Intent|Objective|Goal|技术目标|目标)
+      printf 'Intent|Objective|Goal|技术目标|目标'
+      ;;
+    Scope|设计范围|范围|边界)
+      printf 'Scope|设计范围|范围|边界'
+      ;;
+    Context|Context\ Basis|上下文依据)
+      printf 'Context|Context Basis|上下文依据'
+      ;;
+    Architecture|架构设计)
+      printf 'Architecture|架构设计'
+      ;;
+    Interface|接口契约)
+      printf 'Interface|接口契约'
+      ;;
+    Data|Consistency|数据与一致性设计)
+      printf 'Data|Consistency|数据与一致性设计'
+      ;;
+    Invariants|核心不变量)
+      printf 'Invariants|核心不变量'
+      ;;
+    Design\ Decisions|关键设计决策)
+      printf 'Design Decisions|关键设计决策'
+      ;;
+    Acceptance\ Criteria|验收标准)
+      printf 'Acceptance Criteria|验收标准'
+      ;;
+    Risk\ Notes|Risk|风险与降级|风险)
+      printf 'Risk Notes|Risk|风险与降级|风险'
+      ;;
+    Constraints|边界约束)
+      printf 'Constraints|边界约束'
+      ;;
+    Execution\ Policy|执行策略)
+      printf 'Execution Policy|执行策略'
+      ;;
+    Verification\ Plan|验证计划)
+      printf 'Verification Plan|验证计划'
+      ;;
+    Approval|审批状态)
+      printf 'Approval|审批状态'
+      ;;
+    *)
+      printf '%s' "$section"
+      ;;
+  esac
+}
+
 SECTION_COUNT=$(yq '.specs.required_sections | length // 0' "$MANIFEST" 2>/dev/null || echo 0)
 SPEC_PROFILE="lattice"
 
@@ -52,7 +103,8 @@ else
 fi
 
 for section in "${REQUIRED_SECTIONS[@]}"; do
-  if grep -qi "$section" "$SPEC"; then
+  pattern="$(section_pattern "$section")"
+  if grep -qiE "$pattern" "$SPEC"; then
     pass "$section"
   else
     fail "Missing section: $section"

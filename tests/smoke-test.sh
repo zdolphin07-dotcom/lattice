@@ -153,6 +153,7 @@ if bash "$SANDBOX/.lattice/framework/init.sh" --non-interactive --lang=go --name
   fi
 
   if [[ -f "$SANDBOX/lattice/kernel/_lib.sh" ]] \
+    && [[ -x "$SANDBOX/lattice/kernel/capabilities.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/delivery/eval-summary.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/delivery/eval-history.sh" ]] \
     && [[ -x "$SANDBOX/lattice/kernel/delivery/eval-sink.sh" ]] \
@@ -178,6 +179,15 @@ if bash "$SANDBOX/.lattice/framework/init.sh" --non-interactive --lang=go --name
     pass "kernel files installed"
   else
     fail "kernel files not installed"
+  fi
+
+  if bash "$SANDBOX/lattice/kernel/capabilities.sh" --json > "$SANDBOX/capabilities.json" \
+    && yq -e '.schema_version == "lattice.capabilities.v1"' "$SANDBOX/capabilities.json" >/dev/null 2>&1 \
+    && yq -e '.tools[] | select(.id == "guide")' "$SANDBOX/capabilities.json" >/dev/null 2>&1 \
+    && yq -e '.metrics[] | select(.id == "ac_coverage")' "$SANDBOX/capabilities.json" >/dev/null 2>&1; then
+    pass "runtime capabilities contract available"
+  else
+    fail "runtime capabilities contract missing or invalid"
   fi
 
   if [[ -x "$SANDBOX/lattice/kernel/doctor.sh" ]]; then
@@ -223,7 +233,7 @@ if bash "$SANDBOX/.lattice/framework/init.sh" --non-interactive --lang=go --name
     fail "GitHub Actions eval workflow missing or invalid"
   fi
 
-  for command in prismspec spec plan implement review verify capture; do
+  for command in prismspec build clarify spec plan implement review verify capture; do
     if [[ -f "$SANDBOX/.claude/commands/${command}.md" ]]; then
       pass "$command slash command installed"
     else
@@ -240,10 +250,16 @@ if bash "$SANDBOX/.lattice/framework/init.sh" --non-interactive --lang=go --name
     && [[ -f "$SANDBOX/prismspec/skills/prismspec-verification/SKILL.md" ]] \
     && [[ -f "$SANDBOX/prismspec/skills/prismspec-knowledge-capture/SKILL.md" ]] \
     && [[ -f "$SANDBOX/prismspec/skills/prismspec-debugging/SKILL.md" ]] \
+    && [[ -f "$SANDBOX/prismspec/skills/prismspec-context-engineering/SKILL.md" ]] \
+    && [[ -f "$SANDBOX/prismspec/skills/prismspec-grilling/SKILL.md" ]] \
+    && [[ -f "$SANDBOX/prismspec/skills/prismspec-source-grounding/SKILL.md" ]] \
+    && [[ -f "$SANDBOX/prismspec/skills/prismspec-doubt-review/SKILL.md" ]] \
+    && [[ -f "$SANDBOX/prismspec/skills/prismspec-interface-design/SKILL.md" ]] \
     && [[ -x "$SANDBOX/prismspec/bin/new.sh" ]] \
     && [[ -x "$SANDBOX/prismspec/bin/guide.sh" ]] \
     && [[ -x "$SANDBOX/prismspec/bin/lint.sh" ]] \
     && [[ -x "$SANDBOX/prismspec/bin/doctor.sh" ]] \
+    && [[ -x "$SANDBOX/prismspec/bin/eval-skills.sh" ]] \
     && [[ -f "$SANDBOX/prismspec/templates/spec-template.md" ]] \
     && [[ -f "$SANDBOX/prismspec/templates/spec-template-lite.md" ]] \
     && [[ -f "$SANDBOX/prismspec/templates/spec-template-service.md" ]] \
@@ -251,8 +267,13 @@ if bash "$SANDBOX/.lattice/framework/init.sh" --non-interactive --lang=go --name
     && [[ -f "$SANDBOX/prismspec/templates/spec-template-tdd.md" ]] \
     && [[ -f "$SANDBOX/prismspec/references/mode-selection.md" ]] \
     && [[ -f "$SANDBOX/prismspec/references/definition-of-done.md" ]] \
+    && [[ -f "$SANDBOX/prismspec/agents/spec-reviewer.md" ]] \
     && [[ -f "$SANDBOX/prismspec/agents/task-reviewer.md" ]] \
-    && [[ -f "$SANDBOX/prismspec/commands/prismspec.md" ]]; then
+    && [[ -f "$SANDBOX/prismspec/agents/test-reviewer.md" ]] \
+    && [[ -f "$SANDBOX/prismspec/agents/risk-reviewer.md" ]] \
+    && [[ -f "$SANDBOX/prismspec/commands/prismspec.md" ]] \
+    && [[ -f "$SANDBOX/prismspec/commands/build.md" ]] \
+    && [[ -f "$SANDBOX/prismspec/commands/clarify.md" ]]; then
     pass "PrismSpec deliverable module installed"
   else
     fail "PrismSpec standalone module missing"
@@ -297,8 +318,17 @@ if bash "$SANDBOX/.lattice/framework/init.sh" --non-interactive --lang=go --name
     echo "$PRISMSPEC_SKILLPACK_LINT_OUTPUT" | tail -20
   fi
 
+  PRISMSPEC_SKILL_EVAL_EXIT=0
+  PRISMSPEC_SKILL_EVAL_OUTPUT=$(bash "$SANDBOX/prismspec/bin/eval-skills.sh" --root="$SANDBOX/prismspec" --all 2>&1) || PRISMSPEC_SKILL_EVAL_EXIT=$?
+  if [[ $PRISMSPEC_SKILL_EVAL_EXIT -eq 0 ]] && echo "$PRISMSPEC_SKILL_EVAL_OUTPUT" | grep -q "Summary:"; then
+    pass "PrismSpec skill eval passes"
+  else
+    fail "PrismSpec skill eval failed"
+    echo "$PRISMSPEC_SKILL_EVAL_OUTPUT" | tail -20
+  fi
+
   FLAT_SKILL_COUNT=$(find "$SANDBOX/prismspec/skills" -maxdepth 1 -type f -name '*.md' -not -name 'README.md' | wc -l | tr -d ' ')
-  LATTICE_SDD_SKILL_COUNT=$(find "$SANDBOX/lattice/skills" -maxdepth 1 -type f \( -name 'prismspec.md' -o -name 'spec.md' -o -name 'plan.md' -o -name 'implement.md' -o -name 'review.md' -o -name 'verify.md' -o -name 'capture.md' \) | wc -l | tr -d ' ')
+  LATTICE_SDD_SKILL_COUNT=$(find "$SANDBOX/lattice/skills" -maxdepth 1 -type f \( -name 'prismspec.md' -o -name 'clarify.md' -o -name 'spec.md' -o -name 'plan.md' -o -name 'implement.md' -o -name 'review.md' -o -name 'verify.md' -o -name 'capture.md' \) | wc -l | tr -d ' ')
   if [[ "$FLAT_SKILL_COUNT" == "0" ]] && [[ "$LATTICE_SDD_SKILL_COUNT" == "0" ]]; then
     pass "SDD workflow has a single canonical skill source"
   else
@@ -458,6 +488,22 @@ Add a small behavior with AC tracing.
 | code / tests | No production code is required for this fixture. | Keep scope small and AC ids stable. |
 | open questions / conflicts | None. | No blocking decision required. |
 
+## Architecture
+
+Use the existing handler boundary. No new subsystem is required for this fixture.
+
+## Interface
+
+| Interface | Contract |
+|-----------|----------|
+| Handler | Create and get behavior must be observable through AC-named tests. |
+
+## Invariants
+
+| Invariant | Verification |
+|-----------|--------------|
+| AC ids remain stable and traceable. | spec-lint and ac-coverage fixtures |
+
 ## Acceptance Criteria
 
 | # | When | Then | Verification |
@@ -516,6 +562,42 @@ if [[ $SPEC_STATE_LINT_EXIT -eq 0 ]]; then
 else
   fail "spec-state-lint failed drafted spec state"
   echo "$SPEC_STATE_LINT_OUTPUT" | tail -20
+fi
+
+mkdir -p "$SANDBOX/lattice/specs/clarify-draft"
+cat > "$SANDBOX/lattice/specs/clarify-draft/spec.md" << 'CLARIFY_SPEC'
+---
+id: clarify-draft
+title: Clarify Draft
+status: clarifying
+owner: smoke
+created_at: 2026-06-26T00:00:00Z
+updated_at: 2026-06-26T00:00:00Z
+---
+
+# Spec: Clarify Draft
+
+## Intent
+
+Clarify engineering boundaries before formal specification.
+
+## Context Basis
+
+| Source | Constraint / Fact | Impact |
+|--------|-------------------|--------|
+| user request | Need a status=clarifying draft | Route remains specification |
+| open questions / conflicts | Which contract changes are in scope? | Blocks drafted spec |
+CLARIFY_SPEC
+CLARIFY_STATE_LINT_EXIT=0
+CLARIFY_STATE_LINT_OUTPUT=$(bash "$SANDBOX/lattice/kernel/orchestrator/sdd/spec-state-lint.sh" clarify-draft 2>&1) || CLARIFY_STATE_LINT_EXIT=$?
+CLARIFY_GUIDE_JSON=$(bash "$SANDBOX/prismspec/bin/guide.sh" --spec=clarify-draft --json)
+if [[ $CLARIFY_STATE_LINT_EXIT -eq 0 ]] \
+  && echo "$CLARIFY_GUIDE_JSON" | yq -e '.status == "clarifying" and .stage == "specification" and .route_reason == "clarifying_spec"' >/dev/null 2>&1; then
+  pass "clarifying spec routes to specification with relaxed state lint"
+else
+  fail "clarifying spec contract failed"
+  echo "$CLARIFY_STATE_LINT_OUTPUT" | tail -20
+  echo "$CLARIFY_GUIDE_JSON"
 fi
 
 mkdir -p "$SANDBOX/lattice/specs/bad-state"
@@ -713,7 +795,7 @@ else
 fi
 
 BRIEF_OUTPUT=$(bash "$SANDBOX/lattice/kernel/orchestrator/sdd/task-brief.sh" modern-feature T1 2>&1)
-if [[ -f "$SANDBOX/.lattice/sdd/modern-feature/T1/brief.md" ]] && grep -q "Global Constraints" "$SANDBOX/.lattice/sdd/modern-feature/T1/brief.md"; then
+if [[ -f "$SANDBOX/.lattice/sdd/modern-feature/T1/brief.md" ]] && grep -q "全局约束" "$SANDBOX/.lattice/sdd/modern-feature/T1/brief.md"; then
   pass "task-brief generates task evidence"
 else
   fail "task-brief did not generate expected evidence"
@@ -747,7 +829,7 @@ else
 fi
 
 BRIEF_OUTPUT_T2=$(bash "$SANDBOX/lattice/kernel/orchestrator/sdd/task-brief.sh" modern-feature T2 2>&1)
-if [[ -f "$SANDBOX/.lattice/sdd/modern-feature/T2/brief.md" ]] && grep -q "Global Constraints" "$SANDBOX/.lattice/sdd/modern-feature/T2/brief.md"; then
+if [[ -f "$SANDBOX/.lattice/sdd/modern-feature/T2/brief.md" ]] && grep -q "全局约束" "$SANDBOX/.lattice/sdd/modern-feature/T2/brief.md"; then
   pass "task-brief generates second task evidence"
 else
   fail "task-brief did not generate second task evidence"

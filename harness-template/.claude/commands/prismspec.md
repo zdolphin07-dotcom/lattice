@@ -1,6 +1,6 @@
 Run the guided PrismSpec AI coding workflow.
 
-Execute `prismspec/skills/workflow/SKILL.md`.
+Execute `prismspec/skills/prismspec-workflow/SKILL.md`.
 
 ## Core behavior
 

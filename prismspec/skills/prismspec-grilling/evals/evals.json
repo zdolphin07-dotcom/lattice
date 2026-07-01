@@ -1,0 +1,38 @@
+{
+  "schema_version": "prismspec.skill-evals/v1",
+  "skill": "prismspec-grilling",
+  "should_trigger": [
+    {
+      "prompt": "Use /clarify to grill this vague PrismSpec change before writing the spec.",
+      "reason": "Explicit clarify command."
+    },
+    {
+      "prompt": "Before drafting spec.md, ask me one engineering boundary question at a time and recommend defaults.",
+      "reason": "Grilling before specification."
+    },
+    {
+      "prompt": "This request may affect commands, lint, and workflow state; clarify the boundary before the spec.",
+      "reason": "Engineering boundary ambiguity."
+    }
+  ],
+  "should_not_trigger": [
+    {
+      "prompt": "The spec is approved; convert it into an AC-traced plan.md.",
+      "reason": "Planning stage."
+    },
+    {
+      "prompt": "Execute the next planned implementation task with TDD evidence.",
+      "reason": "Implementation stage."
+    },
+    {
+      "prompt": "Run the verification pipeline and write verify.md.",
+      "reason": "Verification stage."
+    }
+  ],
+  "assertions": [
+    "Asks exactly one material question at a time.",
+    "Provides a recommended answer with each question.",
+    "Inspects repo-observable facts before asking the user.",
+    "Records clarified boundaries in spec.md rather than a default grill.md artifact."
+  ]
+}

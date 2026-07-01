@@ -16,15 +16,14 @@ PrismSpec uses Agent Skills as a packaging and quality standard. It does not tre
 
 ## Product Blocks
 
-Lattice presents the workflow as five product blocks while keeping Agent Skills-compatible folders underneath:
+Lattice presents the workflow as four primary product blocks while keeping Agent Skills-compatible folders underneath:
 
 | Product Block | Primary Skill Folder | Durable Contract |
 |---|---|---|
-| Clarify | `prismspec-specification/` | `spec.md` Context Basis: selected facts, assumptions, conflicts, open questions |
+| Clarify | `prismspec-grilling/`, `prismspec-specification/` | `status: clarifying` `spec.md` and Context Basis: selected facts, assumptions, conflicts, open questions |
 | Spec | `prismspec-specification/` | approved `spec.md` with ACs, risks, mode, verification plan |
 | Build | `prismspec-planning/`, `prismspec-implementation/`, `prismspec-debugging/` | `plan.md`, task evidence, TDD/debug evidence |
-| Review | `prismspec-review/` | read-only `review.md` |
-| Verify | `prismspec-verification/` | `verify.md`, eval run JSON |
+| Quality Gate | `prismspec-review/`, `prismspec-verification/` | read-only `review.md`, command-backed `verify.md`, eval run JSON |
 
 The mapping is declared in `prismspec/skillpack.yaml` under `product_blocks`. Hosts should read that machine-readable block list instead of inferring UI sections from directory names.
 
@@ -37,24 +36,25 @@ name: prismspec-planning
 
 ## What Does Not Map
 
-Agent Skills does not define an AI coding lifecycle. PrismSpec keeps its own SDD lifecycle:
+Agent Skills does not define an AI coding lifecycle. PrismSpec presents this user-facing lifecycle:
 
 ```text
-specification -> planning -> implementation(plan|tdd) -> review -> verification
+specification -> planning -> implementation(plan|tdd) -> quality gate
 ```
 
-Superpowers supplies the proven workflow discipline for brainstorming, planning, TDD, debugging, review, and verification. PrismSpec adds durable artifacts, AC traceability, host-aware routing, and evidence gates.
+Internally, Quality Gate still routes through `review -> verification` so `review.md` and `verify.md` remain separate evidence. Superpowers supplies the proven workflow discipline for brainstorming, planning, TDD, debugging, review, and verification. PrismSpec adds durable artifacts, AC traceability, host-aware routing, and evidence gates.
 
 ## Commercial Readiness Checklist
 
 Before publishing PrismSpec skills:
 
-- `skillpack.yaml` must expose `product_blocks` for Clarify, Spec, Build, Review, and Verify.
+- `skillpack.yaml` must expose `product_blocks` for Clarify, Spec, Build, and Quality Gate.
 - Each skill directory name must match `SKILL.md` frontmatter `name`.
 - Each description must say when to use the skill and avoid overlapping adjacent stages.
 - Each skill must include `agents/openai.yaml`.
 - Each skill must include `evals/evals.json`.
 - `SKILL.md` must stay under 500 lines and link to references instead of embedding long background.
+- `bash prismspec/bin/eval-skills.sh --all` must pass so trigger fixtures and adjacent-stage collisions are checked.
 - `bash prismspec/bin/lint.sh prismspec skillpack` must pass.
 - `bash tests/smoke-test.sh` must pass before release.
 

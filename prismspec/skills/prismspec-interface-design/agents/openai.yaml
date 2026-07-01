@@ -1,0 +1,4 @@
+interface:
+  display_name: "PrismSpec Interface Design"
+  short_description: "Define API and boundary contracts"
+  default_prompt: "Use $prismspec-interface-design to define the interface contract before planning."

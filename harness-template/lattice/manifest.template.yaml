@@ -46,13 +46,16 @@ specs:
   default_execution_mode: "auto"
   allow_execution_mode_override: true
   required_sections:
-    - "Intent"
-    - "Scope"
-    - "Context"
-    - "Acceptance Criteria"
-    - "Design Decisions"
-    - "Execution Policy"
-    - "Verification Plan"
+    - "技术目标"
+    - "设计范围"
+    - "上下文依据"
+    - "架构设计"
+    - "接口契约"
+    - "核心不变量"
+    - "关键设计决策"
+    - "验收标准"
+    - "风险"
+    - "验证计划"
 
 testing:
   strategies:
